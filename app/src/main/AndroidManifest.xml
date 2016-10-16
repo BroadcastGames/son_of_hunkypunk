@@ -19,8 +19,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.andglkmod.hunkypunk"
-    android:versionCode="7"
-    android:versionName="0.9">
+    android:versionCode="8"
+    android:versionName="0.9.1">
 
     <supports-screens
         android:anyDensity="true"
@@ -86,6 +86,7 @@
                 <data android:mimeType="application/x-zmachine" />
                 <data android:mimeType="application/x-tads" />
                 <data android:mimeType="application/x-blorb;profile=zcode" />
+                <data android:mimeType="application/x-blorb" />
                 <data android:host="*" />
             </intent-filter>
 
@@ -98,6 +99,7 @@
 
                 <data android:scheme="file" />
                 <data android:mimeType="*/*" />
+
                 <data android:pathPattern=".*\\..*\\..*\\.z1" />
                 <data android:pathPattern=".*\\..*\\.z1" />
                 <data android:pathPattern=".*\\.z1" />
@@ -185,6 +187,26 @@
                 <data android:pathPattern=".*\\..*\\..*\\.ZBLB" />
                 <data android:pathPattern=".*\\..*\\.ZBLB" />
                 <data android:pathPattern=".*\\.ZBLB" />
+
+                <data android:pathPattern=".*\\..*\\..*\\.gblorb" />
+                <data android:pathPattern=".*\\..*\\.gblorb" />
+                <data android:pathPattern=".*\\.gblorb" />
+                <data android:pathPattern=".*\\..*\\..*\\.GBLORB" />
+                <data android:pathPattern=".*\\..*\\.GBLORB" />
+                <data android:pathPattern=".*\\.GBLORB" />
+                <data android:pathPattern=".*\\..*\\..*\\.gblb" />
+                <data android:pathPattern=".*\\..*\\.gblb" />
+                <data android:pathPattern=".*\\.gblb" />
+                <data android:pathPattern=".*\\..*\\..*\\.GBLB" />
+                <data android:pathPattern=".*\\..*\\.GBLB" />
+                <data android:pathPattern=".*\\.GBLB" />
+                <data android:pathPattern=".*\\..*\\..*\\.blb" />
+                <data android:pathPattern=".*\\..*\\.blb" />
+                <data android:pathPattern=".*\\.blb" />
+                <data android:pathPattern=".*\\..*\\..*\\.BLB" />
+                <data android:pathPattern=".*\\..*\\.BLB" />
+                <data android:pathPattern=".*\\.BLB" />
+
                 <data android:host="*" />
             </intent-filter>
         </activity-alias>
