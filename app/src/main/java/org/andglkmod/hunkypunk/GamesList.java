@@ -32,6 +32,7 @@ import org.andglkmod.glk.Utils;
 import org.andglkmod.hunkypunk.HunkyPunk.Games;
 import org.andglkmod.ifdb.IFDb;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -40,6 +41,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -47,6 +49,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -182,6 +186,47 @@ public class GamesList extends ListActivity implements OnClickListener {
         startScan();
 
         //closing cursors locks start screen + crash
+    }
+
+
+    // Identifier for the permission request
+    private static final int WRITE_STORAGE_PERMISSIONS_REQUEST = 1;
+
+
+    public void getPermissionToUseStorage() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE },
+                        WRITE_STORAGE_PERMISSIONS_REQUEST);
+
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case WRITE_STORAGE_PERMISSIONS_REQUEST: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "Write Storage permission granted",
+                            Toast.LENGTH_SHORT).show();
+
+                } else {
+                    Toast.makeText(this, "Write Storage permission denied",
+                            Toast.LENGTH_SHORT).show();
+                    // ToDo: use non /sdcard/ path, use application local storage path
+                }
+                return;
+            }
+        }
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
