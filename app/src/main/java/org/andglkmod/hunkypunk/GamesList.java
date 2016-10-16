@@ -144,6 +144,8 @@ public class GamesList extends ListActivity implements OnClickListener {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
 
+        getPermissionToUseStorage();
+
         mScanner = StorageManager.getInstance(this);
         mScanner.setHandler(mHandler);
         mScanner.checkExisting();
