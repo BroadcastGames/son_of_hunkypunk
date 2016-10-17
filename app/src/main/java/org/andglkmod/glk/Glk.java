@@ -123,9 +123,13 @@ public class Glk extends Thread {
 	private boolean _needToSave = false;
 	private boolean _exiting = false;
 
+	public final static String TAG = "Glk";
+
 	@Override
 	public void run() {
+		Log.i(TAG, "run()");
 		startTerp(_arguments[0], _autoSavePath, _arguments.length, _arguments);
+		Log.i(TAG, "run() before notifyQuit");
 		notifyQuit();
 		_instance = null;
 		Window.setRoot(null);

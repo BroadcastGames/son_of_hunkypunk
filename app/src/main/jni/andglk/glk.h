@@ -82,7 +82,7 @@ extern void ( * andglk_set_autorestore_hook ) (const char* filename);
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN   , "HunkyPunk", __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR  , "HunkyPunk", __VA_ARGS__) 
 
-//#define DEBUG_LOGGING
+#define DEBUG_LOGGING
 #ifdef DEBUG_LOGGING
 #define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, "HunkyPunk", __VA_ARGS__)
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG  , "HunkyPunk", __VA_ARGS__)

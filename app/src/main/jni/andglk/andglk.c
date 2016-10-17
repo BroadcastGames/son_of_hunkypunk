@@ -576,7 +576,7 @@ void glk_window_set_echo_stream(winid_t win, strid_t str)
 strid_t glk_window_get_echo_stream(winid_t win)
 {
 	if (!win) 
-		return;
+		return 0;
 
 	JNIEnv *env = JNU_GetEnv();
 	static jmethodID mid = 0;
@@ -709,7 +709,7 @@ void glk_stream_set_position(strid_t str, glsi32 pos, glui32 seekmode)
 
 glui32 glk_stream_get_position(strid_t str)
 {
-	if (!str) return;
+	if (!str) return 0;
 
 	if (str->type == strtype_File) {
 		//if (str->unicode)
@@ -907,7 +907,7 @@ glui32 glk_get_line_stream(strid_t str, char *buf, glui32 len)
 	int count = 0;
 
 	if (!str)
-		return;
+		return 0;
 
 	if (str->type == strtype_File) {		
 		char *res;
@@ -941,7 +941,7 @@ glui32 glk_get_buffer_stream(strid_t str, char *buf, glui32 len)
 	glui32 count;
 
 	if (!str)
-		return;
+		return 0;
 
 	if (str->type == strtype_File) {		
 		count = fread(buf, 1, len, str->file);

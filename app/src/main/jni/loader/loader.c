@@ -55,6 +55,8 @@ JNIEXPORT void Java_org_andglk_glk_Glk_startTerp
 {
 	// begin synchronize
 
+    LOGI("startTerp");
+
 	int ct = 0;
 	while (pthread_mutex_trylock(&_muGame)!=0) {
 		sleep(100);

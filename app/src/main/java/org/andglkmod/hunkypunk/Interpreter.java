@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.andglkmod.glk.Glk;
 import org.andglkmod.glk.Window;
@@ -61,7 +62,9 @@ public class Interpreter extends Activity {
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG, "onCreate starting");
         System.loadLibrary("andglk-loader");
+        Log.i(TAG, "onCreate starting, after andglk-loader");
 
         if (getSharedPreferences("Night", Context.MODE_PRIVATE).getBoolean("NightOn", false))
             setTheme(R.style.theme2);
@@ -97,6 +100,7 @@ public class Interpreter extends Activity {
 
         String arga[] = new String[args.size()];
         glk.setArguments(args.toArray(arga));
+        Log.i(TAG, "arguments " + Arrays.toString(arga));
 
         super.onCreate(savedInstanceState);
 
@@ -127,6 +131,7 @@ public class Interpreter extends Activity {
             org.andglkmod.glk.TextBufferWindow.DefaultTextColor = Color.BLACK;
             org.andglkmod.glk.TextBufferWindow.DefaultInputStyle = Glk.STYLE_INPUT;
         }
+        Log.i(TAG, "onCreate end");
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -309,6 +314,7 @@ public class Interpreter extends Activity {
 
     @Override
     protected void onDestroy() {
+        Log.i(TAG, "onDestroy");
         super.onDestroy();
         glk.postExitEvent();
     }
