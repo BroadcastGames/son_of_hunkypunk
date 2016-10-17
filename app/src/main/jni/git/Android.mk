@@ -24,6 +24,7 @@ LOCAL_SRC_FILES := compiler.c gestalt.c git.c git_unix.c \
 	glkop.c heap.c memory.c opcodes.c \
 	operands.c peephole.c savefile.c saveundo.c \
 	search.c terp.c accel.c
+# LOCAL_SRC_FILES += coffeecatch.c coffeejni.c	
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../andglk 
 LOCAL_CFLAGS	:= -DGARGLK -DANDGLK
 LOCAL_STATIC_LIBRARIES := andglk

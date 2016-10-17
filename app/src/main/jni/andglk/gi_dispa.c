@@ -662,6 +662,8 @@ char *gidispatch_prototype(glui32 funcnum)
 
 void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
 {
+    LOGD("gidispatch_call funcnum %#08x",  funcnum);
+
     switch (funcnum) {
         case 0x0001: /* exit */
             glk_exit();
@@ -982,12 +984,20 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             }
             break;
         case 0x00D0: /* request_line_event */
-            if (arglist[1].ptrflag)
-                glk_request_line_event(arglist[0].opaqueref, arglist[2].array,
-                    arglist[3].uint, arglist[4].uint);
-            else
+            LOGI("start of 0x00D0");
+            if (arglist[1].ptrflag) {
+                LOGE("branch 1 of 0x00D0 skipped");
+                // Tthis is the code that is causing the crash
+                //glk_request_line_event(arglist[0].opaqueref, arglist[2].array,
+                //    arglist[3].uint, arglist[4].uint);
+                }
+            else {
+                LOGI("branch 2 of 0x00D0");
                 glk_request_line_event(arglist[0].opaqueref, NULL,
                     0, arglist[2].uint);
+                    }
+
+            LOGI("end of 0x00D0");
             break;
         case 0x00D1: /* cancel_line_event */
             if (arglist[1].ptrflag) {

@@ -312,6 +312,8 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
 {
   glui32 retval = 0;
 
+  LOGV("git_perform_glk start");
+
   switch (funcnum) {
     /* To speed life up, we implement commonly-used Glk functions
        directly -- instead of bothering with the whole prototype 
@@ -378,8 +380,11 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
 
     /* Grab the string. */
     proto = gidispatch_prototype(funcnum);
-    if (!proto)
+    LOGD("bug trace");
+    if (!proto) {
+      LOGE("Unknown Glk function.");
       fatalError("Unknown Glk function.");
+      }
 
     splot.varglist = arglist;
     splot.numvargs = numargs;
@@ -393,25 +398,34 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
 
     /* Phase 0. */
     prepare_glk_args(proto, &splot);
+    LOGD("bug trace phase 0");
 
     /* Phase 1. */
     argnum = 0;
     cx = proto;
     parse_glk_args(&splot, &cx, 0, &argnum, 0, 0);
+    LOGD("bug trace phase 1");
 
     /* Phase 2. */
     gidispatch_call(funcnum, argnum, splot.garglist);
+    LOGD("bug trace phase 2");
 
     /* Phase 3. */
     argnum2 = 0;
     cx = proto;
     unparse_glk_args(&splot, &cx, 0, &argnum2, 0, 0);
-    if (argnum != argnum2)
+    if (argnum != argnum2) {
+      LOGE("Argument counts did not match.");
       fatalError("Argument counts did not match.");
+      }
+
+    LOGD("bug trace phase 3");
 
     break;
   }
   }
+
+  LOGV("git_perform_glk end");
 
   return retval;
 }
