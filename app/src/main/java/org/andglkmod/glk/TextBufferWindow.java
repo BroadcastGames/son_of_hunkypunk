@@ -1581,19 +1581,32 @@ public class TextBufferWindow extends Window {
     @Override
     public void requestLineEvent(final String initial, final long maxlen,
                                  final int buffer, final int unicode) {
-        //Log.d("Glk/TextBufferWindow","requestLineEvent");
+        Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent");
         flush();
 
         Glk.getInstance().waitForUi(
                 new Runnable() {
                     @Override
                     public void run() {
-                        mLineEventBuffer = buffer;
-                        mLineEventBufferLength = maxlen;
-                        mLineEventBufferRock = retainVmArray(buffer, maxlen);
-                        mUnicodeEvent = (unicode != 0);
-                        mActiveCommand.enableInput();
-                        mScrollView.fullScroll(View.FOCUS_DOWN);
+                        Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() " + Thread.currentThread());
+
+                        try {
+                            mLineEventBuffer = buffer;
+                            mLineEventBufferLength = maxlen;
+                            Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() CHECKPOINT_A");
+                            mLineEventBufferRock = retainVmArray(buffer, maxlen);
+                            Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() CHECKPOINT_B");
+                            mUnicodeEvent = (unicode != 0);
+                            Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() CHECKPOINT_C");
+                            mActiveCommand.enableInput();
+                            mScrollView.fullScroll(View.FOCUS_DOWN);
+                        }
+                        catch (Exception e)
+                        {
+                            Log.e("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() EXCEPTION", e);
+                        }
+
+                        Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() end");
                     }
                 });
     }

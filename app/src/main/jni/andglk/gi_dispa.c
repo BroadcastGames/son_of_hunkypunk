@@ -958,7 +958,9 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
                     arglist[2].uint, NULL);
             break;
         case 0x00C0: /* select */
+            LOGI("start of 0x00C0");
             if (arglist[0].ptrflag) {
+                LOGI("doing 0x00C0 if branch 0");
                 event_t dat;
                 glk_select(&dat);
                 arglist[1].uint = dat.type;
@@ -986,10 +988,10 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
         case 0x00D0: /* request_line_event */
             LOGI("start of 0x00D0");
             if (arglist[1].ptrflag) {
-                LOGE("branch 1 of 0x00D0 skipped");
+                LOGW("branch 1 of 0x00D0 - crash point?");
                 // Tthis is the code that is causing the crash
-                //glk_request_line_event(arglist[0].opaqueref, arglist[2].array,
-                //    arglist[3].uint, arglist[4].uint);
+                glk_request_line_event(arglist[0].opaqueref, arglist[2].array,
+                    arglist[3].uint, arglist[4].uint);
                 }
             else {
                 LOGI("branch 2 of 0x00D0");

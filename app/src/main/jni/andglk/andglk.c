@@ -180,12 +180,20 @@ void andglk_loader_glk_main(JavaVM* jvm, JNIEnv *env, jobject this, const char* 
 	}
 }
 
+// ToDo: is buffer a pointer? only 32-bit? Android has 64bit now, right?
 int andglk_loader_glk_MemoryStream_retainVmArray(JNIEnv *env, jobject this, int buffer, long length)
 {
+    LOGI("andglk_loader_glk_MemoryStream_retainVmArray andglk.c");
 	if (gli_register_arr) {
+        LOGE("andglk_loader_glk_MemoryStream_retainVmArray andglk.c started if %d %d", buffer, length);
+        return;
+
 		gidispatch_rock_t rock = gli_register_arr((void *)buffer, length, gidispatch_char_array);
+        LOGI("andglk_loader_glk_MemoryStream_retainVmArray andglk.c rock %d", rock.num);
 		return rock.num;
 	}
+    LOGI("andglk_loader_glk_MemoryStream_retainVmArray andglk.c end");
+	// What does this return on failed match of if?
 }
 
 jint andglk_loader_glk_CPointed_makePoint(JNIEnv *env, jobject this)
@@ -1163,13 +1171,18 @@ void gli_request_line_event(winid_t win, void *buf, glui32 maxlen, glui32 initle
 	JNIEnv *env = JNU_GetEnv();
 	static jmethodID mid = 0;
 
+    LOGI("glk_request_line_event full a %d %d %d", maxlen, initlen, mid);
+
 	if (mid == 0)
 		mid = (*env)->GetMethodID(env, _Window, "requestLineEvent", "(Ljava/lang/String;JII)V");
+
+    LOGI("glk_request_line_event full b %d %d %d", maxlen, initlen, mid);
 
 	jstring str = 0;
 	jchar jbuf[initlen];
 
 	if (initlen > 0) {
+        LOGI("glk_request_line_event full b1 %d %d", maxlen, initlen);
 
 		if (unicode) {
 			glui32 *it = buf;
@@ -1186,10 +1199,16 @@ void gli_request_line_event(winid_t win, void *buf, glui32 maxlen, glui32 initle
 		str = (*env)->NewString(env, jbuf, maxlen);
 	}
 
+    LOGI("glk_request_line_event full c %d %d %d", maxlen, initlen, mid);
+
 	(*env)->CallVoidMethod(env, *win, mid, str, (jlong) maxlen, (jint) buf, (jint) unicode);
+
+    LOGI("glk_request_line_event full d %d %d", maxlen, initlen);
 
 	if (str)
 		(*env)->DeleteLocalRef(env, str);
+
+    LOGI("glk_request_line_event full e %d %d", maxlen, initlen);
 }
 
 void glk_request_line_event_uni(winid_t win, glui32 *buf, glui32 maxlen, glui32 initlen)
@@ -1199,6 +1218,7 @@ void glk_request_line_event_uni(winid_t win, glui32 *buf, glui32 maxlen, glui32 
 
 void glk_request_line_event(winid_t win, char *buf, glui32 maxlen, glui32 initlen)
 {
+    LOGI("glk_request_line_event %d %d", maxlen, initlen);
 	gli_request_line_event(win, buf, maxlen, initlen, 0);
 }
 

@@ -218,6 +218,7 @@ JNIEXPORT void Java_org_andglkmod_glk_MemoryStream_writeOut(JNIEnv *env, jobject
 
 JNIEXPORT int Java_org_andglk_glk_MemoryStream_retainVmArray(JNIEnv *env, jobject this, int buffer, long len)
 {
+    LOGI("Java_org_andglk_glk_Window_retainVmArray VARIATION_E");
 	int result = -1;
 	const char *FN = "andglk_loader_glk_MemoryStream_retainVmArray";
 
@@ -236,11 +237,13 @@ JNIEXPORT int Java_org_andglk_glk_MemoryStream_retainVmArray(JNIEnv *env, jobjec
 }
 JNIEXPORT int Java_org_andglkmod_glk_MemoryStream_retainVmArray(JNIEnv *env, jobject this, int buffer, long len)
 {
+    LOGI("Java_org_andglk_glk_Window_retainVmArray VARIATION_D");
 	return Java_org_andglk_glk_MemoryStream_retainVmArray(env,this,buffer,len);
 }
 
 JNIEXPORT void Java_org_andglk_glk_MemoryStream_releaseVmArray(JNIEnv *env, jobject this, int buffer, int length, int dispatchRock)
 {
+    LOGI("Java_org_andglk_glk_Window_retainVmArray VARIATION_C");
 	const char *FN = "andglk_loader_glk_MemoryStream_releaseVmArray";
 
 	// begin synchronize
@@ -261,9 +264,11 @@ JNIEXPORT void Java_org_andglkmod_glk_MemoryStream_releaseVmArray(JNIEnv *env, j
 
 JNIEXPORT int Java_org_andglk_glk_Window_retainVmArray(JNIEnv *env, jobject this, int buffer, long length)
 {
+    LOGI("Java_org_andglk_glk_Window_retainVmArray VARIATION_A");
 	return Java_org_andglk_glk_MemoryStream_retainVmArray(env, this, buffer, length);
 }
 JNIEXPORT int Java_org_andglkmod_glk_Window_retainVmArray(JNIEnv *env, jobject this, int buffer, long length)
 {
+    LOGI("Java_org_andglk_glk_Window_retainVmArray VARIATION_B");
 	return Java_org_andglk_glk_Window_retainVmArray(env,this,buffer,length);
 }
