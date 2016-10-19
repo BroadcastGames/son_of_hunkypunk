@@ -316,8 +316,10 @@ extern glui32 glk_style_measure(winid_t win, glui32 styl, glui32 hint,
 
 extern frefid_t glk_fileref_create_temp(glui32 usage, glui32 rock);
 // Android: name and path are made const strings
+// Theory: the git code is doing a memory free operation on const strings, causing crash in C Monkey?
 extern frefid_t glk_fileref_create_by_name(glui32 usage, const char *name,
     glui32 rock);
+// create_by_path does not exist in glk_ 0.7.4 header?
 extern frefid_t glk_fileref_create_by_path(glui32 usage, const char *path,
     glui32 rock);
 extern frefid_t glk_fileref_create_by_prompt(glui32 usage, glui32 fmode,
