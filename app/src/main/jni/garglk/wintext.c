@@ -124,6 +124,8 @@ window_textbuffer_t *win_textbuffer_create(window_t *win)
 
 void win_textbuffer_destroy(window_textbuffer_t *dwin)
 {
+    int i;
+
     if (dwin->inbuf)
     {
         if (gli_unregister_arr)
@@ -139,13 +141,17 @@ void win_textbuffer_destroy(window_textbuffer_t *dwin)
     if (dwin->line_terminators)
         free(dwin->line_terminators);
 
+    for (i = 0; i < dwin->scrollback; i++) {
+        gli_picture_decrement(dwin->lines[i].lpic);
+        gli_picture_decrement(dwin->lines[i].rpic);
+    }
+
     free(dwin->lines);
     free(dwin);
 }
 
 static void reflow(window_t *win)
 {
-#ifdef GLK_MODULE_IMAGE
     window_textbuffer_t *dwin = win->data;
     int inputbyte = -1;
     attr_t curattr;
@@ -162,12 +168,20 @@ static void reflow(window_t *win)
     attr_t *attrbuf = malloc(sizeof(attr_t) * SCROLLBACK * TBLINELEN);
     glui32 *charbuf = malloc(sizeof(glui32) * SCROLLBACK * TBLINELEN);
     int *alignbuf = malloc(sizeof(int) * SCROLLBACK);
-    picture_t **pictbuf = malloc(sizeof(size_t) * SCROLLBACK);
+    picture_t **pictbuf = malloc(sizeof(picture_t *) * SCROLLBACK);
     glui32 *hyperbuf = malloc(sizeof(glui32) * SCROLLBACK);
     int *offsetbuf = malloc(sizeof(int) * SCROLLBACK);
 
     if (!attrbuf || !charbuf || !alignbuf || !pictbuf || !hyperbuf || !offsetbuf)
+    {
+        free(attrbuf);
+        free(charbuf);
+        free(alignbuf);
+        free(pictbuf);
+        free(hyperbuf);
+        free(offsetbuf);
         return;
+    }
 
     /* copy text to temp buffers */
 
@@ -188,6 +202,7 @@ static void reflow(window_t *win)
             offsetbuf[x] = p;
             alignbuf[x] = imagealign_MarginLeft;
             pictbuf[x] = dwin->lines[k].lpic;
+            gli_picture_increment(pictbuf[x]);
             hyperbuf[x] = dwin->lines[k].lhyper;
             x++;
         }
@@ -197,6 +212,7 @@ static void reflow(window_t *win)
             offsetbuf[x] = p;
             alignbuf[x] = imagealign_MarginRight;
             pictbuf[x] = dwin->lines[k].rpic;
+            gli_picture_increment(pictbuf[x]);
             hyperbuf[x] = dwin->lines[k].rhyper;
             x++;
         }
@@ -262,7 +278,6 @@ static void reflow(window_t *win)
     win->attr = oldattr;
 
     touchscroll(dwin);
-#endif
 }
 
 void win_textbuffer_rearrange(window_t *win, rect_t *box)
@@ -1131,8 +1146,12 @@ void win_textbuffer_clear(window_t *win)
     for (i = 0; i < dwin->scrollback; i++)
     {
         dwin->lines[i].len = 0;
+
+        gli_picture_decrement(dwin->lines[i].lpic);
         dwin->lines[i].lpic = 0;
+        gli_picture_decrement(dwin->lines[i].rpic);
         dwin->lines[i].rpic = 0;
+
         dwin->lines[i].lhyper = 0;
         dwin->lines[i].rhyper = 0;
         dwin->lines[i].lm = 0;
@@ -1701,7 +1720,6 @@ void gcmd_buffer_accept_readline(window_t *win, glui32 arg)
 static glui32
 put_picture(window_textbuffer_t *dwin, picture_t *pic, glui32 align, glui32 linkval)
 {
-#ifdef GLK_MODULE_IMAGE
     if (align == imagealign_MarginRight)
     {
         if (dwin->lines[0].rpic || dwin->numchars)
@@ -1731,7 +1749,7 @@ put_picture(window_textbuffer_t *dwin, picture_t *pic, glui32 align, glui32 link
         if (align != imagealign_MarginLeft)
             win_textbuffer_flow_break(dwin);
     }
-#endif
+
     return TRUE;
 }
 
@@ -1762,6 +1780,7 @@ glui32 win_textbuffer_draw_picture(window_textbuffer_t *dwin,
 
     hyperlink = dwin->owner->attr.hyper;
 
+    gli_picture_increment(pic);
     error = put_picture(dwin, pic, align, hyperlink);
 
     return error;

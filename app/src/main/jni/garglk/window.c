@@ -51,7 +51,6 @@ void gli_initialize_windows()
     gli_focuswin = NULL;
 }
 
-#ifndef ANDROID
 static void gli_windows_rearrange(void)
 {
     if (gli_rootwin)
@@ -83,7 +82,6 @@ static void gli_windows_rearrange(void)
         gli_window_rearrange(gli_rootwin, &box);
     }
 }
-#endif
 
 /*
  * Create, destroy and arrange
@@ -573,7 +571,6 @@ void glk_window_set_arrangement(window_t *win, glui32 method, glui32 size, winid
     gli_windows_rearrange();
 }
 
-#ifndef ANDROID
 void glk_window_get_size(window_t *win, glui32 *width, glui32 *height)
 {
     glui32 wid = 0;
@@ -614,7 +611,6 @@ void glk_window_get_size(window_t *win, glui32 *width, glui32 *height)
     if (height)
         *height = hgt;
 }
-#endif
 
 void gli_calc_padding(window_t *win, int *x, int *y)
 {
@@ -842,7 +838,6 @@ void gli_windows_size_change()
     gli_event_store(evtype_Arrange, NULL, 0, 0);
 }
 
-#ifndef ANDROID
 void gli_window_redraw(window_t *win)
 {
     if (gli_force_redraw)
@@ -874,7 +869,6 @@ void gli_window_redraw(window_t *win)
             break;
     }
 }
-#endif
 
 void gli_window_refocus(window_t *win)
 {
@@ -895,7 +889,6 @@ void gli_window_refocus(window_t *win)
     gli_more_focus = FALSE;
 }
 
-#ifndef ANDROID
 void gli_windows_redraw()
 {
     gli_claimselect = FALSE;
@@ -914,7 +907,6 @@ void gli_windows_redraw()
 
     gli_force_redraw = 0;
 }
-#endif
 
 void gli_redraw_rect(int x0, int y0, int x1, int y1)
 {

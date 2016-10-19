@@ -74,8 +74,8 @@ void gli_piclist_clear(void)
         tmpptr = picptr;
         picptr = picptr->next;
 
-        gli_picture_discard(tmpptr->picture);
-        gli_picture_discard(tmpptr->scaled);
+        gli_picture_decrement(tmpptr->picture);
+        gli_picture_decrement(tmpptr->scaled);
 
         free(tmpptr);
     }
@@ -92,6 +92,25 @@ void gli_piclist_decrement(void)
 {
     if (gli_piclist_refcount > 0 && --gli_piclist_refcount == 0)
         gli_piclist_clear();
+}
+
+void gli_picture_increment(picture_t *pic)
+{
+    if (!pic)
+        return;
+
+    pic->refcount++;
+}
+
+void gli_picture_decrement(picture_t *pic)
+{
+    if (!pic)
+        return;
+
+    piclist_t *picptr;
+
+    if (pic->refcount > 0 && --pic->refcount == 0)
+        gli_picture_discard(pic);
 }
 
 void gli_picture_store_original(picture_t *pic)
@@ -126,8 +145,7 @@ void gli_picture_store_scaled(picture_t *pic)
     if (!picptr)
         return;
 
-    if (picptr->scaled)
-        gli_picture_discard(picptr->scaled);
+    gli_picture_decrement(picptr->scaled);
 
     picptr->scaled = pic;
 }
@@ -194,7 +212,7 @@ picture_t *gli_picture_load(unsigned long id)
         char filename[1024];
         unsigned char buf[8];
 
-        sprintf(filename, "%s/PIC%ld", gli_workdir, id); 
+        sprintf(filename, "%s/PIC%lu", gli_workdir, id); 
 
         closeafter = TRUE;
         fl = fopen(filename, "rb");
