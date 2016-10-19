@@ -21,13 +21,8 @@
 #define _str2(s) #s
 #define _str(s) _str2(s)
 
-#if GIT_PATCH == 0
-#define GIT_VERSION_STR \
-_str(GIT_MAJOR) "." _str(GIT_MINOR)
-#else
 #define GIT_VERSION_STR \
 _str(GIT_MAJOR) "." _str(GIT_MINOR) "." _str(GIT_PATCH)
-#endif
 
 // git.c
 
@@ -40,7 +35,7 @@ extern void git (const git_uint8 * game,
                  git_uint32 cacheSize,
                  git_uint32 undoSize);
 
-extern void fatalError (const char *);
+extern git_noreturn void fatalError (const char *);
 
 // memory.c
 
@@ -124,6 +119,7 @@ extern void startProgram (size_t cacheSize, enum IOMode ioMode);
 extern int git_init_dispatch();
 extern glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist);
 extern strid_t git_find_stream_by_id(glui32 id);
+extern glui32 git_find_id_for_stream(strid_t str);
 
 // git_search.c
 
