@@ -123,6 +123,7 @@ extern void ( * andglk_set_autorestore_hook ) (const char* filename);
 #define gestalt_LineTerminatorKey (19)
 #define gestalt_DateTime (20)
 #define gestalt_Sound2 (21)
+#define gestalt_ResourceStream (22)
 
 #define evtype_None (0)
 #define evtype_Timer (1)
@@ -314,6 +315,7 @@ extern glui32 glk_style_measure(winid_t win, glui32 styl, glui32 hint,
     glui32 *result);
 
 extern frefid_t glk_fileref_create_temp(glui32 usage, glui32 rock);
+// Android: name and path are made const strings
 extern frefid_t glk_fileref_create_by_name(glui32 usage, const char *name,
     glui32 rock);
 extern frefid_t glk_fileref_create_by_path(glui32 usage, const char *path,
@@ -486,6 +488,13 @@ extern glsi32 glk_date_to_simple_time_utc(glkdate_t *date, glui32 factor);
 extern glsi32 glk_date_to_simple_time_local(glkdate_t *date, glui32 factor);
 
 #endif /* GLK_MODULE_DATETIME */
+
+#ifdef GLK_MODULE_RESOURCE_STREAM
+
+extern strid_t glk_stream_open_resource(glui32 filenum, glui32 rock);
+extern strid_t glk_stream_open_resource_uni(glui32 filenum, glui32 rock);
+
+#endif /* GLK_MODULE_RESOURCE_STREAM */
 
 /* XXX non-official Glk functions that may or may not exist */
 
