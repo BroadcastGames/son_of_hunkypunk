@@ -1046,9 +1046,12 @@ frefid_t glk_fileref_create_by_prompt(glui32 usage, glui32 fmode, glui32 rock)
 
 static void event2glk(JNIEnv *env, jobject ev, event_t *event)
 {
+    LOGI("glk_request_line_event event2glk()");
+
 	if (!ev) {
 		event->win = NULL;
 		event->val1 = event->val2 = event->type = 0;
+        LOGI("glk_request_line_event event2glk() !ev return");
 		return;
 	}
 
@@ -1074,6 +1077,7 @@ static void event2glk(JNIEnv *env, jobject ev, event_t *event)
 			jlong len = (*env)->GetLongField(env, ev, len_id);
 			jlong unicode = (*env)->GetIntField(env, ev, unicode_id);
 			
+
 			gidispatch_rock_t rock;
 			rock.num = (*env)->GetIntField(env, ev, rock_id);
 
@@ -1082,14 +1086,21 @@ static void event2glk(JNIEnv *env, jobject ev, event_t *event)
 				event->val1 = jstring2latin1_uni(env, line, buf, len);
 				if (event->val1 != len)
 					buf[event->val1] = 0;
+
+                LOGI("glk_request_line_event event2glk() line unicode '%s' len %d %d", buf, len, unicode);
+
 				if (gli_unregister_arr)
 					gli_unregister_arr(buf, len, gidispatch_char_array, rock); //INT2GDROCK(rock));
+
 			}
 			else {
 				char * buf = (char *) (*env)->GetIntField(env, ev, buf_id);
 				event->val1 = jstring2latin1(env, line, buf, len);
 				if (event->val1 != len)
 					buf[event->val1] = 0;
+
+                LOGI("glk_request_line_event event2glk() line non-unicode '%s' len %d %d", buf, len, unicode);
+
 				if (gli_unregister_arr)
 					gli_unregister_arr(buf, len, gidispatch_char_array, rock); //INT2GDROCK(rock));
 			}
@@ -1139,6 +1150,8 @@ static void event2glk(JNIEnv *env, jobject ev, event_t *event)
 
 void glk_select(event_t *event)
 {
+    LOGI("glk_request_line_event glk_select()");
+
 	JNIEnv *env = JNU_GetEnv();
 	static jmethodID mid = 0;
 	if (mid == 0)
@@ -1164,6 +1177,7 @@ void glk_select_poll(event_t *event)
 void glk_request_timer_events(glui32 millisecs)
 {
 	/* TODO */
+    LOGE("glk_request_timer_events NOT IMPLEMENTED");
 }
 
 void gli_request_line_event(winid_t win, void *buf, glui32 maxlen, glui32 initlen, glui32 unicode)
@@ -1171,7 +1185,7 @@ void gli_request_line_event(winid_t win, void *buf, glui32 maxlen, glui32 initle
 	JNIEnv *env = JNU_GetEnv();
 	static jmethodID mid = 0;
 
-    LOGI("glk_request_line_event full a %d %d %d", maxlen, initlen, mid);
+    LOGI("glk_request_line_event full a %d %d %d %d", maxlen, initlen, mid, unicode);
 
 	if (mid == 0)
 		mid = (*env)->GetMethodID(env, _Window, "requestLineEvent", "(Ljava/lang/String;JII)V");
@@ -1218,8 +1232,10 @@ void glk_request_line_event_uni(winid_t win, glui32 *buf, glui32 maxlen, glui32 
 
 void glk_request_line_event(winid_t win, char *buf, glui32 maxlen, glui32 initlen)
 {
-    LOGI("glk_request_line_event %d %d", maxlen, initlen);
-	gli_request_line_event(win, buf, maxlen, initlen, 0);
+    LOGI("glk_request_line_event overload_A %d %d", maxlen, initlen);
+    LOGE("glk_request_line_event overload_A HACK IN VALUES SPOTA %d %d", maxlen, initlen);
+	// gli_request_line_event(win, buf, maxlen, initlen, 0);
+	gli_request_line_event(win, buf, 120, initlen, 1);
 }
 
 void glk_request_char_event_uni(winid_t win)
@@ -1240,10 +1256,13 @@ void glk_request_char_event(winid_t win)
 void glk_request_mouse_event(winid_t win)
 {
 	/* TODO */
+    LOGE("glk_request_mouse_event not implemented");
 }
 
 void glk_cancel_line_event(winid_t win, event_t *event)
 {
+    LOGI("glk_request_line_event glk_cancel_line_event()");
+
 	JNIEnv *env = JNU_GetEnv();
 	static jmethodID mid = 0;
 	if (mid == 0)
@@ -1269,6 +1288,7 @@ void glk_cancel_char_event(winid_t win)
 void glk_cancel_mouse_event(winid_t win)
 {
 	/* TODO */
+    LOGE("glk_cancel_mouse_event not implemented");
 }
 
 gidispatch_rock_t gidispatch_get_objrock(void *obj, glui32 objclass)
