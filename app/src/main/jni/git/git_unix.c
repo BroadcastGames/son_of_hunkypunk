@@ -27,8 +27,12 @@ glkunix_argumentlist_t glkunix_arguments[] =
 
 void fatalError (const char * s)
 {
+    LOGE("git Interpreter fatalError");
+    LOGE("git Interpreter fatalError");
+    LOGE("git Interpreter fatalError %s", s);
     fprintf (stderr, "*** fatal error: %s ***\n", s);
-    exit (1);
+    // On Android, we really want Java to control exiting, not some impossible to trap C code.
+    // exit (1);
 }
 
 #ifdef USE_MMAP

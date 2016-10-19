@@ -1409,8 +1409,10 @@ static gidispatch_rock_t glulxe_retained_register(void *array,
   arref = *aptr;
   if (!arref)
     fatalError("Unable to re-find array argument in Glk call.");
-  if (arref->elemsize != elemsize || arref->len != len)
+  if (arref->elemsize != elemsize || arref->len != len) {
+    LOGE("glulxe_retained_register glkop.c FATAL Mismatched array argument in Glk call %d : %d - %d : %d %s", elemsize, arref->elemsize, len, arref->len, typecode);
     fatalError("Mismatched array argument in Glk call.");
+  }
 
   arref->retained = TRUE;
 
@@ -1449,8 +1451,10 @@ static void glulxe_retained_unregister(void *array, glui32 len,
     fatalError("Mismatched array reference in Glk call.");
   if (!arref->retained)
     fatalError("Unretained array reference in Glk call.");
-  if (arref->elemsize != elemsize || arref->len != len)
-    fatalError("Mismatched array argument in Glk call.");
+  if (arref->elemsize != elemsize || arref->len != len) {
+    LOGE("glulxe_retained_unregister glkop.c FATAL Mismatched array argument in Glk call %d : %d - %d : %d %s", elemsize, arref->elemsize, len, arref->len, typecode);
+    // fatalError("Mismatched array argument in Glk call.");
+  }
 
   *aptr = arref->next;
   arref->next = NULL;

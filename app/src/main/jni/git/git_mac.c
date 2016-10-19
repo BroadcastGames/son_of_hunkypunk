@@ -65,15 +65,23 @@ void glk_main ()
     git (data, size, CACHE_SIZE, UNDO_SIZE);
 }
 
+
 void __msl_assertion_failed (const char * cond, const char * file, const char * func, int line)
 {
+    LOGE("git Interpreter fatalError assert");
+    LOGE("git Interpreter fatalError assert");
+    LOGE("git Interpreter fatalError assert %s", func);
+
     fprintf (stderr, "*** fatal error: assertion failed in function \"%s\" (%s:%d) ***\n", func, file, line);
     fprintf (stderr, "*** assert(%s) ***\n", cond);
-    exit (1);
+    // exit (1);
 }
 
 void fatalError (const char * s)
 {
+    LOGE("git Interpreter fatalError");
+    LOGE("git Interpreter fatalError");
+    LOGE("git Interpreter fatalError %s", s);
     fprintf (stderr, "*** fatal error: %s ***\n", s);
-    exit (1);
+    // exit (1);
 }
