@@ -193,12 +193,15 @@ JNIEXPORT void Java_org_andglk_glk_CPointed_releasePoint(JNIEnv *env, jobject th
 }
 JNIEXPORT void Java_org_andglkmod_glk_CPointed_releasePoint(JNIEnv *env, jobject this, jint point)
 {
+    LOGI("Java_org_andglkmod_glk_CPointed_releasePoint VARIATION_A");
 	Java_org_andglk_glk_CPointed_releasePoint(env,this,point);
 }
 
 JNIEXPORT void Java_org_andglk_glk_MemoryStream_writeOut(JNIEnv *env, jobject this, jint nativeBuf, jarray jbuf)
 {
 	const char *FN = "andglk_loader_glk_MemoryStream_writeOut";
+
+    LOGI("Java_org_andglk_glk_MemoryStream_writeOut VARIATION_A");
 
 	// begin synchronize
 	pthread_mutex_lock (&_muQuery);
@@ -225,13 +228,19 @@ JNIEXPORT int Java_org_andglk_glk_MemoryStream_retainVmArray(JNIEnv *env, jobjec
 	// begin synchronize
 	pthread_mutex_lock (&_muQuery);
 
-	if (andglk_loader_glk_MemoryStream_retainVmArray) 
+	if (andglk_loader_glk_MemoryStream_retainVmArray)  {
+        LOGI("Java_org_andglk_glk_Window_retainVmArray VARIATION_E midpointA %d %d", buffer, len);
 		result = andglk_loader_glk_MemoryStream_retainVmArray(env, this, buffer, len);
+		}
 	else 
 		LOGE("invalid call -- not linked to %s", FN);	
 
+    LOGI("Java_org_andglk_glk_Window_retainVmArray VARIATION_E midpointB");
+
 	// end synchronize
 	pthread_mutex_unlock (&_muQuery);
+
+    LOGI("Java_org_andglk_glk_Window_retainVmArray VARIATION_E result %d", result);
 
 	return result;
 }
@@ -259,6 +268,7 @@ JNIEXPORT void Java_org_andglk_glk_MemoryStream_releaseVmArray(JNIEnv *env, jobj
 }
 JNIEXPORT void Java_org_andglkmod_glk_MemoryStream_releaseVmArray(JNIEnv *env, jobject this, int buffer, int length, int dispatchRock)
 {
+    LOGI("Java_org_andglkmod_glk_MemoryStream_releaseVmArray VARIATION_C");
 	Java_org_andglk_glk_MemoryStream_releaseVmArray(env,this,buffer,length,dispatchRock);
 }
 

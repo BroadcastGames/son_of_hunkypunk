@@ -1593,7 +1593,7 @@ public class TextBufferWindow extends Window {
                         try {
                             mLineEventBuffer = buffer;
                             mLineEventBufferLength = maxlen;
-                            Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() CHECKPOINT_A");
+                            Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() CHECKPOINT_A initial + " + initial + " buffer " + buffer + " maxlen " + maxlen);
                             mLineEventBufferRock = retainVmArray(buffer, maxlen);
                             Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() CHECKPOINT_B");
                             mUnicodeEvent = (unicode != 0);

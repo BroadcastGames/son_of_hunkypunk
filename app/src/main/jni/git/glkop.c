@@ -115,6 +115,8 @@
 
 static char * DecodeVMString (git_uint32 addr)
 {
+    LOGI("DecodeVMString glkop.c");
+
     glui32 end;
     char * data;
     char * c;
@@ -144,6 +146,8 @@ static char * DecodeVMString (git_uint32 addr)
 
 static glui32 * DecodeVMUstring (git_uint32 addr)
 {
+    LOGI("DecodeVMUstring glkop.c");
+
     glui32 end;
     glui32 * data;
     glui32 * c;
@@ -176,11 +180,13 @@ static glui32 * DecodeVMUstring (git_uint32 addr)
 
 static void ReleaseVMString (char * ptr)
 {
+    LOGI("ReleaseVMString glkop.c");
     glulx_free (ptr);
 }
 
 static void ReleaseVMUstring (glui32 * ptr)
 {
+    LOGI("ReleaseVMUstring glkop.c");
     glulx_free (ptr);
 }
 
@@ -1019,6 +1025,8 @@ static void unparse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
 */
 strid_t git_find_stream_by_id(glui32 objid)
 {
+  LOGI("git_find_stream_by_id glkop.c");
+
   if (!objid)
     return NULL;
 
@@ -1031,6 +1039,8 @@ strid_t git_find_stream_by_id(glui32 objid)
 */
 glui32 git_find_id_for_window(winid_t win)
 {
+  LOGI("git_find_id_for_window glkop.c");
+
   gidispatch_rock_t objrock;
 
   if (!win)
@@ -1045,6 +1055,8 @@ glui32 git_find_id_for_window(winid_t win)
 */
 glui32 git_find_id_for_stream(strid_t str)
 {
+  LOGI("git_find_id_for_stream glkop.c");
+
   gidispatch_rock_t objrock;
 
   if (!str)
@@ -1059,6 +1071,8 @@ glui32 git_find_id_for_stream(strid_t str)
 */
 glui32 git_find_id_for_fileref(frefid_t fref)
 {
+  LOGI("git_find_id_for_fileref glkop.c");
+
   gidispatch_rock_t objrock;
 
   if (!fref)
@@ -1073,6 +1087,8 @@ glui32 git_find_id_for_fileref(frefid_t fref)
 */
 glui32 git_find_id_for_schannel(schanid_t schan)
 {
+  LOGI("git_find_id_for_schannel glkop.c");
+
   gidispatch_rock_t objrock;
 
   if (!schan)
@@ -1085,6 +1101,8 @@ glui32 git_find_id_for_schannel(schanid_t schan)
 /* Build a hash table to hold a set of Glk objects. */
 static classtable_t *new_classtable(glui32 firstid)
 {
+  LOGI("new_classtable glkop.c");
+
   int ix;
   classtable_t *ctab = (classtable_t *)glulx_malloc(sizeof(classtable_t));
   if (!ctab)
@@ -1101,6 +1119,8 @@ static classtable_t *new_classtable(glui32 firstid)
 /* Find a Glk object in the appropriate hash table. */
 static void *classes_get(int classid, glui32 objid)
 {
+  LOGI("classes_get glkop.c");
+
   classtable_t *ctab;
   classref_t *cref;
   if (classid < 0 || classid >= num_classes)
@@ -1118,6 +1138,8 @@ static void *classes_get(int classid, glui32 objid)
    invent a new unique ID for it. */
 static classref_t *classes_put(int classid, void *obj, glui32 origid)
 {
+  LOGI("classes_put glkop.c");
+
   int bucknum;
   classtable_t *ctab;
   classref_t *cref;
@@ -1147,6 +1169,8 @@ static classref_t *classes_put(int classid, void *obj, glui32 origid)
 /* Delete a Glk object from the appropriate hash table. */
 static void classes_remove(int classid, void *obj)
 {
+  LOGI("classes_remove glkop.c");
+
   classtable_t *ctab;
   classref_t *cref;
   classref_t **crefp;
@@ -1178,6 +1202,8 @@ static void classes_remove(int classid, void *obj)
 static gidispatch_rock_t glulxe_classtable_register(void *obj, 
   glui32 objclass)
 {
+  LOGI("glulxe_classtable_register glkop.c");
+
   classref_t *cref;
   gidispatch_rock_t objrock;
   cref = classes_put(objclass, obj, 0);
@@ -1193,6 +1219,8 @@ static void glulxe_classtable_unregister(void *obj, glui32 objclass,
 
 static char *grab_temp_c_array(glui32 addr, glui32 len, int passin)
 {
+  LOGI("grab_temp_c_array glkop.c");
+
   arrayref_t *arref = NULL;
   char *arr = NULL;
   glui32 ix, addr2;
@@ -1223,6 +1251,8 @@ static char *grab_temp_c_array(glui32 addr, glui32 len, int passin)
 
 static void release_temp_c_array(char *arr, glui32 addr, glui32 len, int passout)
 {
+  LOGI("release_temp_c_array glkop.c");
+
   arrayref_t *arref = NULL;
   arrayref_t **aptr;
   glui32 ix, val, addr2;
@@ -1258,6 +1288,8 @@ static void release_temp_c_array(char *arr, glui32 addr, glui32 len, int passout
 
 static glui32 *grab_temp_i_array(glui32 addr, glui32 len, int passin)
 {
+  LOGI("grab_temp_i_array glkop.c");
+
   arrayref_t *arref = NULL;
   glui32 *arr = NULL;
   glui32 ix, addr2;
@@ -1288,6 +1320,8 @@ static glui32 *grab_temp_i_array(glui32 addr, glui32 len, int passin)
 
 static void release_temp_i_array(glui32 *arr, glui32 addr, glui32 len, int passout)
 {
+  LOGI("release_temp_i_array glkop.c");
+
   arrayref_t *arref = NULL;
   arrayref_t **aptr;
   glui32 ix, val, addr2;
@@ -1323,6 +1357,8 @@ static void release_temp_i_array(glui32 *arr, glui32 addr, glui32 len, int passo
 
 static void **grab_temp_ptr_array(glui32 addr, glui32 len, int objclass, int passin)
 {
+  LOGI("grab_temp_ptr_array glkop.c");
+
   arrayref_t *arref = NULL;
   void **arr = NULL;
   glui32 ix, addr2;
@@ -1357,6 +1393,8 @@ static void **grab_temp_ptr_array(glui32 addr, glui32 len, int objclass, int pas
 
 static void release_temp_ptr_array(void **arr, glui32 addr, glui32 len, int objclass, int passout)
 {
+  LOGI("release_temp_ptr_array glkop.c");
+
   arrayref_t *arref = NULL;
   arrayref_t **aptr;
   glui32 ix, val, addr2;
@@ -1401,6 +1439,8 @@ static void release_temp_ptr_array(void **arr, glui32 addr, glui32 len, int objc
 static gidispatch_rock_t glulxe_retained_register(void *array,
   glui32 len, char *typecode)
 {
+  LOGI("glulxe_retained_register glkop.c");
+
   gidispatch_rock_t rock;
   arrayref_t *arref = NULL;
   arrayref_t **aptr;
@@ -1421,12 +1461,25 @@ static gidispatch_rock_t glulxe_retained_register(void *array,
       break;
   }
   arref = *aptr;
+
+    LOGI("glulxe_retained_register glkop.c CHECKPOINT_A");
+
   if (!arref)
+  {
+    LOGE("glulxe_retained_register glkop.c FATAL Unable to re-find array argument in Glk call");
     fatalError("Unable to re-find array argument in Glk call.");
+    }
   if (arref->elemsize != elemsize || arref->len != len)
+  {
+    LOGE("glulxe_retained_register glkop.c FATAL Mismatched array argument in Glk call %d : %d - %d : %d %s", elemsize, arref->elemsize, len, arref->len, typecode);
     fatalError("Mismatched array argument in Glk call.");
+    }
+
+  LOGI("glulxe_retained_register glkop.c CHECKPOINT_B");
 
   arref->retained = TRUE;
+
+  LOGI("glulxe_retained_register glkop.c CHECKPOINT_C");
 
   rock.ptr = arref;
   return rock;
@@ -1435,6 +1488,8 @@ static gidispatch_rock_t glulxe_retained_register(void *array,
 static void glulxe_retained_unregister(void *array, glui32 len,
   char *typecode, gidispatch_rock_t objrock)
 {
+  LOGI("glulxe_retained_unregister glkop.c");
+
   arrayref_t *arref = NULL;
   arrayref_t **aptr;
   glui32 ix, addr2, val;
