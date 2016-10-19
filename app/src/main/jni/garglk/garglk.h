@@ -82,7 +82,16 @@ typedef struct window_graphics_s window_graphics_t;
 
 /* Some globals for gargoyle */
 
+#ifdef ANDROID
+#define TGLINELEN 0
+#define TGLINECNT 0
+#define TBLINELEN 0
+#else
+#define TGLINELEN 256
+#define TGLINECNT 256
 #define TBLINELEN 300
+#endif
+
 #define SCROLLBACK 512
 #define HISTORYLEN 100
 
@@ -437,8 +446,8 @@ struct window_pair_s
 typedef struct tgline_s
 {
     int dirty;
-    glui32 chars[256];
-    attr_t attrs[256];
+    glui32 chars[TGLINELEN];
+    attr_t attrs[TGLINELEN];
 } tgline_t;
 
 struct window_textgrid_s
@@ -446,7 +455,7 @@ struct window_textgrid_s
     window_t *owner;
 
     int width, height;
-    tgline_t lines[256];
+    tgline_t lines[TGLINECNT];
 
     int curx, cury; /* the window cursor position */
 
@@ -687,8 +696,9 @@ void winopenfile(char *prompt, char *buf, int buflen, int filter);
 void winsavefile(char *prompt, char *buf, int buflen, int filter);
 void winexit(void);
 void winclipstore(glui32 *text, int len);
+#ifdef GLK_MODULE_DATETIME
 void wincounter(glktimeval_t *time);
-
+#endif
 void fontreplace(char *font, int type);
 void fontload(void);
 void fontunload(void);
@@ -700,8 +710,6 @@ picture_t *gli_picture_load(unsigned long id);
 void gli_picture_store(picture_t *pic);
 picture_t *gli_picture_retrieve(unsigned long id, int scaled);
 picture_t *gli_picture_scale(picture_t *src, int destwidth, int destheight);
-void gli_picture_increment(picture_t *pic);
-void gli_picture_decrement(picture_t *pic);
 void gli_piclist_increment(void);
 void gli_piclist_decrement(void);
 
