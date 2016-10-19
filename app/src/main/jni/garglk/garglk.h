@@ -82,15 +82,16 @@ typedef struct window_graphics_s window_graphics_t;
 
 /* Some globals for gargoyle */
 
-#ifdef ANDROID
-#define TGLINELEN 0
-#define TGLINECNT 0
-#define TBLINELEN 0
-#else
+/* Why are we setting these to zero on Android? */
+//#ifdef ANDROID
+//#define TGLINELEN 0
+//#define TGLINECNT 0
+//#define TBLINELEN 0
+//#else
 #define TGLINELEN 256
 #define TGLINECNT 256
 #define TBLINELEN 300
-#endif
+//#endif
 
 #define SCROLLBACK 512
 #define HISTORYLEN 100

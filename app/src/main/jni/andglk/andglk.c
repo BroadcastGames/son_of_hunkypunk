@@ -185,8 +185,10 @@ int andglk_loader_glk_MemoryStream_retainVmArray(JNIEnv *env, jobject this, int 
 {
     LOGI("andglk_loader_glk_MemoryStream_retainVmArray andglk.c");
 	if (gli_register_arr) {
-        LOGE("andglk_loader_glk_MemoryStream_retainVmArray andglk.c started if %d %d", buffer, length);
-        return;
+        LOGE("andglk_loader_glk_MemoryStream_retainVmArray andglk.c started if CRASHPOINT %d %d", buffer, length);
+        // on the crash for git Adventure, value is zero (rock.num == 0)
+        // prevent crash: return;
+        // return 0;
 
 		gidispatch_rock_t rock = gli_register_arr((void *)buffer, length, gidispatch_char_array);
         LOGI("andglk_loader_glk_MemoryStream_retainVmArray andglk.c rock %d", rock.num);
