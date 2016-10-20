@@ -180,6 +180,8 @@ public class TextBufferWindow extends Window {
         }
 
         public void flush() {
+            Log.d("Glk/TextBufferWindow","Stream flush()");
+
             applyStyle();
 
             if (mSsb.length() == 0)
@@ -198,6 +200,8 @@ public class TextBufferWindow extends Window {
         }
 
         protected void discardBuffers() {
+            Log.d("Glk/TextBufferWindow","Stream discardBuffers()");
+
             mBuffer.setLength(0);
             mSsb.clear();
         }
@@ -270,9 +274,12 @@ public class TextBufferWindow extends Window {
                                 if (count >= 1 && s.charAt(start) == '\n')
                                     char_inp = '\n';
                             } catch (Exception ex) {
+                                Log.e("Glk/TextBufferWindow","TextWatcher input study Exception", ex);
                             }
 
                             if (char_inp > 0) {
+                                Log.d("Glk/TextBufferWindow","TextWatcher char_inp " + char_inp);
+
                                 disableInput();
 
                                 SpannableStringBuilder sb = new SpannableStringBuilder();
@@ -1010,18 +1017,18 @@ public class TextBufferWindow extends Window {
                         mScrollView.setPadding(0, 0, 0, 0);
                         mScrollView.setFocusable(false);
 
-                        LinearLayout.LayoutParams paramsDefault = new
-                                LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-                        LinearLayout.LayoutParams paramsHLayout = new
-                                LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-                        LinearLayout.LayoutParams paramsPrompt = new
-                                LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-                        LinearLayout.LayoutParams paramsCommand = new
-                                LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-                        LinearLayout.LayoutParams paramsLView = new
-                                LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-                        LinearLayout.LayoutParams paramsLLayout = new
-                                LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                        LayoutParams paramsDefault = new
+                                LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                        LayoutParams paramsHLayout = new
+                                LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+                        LayoutParams paramsPrompt = new
+                                LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                        LayoutParams paramsCommand = new
+                                LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+                        LayoutParams paramsLView = new
+                                LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                        LayoutParams paramsLLayout = new
+                                LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
                         paramsPrompt.setMargins(0, -margin, 0, 0);
                         paramsCommand.setMargins(0, -margin, 0, 0);
 
@@ -1485,6 +1492,7 @@ public class TextBufferWindow extends Window {
     }
 
     public void lineInputAccepted(Spannable s) {
+        Log.d("Glk/TextBufferWindow","lineInputAccepted '" + s.toString() + "'");
         String result = s.toString().trim();
 
         mCommandText = s;
@@ -1494,9 +1502,10 @@ public class TextBufferWindow extends Window {
         if (echo != null) {
             echo.putString(result);
             echo.putChar('\n');
+            Log.d("Glk/TextBufferWindow","lineInputAccepted just sent to glk.Stream echo");
         }
 
-        //Log.d("Glk/TextBufferWindow", "lineInputAccepted:"+result);
+        Log.d("Glk/TextBufferWindow", "lineInputAccepted:"+result);
 
         LineInputEvent lie = new LineInputEvent(this, result, mLineEventBuffer,
                 mLineEventBufferLength, mLineEventBufferRock, mUnicodeEvent);
@@ -1567,7 +1576,7 @@ public class TextBufferWindow extends Window {
 
     @Override
     public void requestCharEvent() {
-        //Log.d("Glk/TextBufferWindow","requestCharEvent");
+        Log.d("Glk/TextBufferWindow","requestCharEvent");
         Glk.getInstance().waitForUi(
                 new Runnable() {
                     @Override
@@ -1588,14 +1597,14 @@ public class TextBufferWindow extends Window {
                 new Runnable() {
                     @Override
                     public void run() {
-                        Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() " + Thread.currentThread());
+                        Log.d("Glk/TextBufferWindow","requestLineEvent runnable run() " + buffer + " " + initial + " " + unicode + " max " + maxlen + " " + Thread.currentThread());
 
                         try {
                             mLineEventBuffer = buffer;
                             mLineEventBufferLength = maxlen;
                             Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() CHECKPOINT_A initial + " + initial + " buffer " + buffer + " maxlen " + maxlen);
                             mLineEventBufferRock = retainVmArray(buffer, maxlen);
-                            Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() CHECKPOINT_B");
+                            Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() CHECKPOINT_B AFTER C retainVmArray " + buffer + " " + initial + " " + unicode + " max " + maxlen);
                             mUnicodeEvent = (unicode != 0);
                             Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() CHECKPOINT_C");
                             mActiveCommand.enableInput();

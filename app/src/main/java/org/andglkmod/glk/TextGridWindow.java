@@ -33,6 +33,7 @@ import android.graphics.Typeface;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextPaint;
+import android.util.Log;
 import android.view.KeyEvent;
 
 public class TextGridWindow extends Window {
@@ -298,6 +299,7 @@ public class TextGridWindow extends Window {
 
         public synchronized int[] getSize() {
 			/*
+			// ToDo: look at this?
 				this is a hack until the native side
 				is synchronized with the java UI.  For now,
 				just report standard screen size if still zero.
@@ -627,6 +629,7 @@ public class TextGridWindow extends Window {
         mLineBuffer = buffer;
         mMaxLen = (int) maxlen;
         mDispatchRock = retainVmArray(buffer, maxlen);
+        Log.d("Glk/TexGridWindow","requestLineEvent runnable run() AFTER retainVmArray " + buffer + " " + initial + " " + unicode + " max " + maxlen);
         mView.requestLineEvent(initial);
         mUnicodeEvent = (unicode != 0);
     }

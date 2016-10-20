@@ -127,7 +127,7 @@ public class Glk extends Thread {
 
 	@Override
 	public void run() {
-		Log.i(TAG, "run()");
+		Log.i(TAG, "Thread run() " + Thread.currentThread());
 		startTerp(_arguments[0], _autoSavePath, _arguments.length, _arguments);
 		Log.i(TAG, "run() before notifyQuit");
 		notifyQuit();
@@ -158,7 +158,7 @@ public class Glk extends Thread {
 				tw.setTextSize(fontSize);
 				tw.setText(R.string.game_quit);
 
-				overlay.measure(View.MeasureSpec.makeMeasureSpec(mFrame.getWidth(), MeasureSpec.AT_MOST), 
+				overlay.measure(View.MeasureSpec.makeMeasureSpec(mFrame.getWidth(), MeasureSpec.AT_MOST),
 						View.MeasureSpec.makeMeasureSpec(mFrame.getHeight(), MeasureSpec.AT_MOST));
 				Bitmap bitmap = Bitmap.createBitmap(overlay.getMeasuredWidth(), overlay.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
 				overlay.layout(0, 0, overlay.getMeasuredWidth(), overlay.getMeasuredHeight());
@@ -306,7 +306,7 @@ public class Glk extends Thread {
 
 	public int[] gestalt(int sel, int val) {
 		
-		//Log.d("Glk","gestalt " + Integer.toString(sel));
+		Log.d("Glk","gestalt " + Integer.toString(sel));
 
 		switch (sel) {
 		case GESTALT_VERSION:

@@ -19,9 +19,13 @@
 
 package org.andglkmod.glk;
 
+import android.util.Log;
+
 import java.io.IOException;
 
-	/* todo :
+	/*
+	ToDo: here is a todo list!
+	todo :
 	  change const public MemoryStream(int cBuffer, int[] buffer, int mode, int rock)
 	  (move copy of bytes to native side non-unicode stream open)
 	  private native void writeOutUni(int buffer, int[] buffer2)
@@ -39,6 +43,8 @@ public class MemoryStream extends Stream {
 
 	public MemoryStream(int cBuffer, byte[] buffer, int mode, int rock) {
 		super(rock);
+		Log.d("Glk/MemoryStream", "new instance created");
+
 		mCBuffer = cBuffer;
 		mBuffer = new int[buffer.length];
 		for (int i = 0; i< buffer.length; i++)
@@ -46,7 +52,9 @@ public class MemoryStream extends Stream {
 		mMode = mode;
 		mPos = 0;
 		if (mode != FileRef.FILEMODE_READ && cBuffer != 0) // we already copied it
+		{
 			mDispatchRock = retainVmArray(cBuffer, buffer.length);
+		}
 	}
 	
 	
@@ -58,6 +66,7 @@ public class MemoryStream extends Stream {
 			for (int i = 0; i< mBuffer.length; i++)
 				buf[i] = (byte)mBuffer[i];
 
+			Log.d("Glk/MemoryStream", "doClose buffer write length " + mBuffer.length);
 			writeOut(mCBuffer, buf);
 			releaseVmArray(mCBuffer, mBuffer.length, mDispatchRock);
 		}
