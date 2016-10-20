@@ -105,6 +105,8 @@
 
 static char * DecodeVMString (git_uint32 addr)
 {
+    LOGI("DecodeVMString glkop.c");
+
     glui32 end;
     char * data;
     char * c;
@@ -134,6 +136,8 @@ static char * DecodeVMString (git_uint32 addr)
 
 static glui32 * DecodeVMUstring (git_uint32 addr)
 {
+    LOGI("DecodeVMUstring glkop.c");
+
     glui32 end;
     glui32 * data;
     glui32 * c;
@@ -166,11 +170,13 @@ static glui32 * DecodeVMUstring (git_uint32 addr)
 
 static void ReleaseVMString (char * ptr)
 {
+    LOGI("ReleaseVMString glkop.c");
     glulx_free (ptr);
 }
 
 static void ReleaseVMUstring (glui32 * ptr)
 {
+    LOGI("ReleaseVMUstring glkop.c");
     glulx_free (ptr);
 }
 
@@ -283,6 +289,8 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
 {
   glui32 retval = 0;
 
+  LOGV("git_perform_glk start");
+
   switch (funcnum) {
     /* To speed life up, we implement commonly-used Glk functions
        directly -- instead of bothering with the whole prototype 
@@ -341,8 +349,11 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
 
     /* Grab the string. */
     proto = gidispatch_prototype(funcnum);
-    if (!proto)
+    LOGD("bug trace FullDispatcher");
+    if (!proto) {
+      LOGE("Unknown Glk function.");
       fatalError("Unknown Glk function.");
+    }
 
     splot.varglist = arglist;
     splot.numvargs = numargs;
@@ -369,12 +380,18 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
     argnum2 = 0;
     cx = proto;
     unparse_glk_args(&splot, &cx, 0, &argnum2, 0, 0);
-    if (argnum != argnum2)
+    if (argnum != argnum2) {
+      LOGE("Argument counts did not match.");
       fatalError("Argument counts did not match.");
+      }
+
+    LOGD("bug trace phase 3");
 
     break;
   }
   }
+
+  LOGV("git_perform_glk end");
 
   return retval;
 }
@@ -599,6 +616,7 @@ static void parse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
           if (varglist[ix+1] > gEndMem || varglist[ix]+varglist[ix+1] > gEndMem)
             varglist[ix+1] = gEndMem - varglist[ix];
 
+          LOGW("glkop.c CODE CHANGE SPOT A, CaptureArray");
           garglist[gargnum].array = (void*) AddressOfArray(varglist[ix]);
           gargnum++;
           ix++;
@@ -608,6 +626,7 @@ static void parse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
           break;
         case 'I':
           /* See comment above. */
+          LOGW("glkop.c CODE CHANGE SPOT B, CaptureArray");
           if (varglist[ix+1] > gEndMem/4 || varglist[ix+1] > (gEndMem-varglist[ix])/4)
               varglist[ix+1] = (gEndMem - varglist[ix]) / 4;
 
@@ -629,6 +648,7 @@ static void parse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
           cx++;
           break;
         default:
+          LOGE("glkop.c Illegal format string %s", typeclass);
           fatalError("Illegal format string.");
           break;
         }
@@ -813,6 +833,7 @@ static void unparse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
 
         switch (typeclass) {
         case 'C':
+          LOGW("glkop.c CODE CHANGE SPOT C, ReleaseCArray");
           gargnum++;
           ix++;
           gargnum++;
@@ -973,6 +994,8 @@ static void unparse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
 */
 strid_t git_find_stream_by_id(glui32 objid)
 {
+  LOGI("git_find_stream_by_id glkop.c");
+
   if (!objid)
     return NULL;
 
@@ -986,6 +1009,8 @@ strid_t git_find_stream_by_id(glui32 objid)
 */
 glui32 git_find_id_for_stream(strid_t str)
 {
+  LOGI("git_find_id_for_window glkop.c");
+
   gidispatch_rock_t objrock;
 
   if (!str)
@@ -1086,6 +1111,8 @@ static void classes_remove(int classid, void *obj)
 static gidispatch_rock_t glulxe_classtable_register(void *obj, 
   glui32 objclass)
 {
+  LOGI("glulxe_classtable_register glkop.c");
+
   classref_t *cref;
   gidispatch_rock_t objrock;
   cref = classes_put(objclass, obj);
@@ -1101,6 +1128,8 @@ static void glulxe_classtable_unregister(void *obj, glui32 objclass,
 
 static glui32 *grab_temp_array(glui32 addr, glui32 len, int passin)
 {
+  LOGI("grab_temp_array glkop.c MODIFIED in newer versions");
+
   arrayref_t *arref = NULL;
   glui32 *arr = NULL;
   glui32 ix, addr2;
@@ -1131,6 +1160,8 @@ static glui32 *grab_temp_array(glui32 addr, glui32 len, int passin)
 
 static void release_temp_array(glui32 *arr, glui32 addr, glui32 len, int passout)
 {
+  LOGI("release_temp_array glkop.c");
+
   arrayref_t *arref = NULL;
   arrayref_t **aptr;
   glui32 ix, val, addr2;
@@ -1166,6 +1197,8 @@ static void release_temp_array(glui32 *arr, glui32 addr, glui32 len, int passout
 
 static void **grab_temp_ptr_array(glui32 addr, glui32 len, int objclass, int passin)
 {
+  LOGI("grab_temp_ptr_array glkop.c");
+
   arrayref_t *arref = NULL;
   void **arr = NULL;
   glui32 ix, addr2;
@@ -1200,6 +1233,8 @@ static void **grab_temp_ptr_array(glui32 addr, glui32 len, int objclass, int pas
 
 static void release_temp_ptr_array(void **arr, glui32 addr, glui32 len, int objclass, int passout)
 {
+  LOGI("release_temp_ptr_array glkop.c");
+
   arrayref_t *arref = NULL;
   arrayref_t **aptr;
   glui32 ix, val, addr2;
@@ -1244,6 +1279,8 @@ static void release_temp_ptr_array(void **arr, glui32 addr, glui32 len, int objc
 gidispatch_rock_t glulxe_retained_register(void *array,
   glui32 len, char *typecode)
 {
+  LOGI("glulxe_retained_register glkop.c");
+
   gidispatch_rock_t rock;
   arrayref_t *arref = NULL;
   arrayref_t **aptr;
@@ -1285,6 +1322,8 @@ gidispatch_rock_t glulxe_retained_register(void *array,
 void glulxe_retained_unregister(void *array, glui32 len, 
   char *typecode, gidispatch_rock_t objrock)
 {
+  LOGI("glulxe_retained_unregister glkop.c");
+
   arrayref_t *arref = NULL;
   arrayref_t **aptr;
   glui32 ix, addr2, val;
