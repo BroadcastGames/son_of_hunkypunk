@@ -129,7 +129,7 @@ public class Glk extends Thread {
 	public void run() {
 		Log.i(TAG, "Thread run() " + Thread.currentThread());
 		startTerp(_arguments[0], _autoSavePath, _arguments.length, _arguments);
-		Log.i(TAG, "run() before notifyQuit");
+		Log.i(TAG, "run(), after startTerp, before notifyQuit");
 		notifyQuit();
 		_instance = null;
 		Window.setRoot(null);
@@ -319,8 +319,11 @@ public class Glk extends Thread {
 		case GESTALT_LINEINPUT:
 			if (isPrintable((char) val) && val != 10)
 				return sOne;
-			else
+			else {
+				// It is a ToDo to try and cope with these, convert them to Unicode that Java/Android can process?
+				Log.w("Glk", "isPrintable false on char " + val);
 				return sZero;
+			}
 		case GESTALT_CHARINPUT:
 			// TODO: handle special characters; this needs getChar support too.
 			return CharInputEvent.accepts(val) ? sOne : sZero;
@@ -328,7 +331,7 @@ public class Glk extends Thread {
 			return sZero;
 		default:
 			Log.w("Glk", "unhandled gestalt selector: " + Integer.toString(sel) + " (value " + val + ")");
-		// all below are TODO
+		// all below are TODO:
 		case GESTALT_MOUSEINPUT:
 		case GESTALT_TIMER:
 		case GESTALT_GRAPHICS:

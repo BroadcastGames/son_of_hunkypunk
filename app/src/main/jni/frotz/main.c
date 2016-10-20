@@ -206,6 +206,8 @@ void andglk_exit() {
 int glkunix_startup_code(glkunix_startup_t *data)
 {
 #if ANDGLK
+    LOGI("frotz interpreter glkunix_startup_code main.c");
+
 	andglk_set_autosave_hook = andglk_set_autosave;
 	andglk_set_autorestore_hook = andglk_set_autosave;
 	andglk_exit_hook = andglk_exit;

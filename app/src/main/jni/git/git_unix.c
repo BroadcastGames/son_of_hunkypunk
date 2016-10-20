@@ -27,8 +27,10 @@ glkunix_argumentlist_t glkunix_arguments[] =
 
 void fatalError (const char * s)
 {
+    LOGE("git interpreter git_unix.c fatalError: %s", s);
     fprintf (stderr, "*** fatal error: %s ***\n", s);
-    exit (1);
+    // bad idea to Exit on Android: exit (1);
+    // ToDo: Throw Java Exception for Andorid App
 }
 
 #ifdef USE_MMAP
@@ -38,6 +40,8 @@ const char * gFilename = 0;
 
 int glkunix_startup_code(glkunix_startup_t *data)
 {
+    LOGI("git interpreter glkunix_startup_code git_unix.c memorymap");
+
     if (data->argc <= 1)
     {
         printf ("usage: git gamefile.ulx\n");
@@ -76,6 +80,7 @@ void glk_main ()
     
 error:
     perror ("git");
+    // ToDo: shoudl we have a return value instead of exit here for Android?
     exit (errno);
 }
 
@@ -86,6 +91,8 @@ strid_t gStream = 0;
 
 int glkunix_startup_code(glkunix_startup_t *data)
 {
+    LOGI("git interpreter glkunix_startup_code git_unix.c non-memorymap");
+
     if (data->argc <= 1)
     {
         printf ("usage: git gamefile.ulx\n");

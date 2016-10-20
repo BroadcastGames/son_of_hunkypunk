@@ -1492,8 +1492,8 @@ public class TextBufferWindow extends Window {
     }
 
     public void lineInputAccepted(Spannable s) {
-        Log.d("Glk/TextBufferWindow","lineInputAccepted '" + s.toString() + "'");
         String result = s.toString().trim();
+        Log.d("Glk/TextBufferWindow","lineInputAccepted '" + result + "'");
 
         mCommandText = s;
         mPrompt.setText("");
@@ -1505,7 +1505,7 @@ public class TextBufferWindow extends Window {
             Log.d("Glk/TextBufferWindow","lineInputAccepted just sent to glk.Stream echo");
         }
 
-        Log.d("Glk/TextBufferWindow", "lineInputAccepted:"+result);
+        Log.d("Glk/TextBufferWindow", "lineInputAccepted: "+result);
 
         LineInputEvent lie = new LineInputEvent(this, result, mLineEventBuffer,
                 mLineEventBufferLength, mLineEventBufferRock, mUnicodeEvent);
@@ -1602,9 +1602,9 @@ public class TextBufferWindow extends Window {
                         try {
                             mLineEventBuffer = buffer;
                             mLineEventBufferLength = maxlen;
-                            Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() CHECKPOINT_A initial + " + initial + " buffer " + buffer + " maxlen " + maxlen);
+                            Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() CHECKPOINT_A initial " + initial + " buffer " + buffer + " maxlen " + maxlen + " unicode " + unicode);
                             mLineEventBufferRock = retainVmArray(buffer, maxlen);
-                            Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() CHECKPOINT_B AFTER C retainVmArray " + buffer + " " + initial + " " + unicode + " max " + maxlen);
+                            Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() CHECKPOINT_B AFTER C retainVmArray initial " + initial + " buffer " + buffer + " maxlen " + maxlen + " unicode " + unicode);
                             mUnicodeEvent = (unicode != 0);
                             Log.d("Glk/TextBufferWindow","glk_request_line_event requestLineEvent Runnable run() CHECKPOINT_C");
                             mActiveCommand.enableInput();

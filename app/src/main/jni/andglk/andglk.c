@@ -156,6 +156,7 @@ void andglk_loader_glk_main(JavaVM* jvm, JNIEnv *env, jobject this, const char* 
 	JNI_OnLoad(jvm, NULL);
 
    	if (_this) {
+   	    // Is this how we can Throw Exceptions in Java-land?
 		(*env)->ThrowNew(env, (*env)->FindClass(env, "org/andglkmod/glk/Glk/AlreadyRunning"),
 				"you can't run more than one glk instance");
 		return;
@@ -1194,6 +1195,7 @@ void gli_request_line_event(winid_t win, void *buf, glui32 maxlen, glui32 initle
 
     LOGI("glk_request_line_event full a %d %d %d %d", maxlen, initlen, mid, unicode);
 
+    // method ID
 	if (mid == 0)
 		mid = (*env)->GetMethodID(env, _Window, "requestLineEvent", "(Ljava/lang/String;JII)V");
 
@@ -1220,11 +1222,12 @@ void gli_request_line_event(winid_t win, void *buf, glui32 maxlen, glui32 initle
 		str = (*env)->NewString(env, jbuf, maxlen);
 	}
 
-    LOGD("glk_request_line_event full c %d %d %d", maxlen, initlen, mid);
+    // str is null at this point?
+    LOGD("glk_request_line_event full c %d %d methodid %d unicode? %d str: %s", maxlen, initlen, mid, unicode, str);
 
 	(*env)->CallVoidMethod(env, *win, mid, str, (jlong) maxlen, (jint) buf, (jint) unicode);
 
-    LOGD("glk_request_line_event full d %d %d", maxlen, initlen);
+    LOGD("glk_request_line_event full d %d %d methodid %d unicode? %d str: %s", maxlen, initlen, mid, unicode, str);
 
 	if (str)
 		(*env)->DeleteLocalRef(env, str);
@@ -1234,12 +1237,13 @@ void gli_request_line_event(winid_t win, void *buf, glui32 maxlen, glui32 initle
 
 void glk_request_line_event_uni(winid_t win, glui32 *buf, glui32 maxlen, glui32 initlen)
 {
+    LOGD("glk_request_line_event overload_B (unicode) %d %d", maxlen, initlen);
 	gli_request_line_event(win, buf, maxlen, initlen, 1 /* unicode */);
 }
 
 void glk_request_line_event(winid_t win, char *buf, glui32 maxlen, glui32 initlen)
 {
-    LOGI("glk_request_line_event overload_A %d %d", maxlen, initlen);
+    LOGD("glk_request_line_event overload_A (non-unicode) %d %d", maxlen, initlen);
 	gli_request_line_event(win, buf, maxlen, initlen, 0 /* ASCII */);
     // LOGE("glk_request_line_event overload_A HACK IN VALUES SPOTA %d %d", maxlen, initlen);
 	// gli_request_line_event(win, buf, 120, initlen, 1);
@@ -1268,7 +1272,7 @@ void glk_request_mouse_event(winid_t win)
 
 void glk_cancel_line_event(winid_t win, event_t *event)
 {
-    LOGI("glk_request_line_event glk_cancel_line_event()");
+    LOGD("glk_request_line_event glk_cancel_line_event()");
 
 	JNIEnv *env = JNU_GetEnv();
 	static jmethodID mid = 0;

@@ -113,13 +113,15 @@ JNIEXPORT void Java_org_andglk_glk_Glk_startTerp
 	const char *copy_saveFilePath = (*env)->GetStringUTFChars(env, saveFilePath, 0);
 
 	// start the game
-	andglk_loader_glk_main(_jvm, env, obj1, copy_saveFilePath, &startdata);   
+    LOGI("startTerp, start the game");
+	andglk_loader_glk_main(_jvm, env, obj1, copy_saveFilePath, &startdata);
 
 	(*env)->ReleaseStringUTFChars(env, terpPath, copy_saveFilePath);
 
 	// begin synchronize
 	pthread_mutex_lock (&_muQuery);
 
+    LOGI("startTerp, unload Interpreter");
 	dlclose(_handle);           	 // unload terp
 	
 	// free memory
