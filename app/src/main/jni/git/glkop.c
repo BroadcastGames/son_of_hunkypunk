@@ -1392,6 +1392,7 @@ static gidispatch_rock_t glulxe_retained_register(void *array,
   arrayref_t **aptr;
   int elemsize = 0;
 
+  // ToDo: properly fix this. This is logic from Git 1.3.0 to work around crash in Son of Hunkypunk that Twisty does not have. Twisty seems to use a different typecode for Unicde vs. ASCII.
   if (typecode[4] != 'I' || array == NULL) {
     /* We only retain integer arrays. */
     rock.ptr = NULL;
