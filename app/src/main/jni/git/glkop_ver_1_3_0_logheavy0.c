@@ -322,7 +322,8 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
     retval = glk_char_to_lower(arglist[0] & 0xFF);
     // So, is this building up the input into a buffer, one lower-cased char at a time?
     // Why does Adventure call this 8 times after entry of a word?
-    LOGV("git_perform_glk 0x00A0 char_to_lower %s", (arglist[0] & 0xFF));
+    // And it seems to be called twice with the same data? 8 times for "LOok" to "look".
+    LOGV("git_perform_glk 0x00A0 char_to_lower %d to %d", arglist[0], retval);
     break;
   case 0x00A1: /* char_to_upper */
     if (numargs != 1)
