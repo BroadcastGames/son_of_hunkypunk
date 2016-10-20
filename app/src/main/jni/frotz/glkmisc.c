@@ -412,6 +412,7 @@ zchar os_read_key (int timeout, bool show_cursor)
 
 zchar os_read_line (int max, zchar *buf, int timeout, int width, int continued)
 {
+    LOGD("glkmisc.c os_read_line");
 	event_t ev;
 	winid_t win = gos_curwin ? gos_curwin : gos_lower;
 

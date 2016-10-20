@@ -182,6 +182,8 @@ void andglk_loader_glk_main(JavaVM* jvm, JNIEnv *env, jobject this, const char* 
 
 int andglk_loader_glk_MemoryStream_retainVmArray(JNIEnv *env, jobject this, int buffer, long length)
 {
+    LOGD("andglk_loader_glk_MemoryStream_retainVmArray andglk.c %d %d", buffer, length);
+
 	if (gli_register_arr) {
 	    // Note, the pattern gidispatch_char_array seems to be encoded in this page as a string? Has the format changed?
 	    // Someone opened a StackOverflow question on this code! http://stackoverflow.com/questions/37464566/how-to-get-int-buffer-memory-of-string-in-java
@@ -197,6 +199,8 @@ int andglk_loader_glk_MemoryStream_retainVmArray(JNIEnv *env, jobject this, int 
 
 jint andglk_loader_glk_CPointed_makePoint(JNIEnv *env, jobject this)
 {
+    LOGD("andglk_loader_glk_CPointed_makePoint andglk.c");
+
 	jobject *ptr = malloc(sizeof(jobject));
 	*ptr = (*env)->NewGlobalRef(env, this);
 	if (gli_register_obj) {
@@ -215,6 +219,7 @@ jint andglk_loader_glk_CPointed_makePoint(JNIEnv *env, jobject this)
 
 void andglk_loader_glk_CPointed_releasePoint(JNIEnv *env, jobject this, jint point)
 {
+    LOGD("andglk_loader_glk_CPointed_releasePoint andglk.c");
 	if (!point)
 		return;
 
@@ -234,6 +239,7 @@ void andglk_loader_glk_CPointed_releasePoint(JNIEnv *env, jobject this, jint poi
 
 void andglk_loader_glk_MemoryStream_writeOut(JNIEnv *env, jobject this, jint nativeBuf, jarray jbuf)
 {
+    LOGD("andglk_loader_glk_MemoryStream_writeOut andglk.c");
 	char *nbuf = (char *)nativeBuf;
 	int len = (*env)->GetArrayLength(env, jbuf);
 
@@ -248,6 +254,7 @@ void andglk_loader_glk_MemoryStream_writeOut(JNIEnv *env, jobject this, jint nat
 
 void andglk_loader_glk_MemoryStream_releaseVmArray(JNIEnv *env, jobject this, int buffer, int length, int dispatchRock)
 {
+    LOGD("andglk_loader_glk_MemoryStream_releaseVmArray andglk.c");
 	if (gli_unregister_arr) {
 		gidispatch_rock_t rock;
 		rock.num = dispatchRock;
@@ -257,6 +264,7 @@ void andglk_loader_glk_MemoryStream_releaseVmArray(JNIEnv *env, jobject this, in
 
 void andglk_loader_glk_Glk_notifyLinked(JNIEnv *env, jobject this)
 {
+    LOGD("andglk_loader_glk_Glk_notifyLinked andglk.c");
 	jclass cls = (*env)->FindClass(env, "org/andglkmod/glk/Glk");
 	jmethodID mid = (*env)->GetMethodID(env, cls, "notifyLinked", "()V");
 	(*env)->CallVoidMethod(env, this, mid);

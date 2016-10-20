@@ -982,14 +982,17 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             }
             break;
         case 0x00D0: /* request_line_event */
+            LOGD("gi_dispa.c 0x00D0");
             if (arglist[1].ptrflag)
                 glk_request_line_event(arglist[0].opaqueref, arglist[2].array,
                     arglist[3].uint, arglist[4].uint);
             else
                 glk_request_line_event(arglist[0].opaqueref, NULL,
                     0, arglist[2].uint);
+            LOGD("gi_dispa.c 0x00D0 end");
             break;
         case 0x00D1: /* cancel_line_event */
+            LOGD("gi_dispa.c 0x00D1 start");
             if (arglist[1].ptrflag) {
                 event_t dat;
                 glk_cancel_line_event(arglist[0].opaqueref, &dat);
@@ -1001,6 +1004,7 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             else {
                 glk_cancel_line_event(arglist[0].opaqueref, NULL);
             }
+            LOGD("gi_dispa.c 0x00D1 end");
             break;
         case 0x00D2: /* request_char_event */
             glk_request_char_event(arglist[0].opaqueref);
@@ -1044,12 +1048,14 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             }
             break;
         case 0x00E1: /* image_draw */
-            arglist[5].uint = glk_image_draw(arglist[0].opaqueref, 
+            LOGD("gi_dispa.c 0x00E1 startn image_draw");
+            arglist[5].uint = glk_image_draw(arglist[0].opaqueref,
                 arglist[1].uint,
                 arglist[2].sint, arglist[3].sint);
             break;
         case 0x00E2: /* image_draw_scaled */
-            arglist[7].uint = glk_image_draw_scaled(arglist[0].opaqueref, 
+            LOGD("gi_dispa.c 0x00E1 startn image_draw_scaled");
+            arglist[7].uint = glk_image_draw_scaled(arglist[0].opaqueref,
                 arglist[1].uint,
                 arglist[2].sint, arglist[3].sint,
                 arglist[4].uint, arglist[5].uint);
