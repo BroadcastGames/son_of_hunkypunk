@@ -1053,21 +1053,26 @@ static void *classes_get(int classid, glui32 objid)
 
   classtable_t *ctab;
   classref_t *cref;
-  if (classid < 0 || classid >= num_classes)
+  if (classid < 0 || classid >= num_classes) {
+    LOGD("classes_get glkop.c RETURN POINT A %d %d", classid, objid);
     return NULL;
+  }
   ctab = git_classes[classid];
   cref = ctab->bucket[objid % CLASSHASH_SIZE];
   for (; cref; cref = cref->next) {
-    if (cref->id == objid)
+    if (cref->id == objid) {
+      LOGD("classes_get glkop.c RETURN POINT B %d %d", classid, objid);
       return cref->obj;
+    }
   }
+  LOGD("classes_get glkop.c RETURN POINT END %d %d", classid, objid);
   return NULL;
 }
 
 /* Put a Glk object in the appropriate hash table. */
 static classref_t *classes_put(int classid, void *obj)
 {
-  LOGI("classes_put glkop.c");
+  LOGI("classes_put glkop.c %d", classid);
 
   int bucknum;
   classtable_t *ctab;
@@ -1295,7 +1300,7 @@ static void release_temp_ptr_array(void **arr, glui32 addr, glui32 len, int objc
 gidispatch_rock_t glulxe_retained_register(void *array,
   glui32 len, char *typecode)
 {
-  LOGI("glulxe_retained_register glkop.c");
+  LOGI("glulxe_retained_register glkop.c %d %s", len, typecode);
 
   gidispatch_rock_t rock;
   arrayref_t *arref = NULL;
@@ -1306,8 +1311,10 @@ gidispatch_rock_t glulxe_retained_register(void *array,
 
   if (typecode[4] != 'I' || array == NULL) {
     /* We only retain integer arrays. */
+    int arrayNull = 0;
+    if (array == NULL) { arrayNull = 1; }
     rock.ptr = NULL;
-    LOGE("glulxe_retained_register returning NULL rock.ptr glkop.c vals %d %s", len, typecode);
+    LOGE("glulxe_retained_register returning NULL rock.ptr glkop.c vals %d %s arrayNull? %d", len, typecode, arrayNull);
     return rock;
   }
 

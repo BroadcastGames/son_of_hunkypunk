@@ -191,7 +191,9 @@ int andglk_loader_glk_MemoryStream_retainVmArray(JNIEnv *env, jobject this, int 
         // prevent crash: return;
         // return 0;
 
-		gidispatch_rock_t rock = gli_register_arr((void *)buffer, length, gidispatch_char_array);
+		//gidispatch_rock_t rock = gli_register_arr((void *)buffer, length, gidispatch_char_array);
+        gidispatch_rock_t rock = (*gli_register_arr)((void *)buffer, length, gidispatch_char_array);
+
         LOGI("andglk_loader_glk_MemoryStream_retainVmArray andglk.c rock %d", rock.num);
 		return rock.num;
 	}

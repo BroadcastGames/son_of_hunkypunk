@@ -199,6 +199,7 @@ void gidispatch_set_retained_registry(
 {
     gli_register_arr = regi;
     gli_unregister_arr = unregi;
+    LOGE("gidispatch_set_retained_registry just called!");
 }
 
 #ifndef ANDGLK

@@ -72,6 +72,12 @@
       memWrite32((addr), (val));                        \
     }                                                   \
   } while (0)
+
+#define AddressOfArray(addr)  \
+	((addr) < gRamStart ? (gRom + (addr)) : (gRam + (addr)))
+#define AddressOfIArray(addr)  \
+	((addr) < gRamStart ? (gRom + (addr)) : (gRam + (addr)))
+
 #define CaptureCArray(addr, len, passin)  \
     (grab_temp_c_array(addr, len, passin))
 #define ReleaseCArray(ptr, addr, len, passout)  \
@@ -306,6 +312,8 @@ int git_init_dispatch()
     &glulxe_classtable_unregister);
   gidispatch_set_retained_registry(&glulxe_retained_register, 
     &glulxe_retained_unregister);
+
+  LOGW("dispatches just set callbacks");
   
   return TRUE;
 }
@@ -665,6 +673,7 @@ static void parse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
 
           LOGW("glkop.c CODE CHANGE SPOT A, CaptureArray");
           garglist[gargnum].array = (void*) CaptureCArray(varglist[ix], varglist[ix+1], passin);
+          // garglist[gargnum].array = (void*) AddressOfArray(varglist[ix]);
           gargnum++;
           ix++;
           garglist[gargnum].uint = varglist[ix];
@@ -1134,14 +1143,19 @@ static void *classes_get(int classid, glui32 objid)
 
   classtable_t *ctab;
   classref_t *cref;
-  if (classid < 0 || classid >= num_classes)
+  if (classid < 0 || classid >= num_classes) {
+    LOGD("classes_get glkop.c RETURN POINT A %d %d", classid, objid);
     return NULL;
+  }
   ctab = git_classes[classid];
   cref = ctab->bucket[objid % CLASSHASH_SIZE];
   for (; cref; cref = cref->next) {
-    if (cref->id == objid)
+    if (cref->id == objid) {
+      LOGD("classes_get glkop.c RETURN POINT B %d %d", classid, objid);
       return cref->obj;
+    }
   }
+  LOGD("classes_get glkop.c RETURN POINT END %d %d", classid, objid);
   return NULL;
 }
 
@@ -1149,7 +1163,7 @@ static void *classes_get(int classid, glui32 objid)
    invent a new unique ID for it. */
 static classref_t *classes_put(int classid, void *obj, glui32 origid)
 {
-  LOGI("classes_put glkop.c");
+  LOGI("classes_put glkop.c %d %d", classid, origid);
 
   int bucknum;
   classtable_t *ctab;
@@ -1230,7 +1244,7 @@ static void glulxe_classtable_unregister(void *obj, glui32 objclass,
 
 static char *grab_temp_c_array(glui32 addr, glui32 len, int passin)
 {
-  LOGI("grab_temp_c_array glkop.c MODIFIED in newer versions");
+  LOGI("grab_temp_c_array glkop.c MODIFIED in newer versions len %d passin %d", len, passin);
 
   arrayref_t *arref = NULL;
   char *arr = NULL;
@@ -1239,8 +1253,11 @@ static char *grab_temp_c_array(glui32 addr, glui32 len, int passin)
   if (len) {
     arr = (char *)glulx_malloc(len * sizeof(char));
     arref = (arrayref_t *)glulx_malloc(sizeof(arrayref_t));
-    if (!arr || !arref) 
+    if (!arr || !arref)
+    {
+      LOGE("grab_temp_c_array glkop.c MODIFIED in newer versions, Unable to allocate space for array argument to Glk call.");
       fatalError("Unable to allocate space for array argument to Glk call.");
+    }
 
     arref->array = arr;
     arref->addr = addr;
@@ -1256,6 +1273,8 @@ static char *grab_temp_c_array(glui32 addr, glui32 len, int passin)
       }
     }
   }
+
+  LOGI("grab_temp_c_array glkop.c MODIFIED in newer versions, result %s", arr);
 
   return arr;
 }
@@ -1450,7 +1469,7 @@ static void release_temp_ptr_array(void **arr, glui32 addr, glui32 len, int objc
 static gidispatch_rock_t glulxe_retained_register(void *array,
   glui32 len, char *typecode)
 {
-  LOGI("glulxe_retained_register glkop.c");
+  LOGI("glulxe_retained_register glkop.c %d %s", len, typecode);
 
   gidispatch_rock_t rock;
   arrayref_t *arref = NULL;
@@ -1460,8 +1479,10 @@ static gidispatch_rock_t glulxe_retained_register(void *array,
   // ToDo: properly fix this. This is logic from Git 1.3.0 to work around crash in Son of Hunkypunk that Twisty does not have. Twisty seems to use a different typecode for Unicde vs. ASCII.
   if (typecode[4] != 'I' || array == NULL) {
     /* We only retain integer arrays. */
+    int arrayNull = 0;
+    if (array == NULL) { arrayNull = 1; }
     rock.ptr = NULL;
-    LOGE("glulxe_retained_register returning NULL rock.ptr glkop.c vals %d %s", len, typecode);
+    LOGE("glulxe_retained_register returning NULL rock.ptr glkop.c vals %d %s arrayNull? %d", len, typecode, arrayNull);
     return rock;
   }
 
