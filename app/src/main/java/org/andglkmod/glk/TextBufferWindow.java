@@ -278,7 +278,7 @@ public class TextBufferWindow extends Window {
                             }
 
                             if (char_inp > 0) {
-                                Log.e("Glk/TextBufferWindow","TextWatcher " + char_inp;
+                                Log.d("Glk/TextBufferWindow","TextWatcher char_inp " + char_inp);
 
                                 disableInput();
 
@@ -1492,7 +1492,7 @@ public class TextBufferWindow extends Window {
     }
 
     public void lineInputAccepted(Spannable s) {
-        Log.e("Glk/TextBufferWindow","lineInputAccepted " + s.toString());
+        Log.d("Glk/TextBufferWindow","lineInputAccepted '" + s.toString() + "'");
         String result = s.toString().trim();
 
         mCommandText = s;
@@ -1502,6 +1502,7 @@ public class TextBufferWindow extends Window {
         if (echo != null) {
             echo.putString(result);
             echo.putChar('\n');
+            Log.d("Glk/TextBufferWindow","lineInputAccepted just sent to glk.Stream echo");
         }
 
         Log.d("Glk/TextBufferWindow", "lineInputAccepted:"+result);

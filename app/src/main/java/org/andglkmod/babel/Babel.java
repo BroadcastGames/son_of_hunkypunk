@@ -19,6 +19,8 @@
 
 package org.andglkmod.babel;
 
+import android.util.Log;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -31,7 +33,7 @@ public class Babel {
 	
 	public static String examine(File f) throws IOException {
 		final String ifid = examine(f.getAbsolutePath());
-		//Log.d(TAG, "examined " + f + ", found IFID " + ifid);
+		Log.d(TAG, "examined " + f + ", found IFID " + ifid);
 		return ifid;
 	}
 

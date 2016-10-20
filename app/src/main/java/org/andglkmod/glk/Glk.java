@@ -302,7 +302,7 @@ public class Glk extends Thread {
 
 	public int[] gestalt(int sel, int val) {
 		
-		//Log.d("Glk","gestalt " + Integer.toString(sel));
+		Log.d("Glk","gestalt " + Integer.toString(sel));
 
 		switch (sel) {
 		case GESTALT_VERSION:
