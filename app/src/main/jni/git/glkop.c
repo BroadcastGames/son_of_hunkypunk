@@ -1392,6 +1392,13 @@ static gidispatch_rock_t glulxe_retained_register(void *array,
   arrayref_t **aptr;
   int elemsize = 0;
 
+  if (typecode[4] != 'I' || array == NULL) {
+    /* We only retain integer arrays. */
+    rock.ptr = NULL;
+    LOGE("glulxe_retained_register returning NULL rock.ptr glkop.c vals %d %s", len, typecode);
+    return rock;
+  }
+
   if (typecode[4] == 'C')
     elemsize = 1;
   else if (typecode[4] == 'I')
