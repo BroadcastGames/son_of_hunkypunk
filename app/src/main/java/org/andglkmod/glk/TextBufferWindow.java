@@ -180,6 +180,8 @@ public class TextBufferWindow extends Window {
         }
 
         public void flush() {
+            Log.d("Glk/TextBufferWindow","Stream flush()");
+
             applyStyle();
 
             if (mSsb.length() == 0)
@@ -198,6 +200,8 @@ public class TextBufferWindow extends Window {
         }
 
         protected void discardBuffers() {
+            Log.d("Glk/TextBufferWindow","Stream discardBuffers()");
+
             mBuffer.setLength(0);
             mSsb.clear();
         }
@@ -270,9 +274,12 @@ public class TextBufferWindow extends Window {
                                 if (count >= 1 && s.charAt(start) == '\n')
                                     char_inp = '\n';
                             } catch (Exception ex) {
+                                Log.e("Glk/TextBufferWindow","TextWatcher input study Exception", ex);
                             }
 
                             if (char_inp > 0) {
+                                Log.e("Glk/TextBufferWindow","TextWatcher " + char_inp;
+
                                 disableInput();
 
                                 SpannableStringBuilder sb = new SpannableStringBuilder();
@@ -1485,6 +1492,7 @@ public class TextBufferWindow extends Window {
     }
 
     public void lineInputAccepted(Spannable s) {
+        Log.e("Glk/TextBufferWindow","lineInputAccepted " + s.toString());
         String result = s.toString().trim();
 
         mCommandText = s;
@@ -1496,7 +1504,7 @@ public class TextBufferWindow extends Window {
             echo.putChar('\n');
         }
 
-        //Log.d("Glk/TextBufferWindow", "lineInputAccepted:"+result);
+        Log.d("Glk/TextBufferWindow", "lineInputAccepted:"+result);
 
         LineInputEvent lie = new LineInputEvent(this, result, mLineEventBuffer,
                 mLineEventBufferLength, mLineEventBufferRock, mUnicodeEvent);
@@ -1567,7 +1575,7 @@ public class TextBufferWindow extends Window {
 
     @Override
     public void requestCharEvent() {
-        //Log.d("Glk/TextBufferWindow","requestCharEvent");
+        Log.d("Glk/TextBufferWindow","requestCharEvent");
         Glk.getInstance().waitForUi(
                 new Runnable() {
                     @Override
@@ -1581,16 +1589,19 @@ public class TextBufferWindow extends Window {
     @Override
     public void requestLineEvent(final String initial, final long maxlen,
                                  final int buffer, final int unicode) {
-        //Log.d("Glk/TextBufferWindow","requestLineEvent");
+        Log.d("Glk/TextBufferWindow","requestLineEvent");
         flush();
 
         Glk.getInstance().waitForUi(
                 new Runnable() {
                     @Override
                     public void run() {
+                        Log.d("Glk/TextBufferWindow","requestLineEvent runnable run() " + buffer + " " + initial + " " + unicode + " max " + maxlen);
+
                         mLineEventBuffer = buffer;
                         mLineEventBufferLength = maxlen;
                         mLineEventBufferRock = retainVmArray(buffer, maxlen);
+                        Log.d("Glk/TextBufferWindow","requestLineEvent runnable run() AFTER C retainVmArray " + buffer + " " + initial + " " + unicode + " max " + maxlen);
                         mUnicodeEvent = (unicode != 0);
                         mActiveCommand.enableInput();
                         mScrollView.fullScroll(View.FOCUS_DOWN);
