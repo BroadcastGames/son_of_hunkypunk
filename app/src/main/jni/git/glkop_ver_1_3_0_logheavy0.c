@@ -289,7 +289,7 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
 {
   glui32 retval = 0;
 
-  LOGV("git_perform_glk start");
+  LOGV("git_perform_glk start %d %d", funcnum, numargs);
 
   switch (funcnum) {
     /* To speed life up, we implement commonly-used Glk functions
@@ -341,6 +341,7 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
     fatalError("Wrong number of arguments to Glk function.");
     break;
 
+  FullDispatcher:
   default: {
     /* Go through the full dispatcher prototype foo. */
     char *proto, *cx;
@@ -367,14 +368,17 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
 
     /* Phase 0. */
     prepare_glk_args(proto, &splot);
+    LOGD("bug trace phase 0");
 
     /* Phase 1. */
     argnum = 0;
     cx = proto;
     parse_glk_args(&splot, &cx, 0, &argnum, 0, 0);
+    LOGD("bug trace phase 1");
 
     /* Phase 2. */
     gidispatch_call(funcnum, argnum, splot.garglist);
+    LOGD("bug trace phase 2");
 
     /* Phase 3. */
     argnum2 = 0;
@@ -391,7 +395,7 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
   }
   }
 
-  LOGV("git_perform_glk end");
+  LOGV("git_perform_glk END %d %d", funcnum, numargs);
 
   return retval;
 }
@@ -722,7 +726,7 @@ static void parse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
           garglist[gargnum].unicharstr = DecodeVMUstring(thisval);
 	      gargnum++;
           break;
-#endif
+#endif /* GLK_MODULE_UNICODE */
         default:
           fatalError("Illegal format string.");
           break;
@@ -1023,6 +1027,8 @@ glui32 git_find_id_for_stream(strid_t str)
 /* Build a hash table to hold a set of Glk objects. */
 static classtable_t *new_classtable(glui32 firstid)
 {
+  LOGI("new_classtable glkop.c");
+
   int ix;
   classtable_t *ctab = (classtable_t *)glulx_malloc(sizeof(classtable_t));
   if (!ctab)
@@ -1039,6 +1045,8 @@ static classtable_t *new_classtable(glui32 firstid)
 /* Find a Glk object in the appropriate hash table. */
 static void *classes_get(int classid, glui32 objid)
 {
+  LOGD("classes_get glkop.c %d %d", classid, objid);
+
   classtable_t *ctab;
   classref_t *cref;
   if (classid < 0 || classid >= num_classes)
@@ -1055,6 +1063,8 @@ static void *classes_get(int classid, glui32 objid)
 /* Put a Glk object in the appropriate hash table. */
 static classref_t *classes_put(int classid, void *obj)
 {
+  LOGI("classes_put glkop.c");
+
   int bucknum;
   classtable_t *ctab;
   classref_t *cref;
@@ -1077,6 +1087,8 @@ static classref_t *classes_put(int classid, void *obj)
 /* Delete a Glk object from the appropriate hash table. */
 static void classes_remove(int classid, void *obj)
 {
+  LOGI("classes_remove glkop.c");
+
   classtable_t *ctab;
   classref_t *cref;
   classref_t **crefp;
