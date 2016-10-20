@@ -318,7 +318,7 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
 {
   glui32 retval = 0;
 
-  LOGV("git_perform_glk start %d %d", funcnum, numargs);
+  LOGV("git_perform_glk start 0x%04x %d", funcnum, numargs);
 
   switch (funcnum) {
     /* To speed life up, we implement commonly-used Glk functions
@@ -346,10 +346,12 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
     glk_put_char_stream(git_find_stream_by_id(arglist[0]), arglist[1] & 0xFF);
     break;
   case 0x00C0: /* select */
-    LOGW("glkop.c 0x00C0 new version hook called");
+    LOGI("glkop.c 0x00C0 new version hook called");
     /* call a library hook on every glk_select() */
-    if (library_select_hook)
+    if (library_select_hook) {
+      LOGW("glkop.c 0x00C0 new version hook called, actual target");
       library_select_hook(arglist[0]);
+    }
     /* but then fall through to full dispatcher, because there's no real
        need for speed here */
     goto FullDispatcher;
@@ -357,6 +359,9 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
     if (numargs != 1)
       goto WrongArgNum;
     retval = glk_char_to_lower(arglist[0] & 0xFF);
+    // So, is this building up the input into a buffer, one lower-cased char at a time?
+    // Why does Adventure call this 8 times after entry of a word?
+    LOGV("git_perform_glk 0x00A0 char_to_lower %s", (arglist[0] & 0xFF));
     break;
   case 0x00A1: /* char_to_upper */
     if (numargs != 1)
@@ -387,7 +392,7 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
 
     /* Grab the string. */
     proto = gidispatch_prototype(funcnum);
-    LOGD("bug trace FullDispatcher");
+    LOGD("bug trace FullDispatcher 0x%04x", funcnum);
     if (!proto) {
       LOGE("Unknown Glk function.");
       fatalError("Unknown Glk function.");
@@ -432,7 +437,7 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
   }
   }
 
-  LOGV("git_perform_glk END %d %d", funcnum, numargs);
+  LOGV("git_perform_glk END 0x%04x %d", funcnum, numargs);
 
   return retval;
 }
