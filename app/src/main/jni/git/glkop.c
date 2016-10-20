@@ -346,6 +346,7 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
     glk_put_char_stream(git_find_stream_by_id(arglist[0]), arglist[1] & 0xFF);
     break;
   case 0x00C0: /* select */
+    LOGW("glkop.c 0x00C0 new version hook called");
     /* call a library hook on every glk_select() */
     if (library_select_hook)
       library_select_hook(arglist[0]);
@@ -386,11 +387,11 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
 
     /* Grab the string. */
     proto = gidispatch_prototype(funcnum);
-    LOGD("bug trace");
+    LOGD("bug trace FullDispatcher");
     if (!proto) {
       LOGE("Unknown Glk function.");
       fatalError("Unknown Glk function.");
-      }
+    }
 
     splot.varglist = arglist;
     splot.numvargs = numargs;
@@ -656,6 +657,7 @@ static void parse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
           if (varglist[ix+1] > gEndMem || varglist[ix]+varglist[ix+1] > gEndMem)
             varglist[ix+1] = gEndMem - varglist[ix];
 
+          LOGW("glkop.c CODE CHANGE SPOT A, CaptureArray");
           garglist[gargnum].array = (void*) CaptureCArray(varglist[ix], varglist[ix+1], passin);
           gargnum++;
           ix++;
@@ -665,6 +667,7 @@ static void parse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
           break;
         case 'I':
           /* See comment above. */
+          LOGW("glkop.c CODE CHANGE SPOT B, CaptureArray");
           if (varglist[ix+1] > gEndMem/4 || varglist[ix+1] > (gEndMem-varglist[ix])/4)
             varglist[ix+1] = (gEndMem - varglist[ix]) / 4;
 
@@ -684,6 +687,7 @@ static void parse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
           cx++;
           break;
         default:
+          LOGE("glkop.c Illegal format string %s", typeclass);
           fatalError("Illegal format string.");
           break;
         }
@@ -868,6 +872,7 @@ static void unparse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
 
         switch (typeclass) {
         case 'C':
+          LOGW("glkop.c CODE CHANGE SPOT C, ReleaseCArray");
           ReleaseCArray(garglist[gargnum].array, varglist[ix], varglist[ix+1], passout);
           gargnum++;
           ix++;
@@ -1219,7 +1224,7 @@ static void glulxe_classtable_unregister(void *obj, glui32 objclass,
 
 static char *grab_temp_c_array(glui32 addr, glui32 len, int passin)
 {
-  LOGI("grab_temp_c_array glkop.c");
+  LOGI("grab_temp_c_array glkop.c MODIFIED in newer versions");
 
   arrayref_t *arref = NULL;
   char *arr = NULL;
