@@ -1085,11 +1085,16 @@ static void event2glk(JNIEnv *env, jobject ev, event_t *event)
 
 			if (unicode) {
 				glui32 * buf = (glui32 *) (*env)->GetIntField(env, ev, buf_id);
+				// return is a length of the converted string?
 				event->val1 = jstring2latin1_uni(env, line, buf, len);
+				// What is this line doing exactly? zero truncating the string?
 				if (event->val1 != len)
 					buf[event->val1] = 0;
 
-                LOGI("glk_request_line_event event2glk() line unicode '%s' len %d %d", buf, len, unicode);
+                // LOG can't take java strings?
+                const char *lineNativeString = (*env)->GetStringUTFChars(env, line, 0);
+                LOGI("glk_request_line_event event2glk() line unicode '%s' len %d %d line length: %d", buf, len, unicode, event->val1);
+                (*env)->ReleaseStringUTFChars(env, line, lineNativeString);
 
 				if (gli_unregister_arr)
 					gli_unregister_arr(buf, len, gidispatch_char_array, rock); //INT2GDROCK(rock));
@@ -1101,7 +1106,7 @@ static void event2glk(JNIEnv *env, jobject ev, event_t *event)
 				if (event->val1 != len)
 					buf[event->val1] = 0;
 
-                LOGI("glk_request_line_event event2glk() line non-unicode '%s' len %d %d", buf, len, unicode);
+                LOGI("glk_request_line_event event2glk() line non-unicode '%s' len %d %d line length: %d", buf, len, unicode, event->val1);
 
 				if (gli_unregister_arr)
 					gli_unregister_arr(buf, len, gidispatch_char_array, rock); //INT2GDROCK(rock));
@@ -1192,13 +1197,13 @@ void gli_request_line_event(winid_t win, void *buf, glui32 maxlen, glui32 initle
 	if (mid == 0)
 		mid = (*env)->GetMethodID(env, _Window, "requestLineEvent", "(Ljava/lang/String;JII)V");
 
-    LOGI("glk_request_line_event full b %d %d %d", maxlen, initlen, mid);
+    LOGD("glk_request_line_event full b %d %d %d", maxlen, initlen, mid);
 
 	jstring str = 0;
 	jchar jbuf[initlen];
 
 	if (initlen > 0) {
-        LOGI("glk_request_line_event full b1 %d %d", maxlen, initlen);
+        LOGD("glk_request_line_event full b1 %d %d", maxlen, initlen);
 
 		if (unicode) {
 			glui32 *it = buf;
@@ -1215,29 +1220,29 @@ void gli_request_line_event(winid_t win, void *buf, glui32 maxlen, glui32 initle
 		str = (*env)->NewString(env, jbuf, maxlen);
 	}
 
-    LOGI("glk_request_line_event full c %d %d %d", maxlen, initlen, mid);
+    LOGD("glk_request_line_event full c %d %d %d", maxlen, initlen, mid);
 
 	(*env)->CallVoidMethod(env, *win, mid, str, (jlong) maxlen, (jint) buf, (jint) unicode);
 
-    LOGI("glk_request_line_event full d %d %d", maxlen, initlen);
+    LOGD("glk_request_line_event full d %d %d", maxlen, initlen);
 
 	if (str)
 		(*env)->DeleteLocalRef(env, str);
 
-    LOGI("glk_request_line_event full e %d %d", maxlen, initlen);
+    LOGD("glk_request_line_event full e %d %d", maxlen, initlen);
 }
 
 void glk_request_line_event_uni(winid_t win, glui32 *buf, glui32 maxlen, glui32 initlen)
 {
-	gli_request_line_event(win, buf, maxlen, initlen, 1);
+	gli_request_line_event(win, buf, maxlen, initlen, 1 /* unicode */);
 }
 
 void glk_request_line_event(winid_t win, char *buf, glui32 maxlen, glui32 initlen)
 {
     LOGI("glk_request_line_event overload_A %d %d", maxlen, initlen);
-    LOGE("glk_request_line_event overload_A HACK IN VALUES SPOTA %d %d", maxlen, initlen);
-	// gli_request_line_event(win, buf, maxlen, initlen, 0);
-	gli_request_line_event(win, buf, 120, initlen, 1);
+	gli_request_line_event(win, buf, maxlen, initlen, 0 /* ASCII */);
+    // LOGE("glk_request_line_event overload_A HACK IN VALUES SPOTA %d %d", maxlen, initlen);
+	// gli_request_line_event(win, buf, 120, initlen, 1);
 }
 
 void glk_request_char_event_uni(winid_t win)
