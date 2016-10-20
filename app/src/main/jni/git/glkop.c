@@ -318,7 +318,7 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
 {
   glui32 retval = 0;
 
-  LOGV("git_perform_glk start");
+  LOGV("git_perform_glk start %d %d", funcnum, numargs);
 
   switch (funcnum) {
     /* To speed life up, we implement commonly-used Glk functions
@@ -432,7 +432,7 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
   }
   }
 
-  LOGV("git_perform_glk end");
+  LOGV("git_perform_glk END %d %d", funcnum, numargs);
 
   return retval;
 }
@@ -1124,7 +1124,7 @@ static classtable_t *new_classtable(glui32 firstid)
 /* Find a Glk object in the appropriate hash table. */
 static void *classes_get(int classid, glui32 objid)
 {
-  LOGI("classes_get glkop.c");
+  LOGD("classes_get glkop.c %d %d", classid, objid);
 
   classtable_t *ctab;
   classref_t *cref;
