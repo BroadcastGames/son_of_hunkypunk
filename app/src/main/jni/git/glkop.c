@@ -1507,12 +1507,19 @@ static gidispatch_rock_t glulxe_retained_register(void *array,
 static void glulxe_retained_unregister(void *array, glui32 len,
   char *typecode, gidispatch_rock_t objrock)
 {
-  LOGI("glulxe_retained_unregister glkop.c");
+  LOGI("glulxe_retained_unregister glkop.c %d %s", len, typecode);
 
   arrayref_t *arref = NULL;
   arrayref_t **aptr;
   glui32 ix, addr2, val;
   int elemsize = 0;
+
+  // Bring in code logic from Git interpreter 1.3.0
+  if (typecode[4] != 'I' || array == NULL) {
+    /* We only retain integer arrays. */
+    LOGE("glulxe_retained_unregister glkop.c USING Git v 1.3.0 logic %d %s", len, typecode);
+    return;
+  }
 
   if (typecode[4] == 'C')
     elemsize = 1;
@@ -1520,6 +1527,7 @@ static void glulxe_retained_unregister(void *array, glui32 len,
     elemsize = 4;
 
   if (!elemsize || array == NULL) {
+    LOGW("glulxe_retained_unregister glkop.c return point B %d %s", len, typecode);
     return;
   }
 
@@ -1530,7 +1538,10 @@ static void glulxe_retained_unregister(void *array, glui32 len,
   arref = *aptr;
   if (!arref) {
     if (objrock.num == 0)
+    {
+      LOGW("glulxe_retained_unregister glkop.c return point C %d %s", len, typecode);
       return;
+    }
     fatalError("Unable to re-find array argument in Glk call.");
   }
   if (arref != objrock.ptr)

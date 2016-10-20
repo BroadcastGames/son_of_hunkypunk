@@ -1107,15 +1107,19 @@ static void event2glk(JNIEnv *env, jobject ev, event_t *event)
 				if (event->val1 != len)
 					buf[event->val1] = 0;
 
-                LOGI("glk_request_line_event event2glk() line non-unicode '%s' len %d %d line length: %d", buf, len, unicode, event->val1);
+                LOGI("glk_request_line_event event2glk() LineInputEvent line non-unicode '%s' len %d %d line length: %d", buf, len, unicode, event->val1);
 
 				if (gli_unregister_arr)
+				{
+                    LOGI("glk_request_line_event event2glk() LineInputEvent line non-unicode calling unregister_arr '%s' len %d %d line length: %d", buf, len, unicode, event->val1);
 					gli_unregister_arr(buf, len, gidispatch_char_array, rock); //INT2GDROCK(rock));
+			    }
 			}
 
 			(*env)->DeleteLocalRef(env, line);
 
 			event->val2 = 0;
+            LOGI("glk_request_line_event event2glk() LineInputEvent line non-unicode end.");
 		}
 	} else if ((*env)->IsInstanceOf(env, ev, _CharInputEvent)) {
 		event->type = evtype_CharInput;

@@ -1338,7 +1338,7 @@ gidispatch_rock_t glulxe_retained_register(void *array,
 void glulxe_retained_unregister(void *array, glui32 len, 
   char *typecode, gidispatch_rock_t objrock)
 {
-  LOGI("glulxe_retained_unregister glkop.c");
+  LOGI("glulxe_retained_unregister glkop.c %d %s", len, typecode);
 
   arrayref_t *arref = NULL;
   arrayref_t **aptr;
@@ -1346,6 +1346,7 @@ void glulxe_retained_unregister(void *array, glui32 len,
 
   if (typecode[4] != 'I' || array == NULL) {
     /* We only retain integer arrays. */
+    LOGE("glulxe_retained_unregister glkop.c return POINT A %d %s", len, typecode);
     return;
   }
 
