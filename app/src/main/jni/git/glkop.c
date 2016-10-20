@@ -1410,6 +1410,7 @@ static gidispatch_rock_t glulxe_retained_register(void *array,
   if (!arref)
     fatalError("Unable to re-find array argument in Glk call.");
   if (arref->elemsize != elemsize || arref->len != len) {
+    // glulxe_retained_register glkop.c FATAL Mismatched array argument in Glk call 1 : 1 - 0 : 256 &+#!Cn
     LOGE("glulxe_retained_register glkop.c FATAL Mismatched array argument in Glk call %d : %d - %d : %d %s", elemsize, arref->elemsize, len, arref->len, typecode);
     fatalError("Mismatched array argument in Glk call.");
   }

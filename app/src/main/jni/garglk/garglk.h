@@ -45,6 +45,7 @@
 
 /* This macro is called whenever the library code catches an error
  * or illegal operation from the game program.
+ // ToDo: can we make this Android Error Log too?
  */
 
 #define gli_strict_warning(msg)   \
@@ -82,15 +83,16 @@ typedef struct window_graphics_s window_graphics_t;
 
 /* Some globals for gargoyle */
 
-#ifdef ANDROID
-#define TGLINELEN 0
-#define TGLINECNT 0
-#define TBLINELEN 0
-#else
+/* Why does Android need zero for these values? */
+//#ifdef ANDROID
+//#define TGLINELEN 0
+//#define TGLINECNT 0
+//#define TBLINELEN 0
+//#else
 #define TGLINELEN 256
 #define TGLINECNT 256
 #define TBLINELEN 300
-#endif
+//#endif
 
 #define SCROLLBACK 512
 #define HISTORYLEN 100

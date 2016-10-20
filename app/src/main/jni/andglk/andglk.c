@@ -183,7 +183,14 @@ void andglk_loader_glk_main(JavaVM* jvm, JNIEnv *env, jobject this, const char* 
 int andglk_loader_glk_MemoryStream_retainVmArray(JNIEnv *env, jobject this, int buffer, long length)
 {
 	if (gli_register_arr) {
+	    // Note, the pattern gidispatch_char_array seems to be encoded in this page as a string? Has the format changed?
+	    // Someone opened a StackOverflow question on this code! http://stackoverflow.com/questions/37464566/how-to-get-int-buffer-memory-of-string-in-java
+	    // Twisty uses:
+	    //           char *typedesc = (unicode ? "&+#!Iu" : "&+#!Cn");
+	    //                                                  "&+#!Cn"
+	    char *typedesc = "&+#!Iu";
 		gidispatch_rock_t rock = gli_register_arr((void *)buffer, length, gidispatch_char_array);
+		// gidispatch_rock_t rock = gli_register_arr((void *)buffer, length, typedesc);
 		return rock.num;
 	}
 }
