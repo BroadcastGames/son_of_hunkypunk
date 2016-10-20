@@ -1248,21 +1248,33 @@ gidispatch_rock_t glulxe_retained_register(void *array,
   arrayref_t *arref = NULL;
   arrayref_t **aptr;
 
+  // arreff is null here, so don't use
+  LOGE("glulxe_retained_register START glkop.c vals %d %s", len, typecode);
+
   if (typecode[4] != 'I' || array == NULL) {
     /* We only retain integer arrays. */
     rock.ptr = NULL;
+    LOGE("glulxe_retained_register returning NULL rock.ptr glkop.c vals %d %s", len, typecode);
     return rock;
   }
 
   for (aptr=(&arrays); (*aptr); aptr=(&((*aptr)->next))) {
     if ((*aptr)->array == array)
+    {
+      LOGE("glulxe_retained_register loop MATCH glkop.c vals %d %s", len, typecode);
       break;
+    }
   }
+
+  LOGE("glulxe_retained_register glkop.c vals %d %s", len, typecode);
+
   arref = *aptr;
   if (!arref)
     fatalError("Unable to re-find array argument in Glk call.");
   if (arref->elemsize != 4 || arref->len != len)
     fatalError("Mismatched array argument in Glk call.");
+
+  LOGE("glulxe_retained_register glkop.c vals %d : %d - %d : %d %s", 4, arref->elemsize, len, arref->len, typecode);
 
   arref->retained = TRUE;
 
