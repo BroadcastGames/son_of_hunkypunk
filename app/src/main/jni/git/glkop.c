@@ -24,6 +24,11 @@
      These macros are responsible for fixing byte-order and alignment
      (if the C ABI does not match the VM's). The passin, passout hints
      may be used to avoid unnecessary copying.
+   - A Glk object array is a sequence of integers in VM memory. It is
+     turned into a C pointer array (remember that C pointers may be more
+     than 4 bytes!) The pointer array is allocated by
+     CapturePtrArray(addr, len, objclass) and released by ReleasePtrArray().
+     Again, the macros handle the conversion.
    - A Glk structure (such as event_t) is a set of integers somewhere
      in VM memory, which can be read and written with the macros
      ReadStructField(addr, fieldnum) and WriteStructField(addr, fieldnum).
@@ -70,6 +75,10 @@
     (grab_temp_array(addr, len, passin))
 #define ReleaseIArray(ptr, addr, len, passout)  \
     (release_temp_array(ptr, addr, len, passout))
+#define CapturePtrArray(addr, len, objclass, passin)  \
+    (grab_temp_ptr_array(addr, len, objclass, passin))
+#define ReleasePtrArray(ptr, addr, len, objclass, passout)  \
+    (release_temp_ptr_array(ptr, addr, len, objclass, passout))
 #define ReadStructField(addr, fieldnum)  \
     (((addr) == 0xffffffff) \
       ? (gStackPointer -= 1, Stk4(gStackPointer)) \
@@ -228,6 +237,8 @@ static void glulxe_retained_unregister(void *array, glui32 len,
 
 static glui32 *grab_temp_array(glui32 addr, glui32 len, int passin);
 static void release_temp_array(glui32 *arr, glui32 addr, glui32 len, int passout);
+static void **grab_temp_ptr_array(glui32 addr, glui32 len, int objclass, int passin);
+static void release_temp_ptr_array(void **arr, glui32 addr, glui32 len, int objclass, int passout);
 
 static void prepare_glk_args(char *proto, dispatch_splot_t *splot);
 static void parse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
@@ -270,8 +281,6 @@ int git_init_dispatch()
 */
 glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
 {
-  //LOGD("git_perform_glk:0x%08x 0x%08x",funcnum,numargs);
-
   glui32 retval = 0;
 
   switch (funcnum) {
@@ -279,6 +288,16 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
        directly -- instead of bothering with the whole prototype 
        mess. */
 
+  case 0x0047: /* stream_set_current */
+    if (numargs != 1)
+      goto WrongArgNum;
+    glk_stream_set_current(git_find_stream_by_id(arglist[0]));
+    break;
+  case 0x0048: /* stream_get_current */
+    if (numargs != 0)
+      goto WrongArgNum;
+    retval = git_find_id_for_stream(glk_stream_get_current());
+    break;
   case 0x0080: /* put_char */
     if (numargs != 1)
       goto WrongArgNum;
@@ -299,6 +318,16 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
       goto WrongArgNum;
     retval = glk_char_to_upper(arglist[0] & 0xFF);
     break;
+  case 0x0128: /* put_char_uni */
+    if (numargs != 1)
+      goto WrongArgNum;
+    glk_put_char_uni(arglist[0]);
+    break;
+  case 0x012B: /* put_char_stream_uni */
+    if (numargs != 2)
+      goto WrongArgNum;
+    glk_put_char_stream_uni(git_find_stream_by_id(arglist[0]), arglist[1]);
+    break;
 
   WrongArgNum:
     fatalError("Wrong number of arguments to Glk function.");
@@ -308,7 +337,7 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
     /* Go through the full dispatcher prototype foo. */
     char *proto, *cx;
     dispatch_splot_t splot;
-    int argnum;
+    int argnum, argnum2;
 
     /* Grab the string. */
     proto = gidispatch_prototype(funcnum);
@@ -331,20 +360,18 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
     /* Phase 1. */
     argnum = 0;
     cx = proto;
-	//LOGD("git_perform_glk.1:0x%08x 0x%08x",funcnum,numargs);
     parse_glk_args(&splot, &cx, 0, &argnum, 0, 0);
 
     /* Phase 2. */
-	//LOGD("git_perform_glk.2:0x%08x 0x%08x",funcnum,numargs);
     gidispatch_call(funcnum, argnum, splot.garglist);
 
     /* Phase 3. */
-    argnum = 0;
+    argnum2 = 0;
     cx = proto;
-	//LOGD("git_perform_glk.3:0x%08x 0x%08x",funcnum,numargs);
-    unparse_glk_args(&splot, &cx, 0, &argnum, 0, 0);
+    unparse_glk_args(&splot, &cx, 0, &argnum2, 0, 0);
+    if (argnum != argnum2)
+      fatalError("Argument counts did not match.");
 
-	//LOGD("git_perform_glk.99:0x%08x 0x%08x",funcnum,numargs);
     break;
   }
   }
@@ -566,6 +593,12 @@ static void parse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
 
         switch (typeclass) {
         case 'C':
+          /* This test checks for a giant array length, and cuts it down to
+             something reasonable. Future releases of this interpreter may
+             treat this case as a fatal error. */
+          if (varglist[ix+1] > gEndMem || varglist[ix]+varglist[ix+1] > gEndMem)
+            varglist[ix+1] = gEndMem - varglist[ix];
+
           garglist[gargnum].array = (void*) AddressOfArray(varglist[ix]);
           gargnum++;
           ix++;
@@ -574,7 +607,21 @@ static void parse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
           cx++;
           break;
         case 'I':
+          /* See comment above. */
+          if (varglist[ix+1] > gEndMem/4 || varglist[ix+1] > (gEndMem-varglist[ix])/4)
+              varglist[ix+1] = (gEndMem - varglist[ix]) / 4;
+
           garglist[gargnum].array = CaptureIArray(varglist[ix], varglist[ix+1], passin);
+          gargnum++;
+          ix++;
+          garglist[gargnum].uint = varglist[ix];
+          gargnum++;
+          cx++;
+          break;
+        case 'Q':
+          /* This case was added after the giant arrays were deprecated,
+             so we don't bother to allow for that case. */
+          garglist[gargnum].array = CapturePtrArray(varglist[ix], varglist[ix+1], (*cx-'a'), passin);
           gargnum++;
           ix++;
           garglist[gargnum].uint = varglist[ix];
@@ -685,6 +732,8 @@ static void parse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
       }
       else {
         cx++;
+        if (isarray)
+          ix++;
       }
     }    
   }
@@ -771,6 +820,13 @@ static void unparse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
           break;
         case 'I':
           ReleaseIArray(garglist[gargnum].array, varglist[ix], varglist[ix+1], passout);
+          gargnum++;
+          ix++;
+          gargnum++;
+          cx++;
+          break;
+        case 'Q':
+          ReleasePtrArray(garglist[gargnum].array, varglist[ix], varglist[ix+1], (*cx-'a'), passout);
           gargnum++;
           ix++;
           gargnum++;
@@ -891,6 +947,8 @@ static void unparse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
       }
       else {
         cx++;
+        if (isarray)
+          ix++;
       }
     }    
   }
@@ -920,6 +978,21 @@ strid_t git_find_stream_by_id(glui32 objid)
 
   /* Recall that class 1 ("b") is streams. */
   return classes_get(1, objid);
+}
+
+/* find_id_for_stream():
+   The converse of find_stream_by_id(). 
+   This is only needed in this file, so it's static.
+*/
+glui32 git_find_id_for_stream(strid_t str)
+{
+  gidispatch_rock_t objrock;
+
+  if (!str)
+    return 0;
+
+  objrock = gidispatch_get_objrock(str, 1);
+  return ((classref_t *)objrock.ptr)->id;
 }
 
 /* Build a hash table to hold a set of Glk objects. */
@@ -1083,6 +1156,83 @@ static void release_temp_array(glui32 *arr, glui32 addr, glui32 len, int passout
     if (passout) {
       for (ix=0, addr2=addr; ix<len; ix++, addr2+=4) {
         val = arr[ix];
+        memWrite32(addr2, val);
+      }
+    }
+    glulx_free(arr);
+    glulx_free(arref);
+  }
+}
+
+static void **grab_temp_ptr_array(glui32 addr, glui32 len, int objclass, int passin)
+{
+  arrayref_t *arref = NULL;
+  void **arr = NULL;
+  glui32 ix, addr2;
+
+  if (len) {
+    arr = (void **)glulx_malloc(len * sizeof(void *));
+    arref = (arrayref_t *)glulx_malloc(sizeof(arrayref_t));
+    if (!arr || !arref) 
+      fatalError("Unable to allocate space for array argument to Glk call.");
+
+    arref->array = arr;
+    arref->addr = addr;
+    arref->elemsize = sizeof(void *);
+    arref->retained = FALSE;
+    arref->len = len;
+    arref->next = arrays;
+    arrays = arref;
+
+    if (passin) {
+      for (ix=0, addr2=addr; ix<len; ix++, addr2+=4) {
+        glui32 thisval = memRead32(addr2);
+        if (thisval)
+          arr[ix] = classes_get(objclass, thisval);
+        else
+          arr[ix] = NULL;
+      }
+    }
+  }
+
+  return arr;
+}
+
+static void release_temp_ptr_array(void **arr, glui32 addr, glui32 len, int objclass, int passout)
+{
+  arrayref_t *arref = NULL;
+  arrayref_t **aptr;
+  glui32 ix, val, addr2;
+
+  if (arr) {
+    for (aptr=(&arrays); (*aptr); aptr=(&((*aptr)->next))) {
+      if ((*aptr)->array == arr)
+        break;
+    }
+    arref = *aptr;
+    if (!arref)
+      fatalError("Unable to re-find array argument in Glk call.");
+    if (arref->addr != addr || arref->len != len)
+      fatalError("Mismatched array argument in Glk call.");
+
+    if (arref->retained) {
+      return;
+    }
+
+    *aptr = arref->next;
+    arref->next = NULL;
+
+    if (passout) {
+      for (ix=0, addr2=addr; ix<len; ix++, addr2+=4) {
+        void *opref = arr[ix];
+        if (opref) {
+          gidispatch_rock_t objrock = 
+            gidispatch_get_objrock(opref, objclass);
+          val = ((classref_t *)objrock.ptr)->id;
+        }
+        else {
+          val = 0;
+        }
         memWrite32(addr2, val);
       }
     }

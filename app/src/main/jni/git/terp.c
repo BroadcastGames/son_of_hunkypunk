@@ -51,16 +51,7 @@ int floatCompare(git_sint32 L1, git_sint32 L2, git_sint32 L3)
 }
 
 #ifdef USE_OWN_POWF
-float git_powf(float x, float y)
-{
-  if (x == 1.0f)
-    return 1.0f;
-  else if ((y == 0.0f) || (y == -0.0f))
-    return 1.0f;
-  else if ((x == -1.0f) && isinf(y))
-    return 1.0f;
-  return powf(x,y);
-}
+float git_powf(float x, float y);
 #endif
 
 // -------------------------------------------------------------
@@ -231,7 +222,12 @@ do_enter_function_L1: // Arg count is in L2.
         L6 = memRead8(L1++); // LocalType
         L5 = memRead8(L1++); // LocalCount
         if (L6 != 4 && L6 != 0) // We only support 4-byte locals.
-            fatalError("Local variable wasn't 4 bytes wide");
+        {
+            if (L6 == 1 || L6 == 2)
+                fatalError("Short local variables are not supported, use Glulxe");
+            else
+                fatalError("Local variable wasn't 4 bytes wide");
+        }
         L4 += L5; // Cumulative local count.
     }
     while (L5 != 0);
