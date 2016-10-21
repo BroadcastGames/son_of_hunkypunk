@@ -22,6 +22,7 @@ package org.andglkmod.glk;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.ByteBuffer;
 
 import org.andglkmod.hunkypunk.R;
 
@@ -116,7 +117,31 @@ public abstract class Window extends CPointed {
 	public void putString(String str) {
 		mStream.putString(str);
 	}
-	
+
+
+	/**
+	 * Requests Latin-1 line input in the text window.
+	 * <p>
+	 * The {@code buf} parameter should be saved somewhere, and filled
+	 * with appropriate keycode values as the user presses keys. If the
+	 * {@code initlen} parameter is non-zero, the contents of the buffer
+	 * up to that length should be displayed as if the player had
+	 * typed them.
+	 * <p>
+	 * Applies to: text
+	 *
+	 * @param buf
+	 *           A buffer for storing the Latin-1 bytes of the user's
+	 *           input.<p>
+	 * @param maxlen
+	 *           The available length of the buffer.<p>
+	 * @param initlen
+	 *           If non-zero, the length of pre-existing data in the
+	 *           buffer.<p>
+	 * @see see GLK spec Section 4.2, Line Input Events
+	 */
+	public abstract void requestLineEvent(ByteBuffer buf, int maxlen, int initlen);
+
 	public abstract void requestLineEvent(String initial, long maxlen, int buffer, int unicode);
 	protected native int retainVmArray(int buffer, long length);
 	/* release is in the C function to convert event since we can't release 

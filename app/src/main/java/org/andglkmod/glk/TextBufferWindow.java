@@ -22,6 +22,7 @@ package org.andglkmod.glk;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.ByteBuffer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1587,6 +1588,10 @@ public class TextBufferWindow extends Window {
                 });
     }
 
+    @Override
+    public void requestLineEvent(ByteBuffer buf, int maxlen, int initlen) {
+        Log.d("Glk/TextBufferWindow","NEW glk_request_line_event requestLineEvent");
+    }
     @Override
     public void requestLineEvent(final String initial, final long maxlen,
                                  final int buffer, final int unicode) {
