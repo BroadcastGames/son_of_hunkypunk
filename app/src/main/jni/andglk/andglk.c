@@ -366,18 +366,17 @@ static void event2glk(JNIEnv *env, jobject ev, event_t *event)
 void gli_request_line_event(winid_t win, char *buf, glui32 *ubuf, glui32 maxlen, glui32 initlen, int unicode)
 {
 	JNIEnv *env = JNU_GetEnv();
-	static jmethodID mid = 0;
+	static jmethodID javaMethodID = 0;
 
-	if (mid == 0)
-		mid = (*env)->GetMethodID(env, _Window, "requestLineEvent", "(Ljava/lang/String;JII)V");
+	if (javaMethodID == 0)
+		javaMethodID = (*env)->GetMethodID(env, _Window, "requestLineEvent", "(Ljava/lang/String;JII)V");
 
-	jstring str = 0;
+	jstring initialString = NULL;
 	jchar jbuf[initlen];
 
 	if (initlen > 0) {
-
 		if (unicode) {
-			glui32 *it = buf;
+			glui32 *it = ubuf;
 			jchar *jt = jbuf;
 			while (jt - jbuf < initlen)
 				*(jt++) = *(it++);
@@ -388,13 +387,17 @@ void gli_request_line_event(winid_t win, char *buf, glui32 *ubuf, glui32 maxlen,
 				*(jt++) = *(it++);
 		}
 
-		str = (*env)->NewString(env, jbuf, maxlen);
+		initialString = (*env)->NewString(env, jbuf, maxlen);
 	}
 
-	(*env)->CallVoidMethod(env, *win, mid, str, (jlong) maxlen, (jint) buf, (jint) unicode);
+	if (unicode) {
+	    (*env)->CallVoidMethod(env, *win, javaMethodID, initialString, (jlong) maxlen, (jint) ubuf, (jint) unicode);
+	} else {
+	    (*env)->CallVoidMethod(env, *win, javaMethodID, initialString, (jlong) maxlen, (jint) buf,  (jint) unicode);
+	}
 
-	if (str)
-		(*env)->DeleteLocalRef(env, str);
+	if (initialString)
+		(*env)->DeleteLocalRef(env, initialString);
 }
 
 
