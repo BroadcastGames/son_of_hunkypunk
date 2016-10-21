@@ -363,7 +363,7 @@ static void event2glk(JNIEnv *env, jobject ev, event_t *event)
 	}
 }
 
-void gli_request_line_event(winid_t win, void *buf, glui32 maxlen, glui32 initlen, glui32 unicode)
+void gli_request_line_event(winid_t win, char *buf, glui32 *ubuf, glui32 maxlen, glui32 initlen, int unicode)
 {
 	JNIEnv *env = JNU_GetEnv();
 	static jmethodID mid = 0;
@@ -1214,12 +1214,12 @@ void glk_request_timer_events(glui32 millisecs)
 
 void glk_request_line_event(winid_t win, char *buf, glui32 maxlen, glui32 initlen)
 {
-	gli_request_line_event(win, buf, maxlen, initlen, 0);
+	gli_request_line_event(win, buf, NULL /* unicode buffer */, maxlen, initlen, FALSE /* ASCII */);
 }
 
 void glk_request_line_event_uni(winid_t win, glui32 *buf, glui32 maxlen, glui32 initlen)
 {
-	gli_request_line_event(win, buf, maxlen, initlen, 1);
+	gli_request_line_event(win, NULL /* ASCII buffer */, buf, maxlen, initlen, TRUE /* Unicode */);
 }
 
 void glk_request_char_event_uni(winid_t win)
