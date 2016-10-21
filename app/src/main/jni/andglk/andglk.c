@@ -365,6 +365,7 @@ static void event2glk(JNIEnv *env, jobject ev, event_t *event)
 
 void gli_request_line_event(winid_t win, char *buf, glui32 *ubuf, glui32 maxlen, glui32 initlen, int unicode)
 {
+	LOGD("gli_request_line_event start");
 	JNIEnv *env = JNU_GetEnv();
 	static jmethodID javaMethodID = 0;
 
@@ -391,8 +392,10 @@ void gli_request_line_event(winid_t win, char *buf, glui32 *ubuf, glui32 maxlen,
 	}
 
 	if (unicode) {
+	    LOGI("CALLJAVA gli_request_line_event unicode, initial %s", initialString);
 	    (*env)->CallVoidMethod(env, *win, javaMethodID, initialString, (jlong) maxlen, (jint) ubuf, (jint) unicode);
 	} else {
+	    LOGI("CALLJAVA gli_request_line_event ASCII, initial %s", initialString);
 	    (*env)->CallVoidMethod(env, *win, javaMethodID, initialString, (jlong) maxlen, (jint) buf,  (jint) unicode);
 	}
 
@@ -426,6 +429,7 @@ void glk_exit(void)
 void glk_set_interrupt_handler(void (*func)(void))
 {
 	/* this cheap library doesn't understand interrupts */
+	LOGW("todo_implement glk_set_interrupt_handler");
 }
 
 void glk_tick(void)
@@ -706,7 +710,7 @@ strid_t glk_window_get_stream(winid_t win)
 
 void glk_window_set_echo_stream(winid_t win, strid_t str)
 {
-    LOGW("todo_impelement glk_window_set_echo_stream");
+    LOGW("todo_implement glk_window_set_echo_stream");
 	return; //todo -- transcript is broken
 
 	if (!win || str->type != strtype_Window)
@@ -1211,7 +1215,7 @@ void glk_select_poll(event_t *event)
 void glk_request_timer_events(glui32 millisecs)
 {
 	/* TODO */
-    LOGW("todo_impelement glk_request_timer_events");
+    LOGW("todo_implement glk_request_timer_events");
 }
 
 
@@ -1243,7 +1247,7 @@ void glk_request_char_event(winid_t win)
 void glk_request_mouse_event(winid_t win)
 {
 	/* TODO */
-    LOGW("todo_impelement glk_request_mouse_event");
+    LOGW("todo_implement glk_request_mouse_event");
 }
 
 void glk_cancel_line_event(winid_t win, event_t *event)
@@ -1273,7 +1277,7 @@ void glk_cancel_char_event(winid_t win)
 void glk_cancel_mouse_event(winid_t win)
 {
 	/* TODO */
-    LOGW("todo_impelement glk_cancel_mouse_event");
+    LOGW("todo_implement glk_cancel_mouse_event");
 }
 
 
