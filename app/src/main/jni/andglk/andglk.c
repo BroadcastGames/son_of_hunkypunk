@@ -46,6 +46,7 @@ static jmethodID _getRock, _getPointer, _getDispatchRock, _getDispatchClass;
 jobject _this = 0;
 static jmp_buf _quit_env;
 static char* gidispatch_char_array = "&+#!Cn";
+static char* gidispatch_unicode_array = "&+#!Iu";
 
 #define GLK_JNI_VERSION JNI_VERSION_1_2
 
@@ -303,13 +304,14 @@ static void event2glk(JNIEnv *env, jobject ev, event_t *event)
 			gidispatch_rock_t rock;
 			rock.num = (*env)->GetIntField(env, ev, rock_id);
 
+			LOGW("andglk.c event2glk messing with arrays, unicode %d len %d", unicode, len);
 			if (unicode) {
 				glui32 * buf = (glui32 *) (*env)->GetIntField(env, ev, buf_id);
 				event->val1 = jstring2latin1_uni(env, line, buf, len);
 				if (event->val1 != len)
 					buf[event->val1] = 0;
 				if (gli_unregister_arr)
-					gli_unregister_arr(buf, len, gidispatch_char_array, rock); //INT2GDROCK(rock));
+					gli_unregister_arr(buf, len, gidispatch_unicode_array, rock); //INT2GDROCK(rock));
 			}
 			else {
 				char * buf = (char *) (*env)->GetIntField(env, ev, buf_id);

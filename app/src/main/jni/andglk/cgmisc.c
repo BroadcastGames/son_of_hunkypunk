@@ -159,6 +159,8 @@ void gidispatch_set_object_registry(
     gidispatch_rock_t (*regi)(void *obj, glui32 objclass), 
     void (*unregi)(void *obj, glui32 objclass, gidispatch_rock_t objrock))
 {
+    LOGW("andglk cgmisc.c gidispatch_set_object_registry - this code looks incomplete, ToDo?");
+
     winid_t win;
     stream_t *str;
     fileref_t *fref;
@@ -197,6 +199,7 @@ void gidispatch_set_retained_registry(
     void (*unregi)(void *array, glui32 len, char *typecode, 
         gidispatch_rock_t objrock))
 {
+    LOGW("andglk cgmisc.c gidispatch_set_retained_registry Important callbacks for Git 1.3.4 problem set.");
     gli_register_arr = regi;
     gli_unregister_arr = unregi;
 }
