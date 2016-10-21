@@ -560,6 +560,7 @@ strid_t glk_window_get_stream(winid_t win)
 
 void glk_window_set_echo_stream(winid_t win, strid_t str)
 {
+    LOGW("todo_impelement glk_window_set_echo_stream");
 	return; //todo -- transcript is broken
 
 	if (!win || str->type != strtype_Window)
@@ -1156,6 +1157,7 @@ void glk_select_poll(event_t *event)
 void glk_request_timer_events(glui32 millisecs)
 {
 	/* TODO */
+    LOGW("todo_impelement glk_request_timer_events");
 }
 
 void gli_request_line_event(winid_t win, void *buf, glui32 maxlen, glui32 initlen, glui32 unicode)
@@ -1220,6 +1222,7 @@ void glk_request_char_event(winid_t win)
 void glk_request_mouse_event(winid_t win)
 {
 	/* TODO */
+    LOGW("todo_impelement glk_request_mouse_event");
 }
 
 void glk_cancel_line_event(winid_t win, event_t *event)
@@ -1249,6 +1252,7 @@ void glk_cancel_char_event(winid_t win)
 void glk_cancel_mouse_event(winid_t win)
 {
 	/* TODO */
+    LOGW("todo_impelement glk_cancel_mouse_event");
 }
 
 gidispatch_rock_t gidispatch_get_objrock(void *obj, glui32 objclass)
