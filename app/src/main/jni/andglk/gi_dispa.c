@@ -982,12 +982,14 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             }
             break;
         case 0x00D0: /* request_line_event */
+            LOGW("gi_dispa.c 0x00D0 BEGIN flag %d", arglist[1].ptrflag);
             if (arglist[1].ptrflag)
                 glk_request_line_event(arglist[0].opaqueref, arglist[2].array,
                     arglist[3].uint, arglist[4].uint);
             else
                 glk_request_line_event(arglist[0].opaqueref, NULL,
                     0, arglist[2].uint);
+            LOGW("gi_dispa.c 0x00D0 END");
             break;
         case 0x00D1: /* cancel_line_event */
             if (arglist[1].ptrflag) {

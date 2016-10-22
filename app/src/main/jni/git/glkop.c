@@ -630,14 +630,18 @@ static void parse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
 
         switch (typeclass) {
         case 'C':
-          LOGW("glkop.c parse_glk_args typeclass C CaptureCArray");
+          LOGW("glkop.c parse_glk_args typeclass C CaptureCArray arg ix+1 %d arg ix %d gargnum %d passin %d", varglist[ix+1], varglist[ix], gargnum, passin);
           /* This test checks for a giant array length, and cuts it down to
              something reasonable. Future releases of this interpreter may
              treat this case as a fatal error. */
+          // ToDo: I don't like the idea of overwriting a basically read-only parameter from game, really a local var should copy this?
           if (varglist[ix+1] > gEndMem || varglist[ix]+varglist[ix+1] > gEndMem)
             varglist[ix+1] = gEndMem - varglist[ix];
 
-          garglist[gargnum].array = (void*) CaptureCArray(varglist[ix], varglist[ix+1], passin);
+          // garglist[gargnum].array = (void*) CaptureCArray(varglist[ix], varglist[ix+1], passin);
+          garglist[gargnum].array = (void*) grab_temp_c_array(varglist[ix], varglist[ix+1], passin);
+          LOGW("glkop.c parse_glk_args typeclass C CaptureCArray AFTER got: %s arg ix+1 %d arg ix %d gargnum %d passin %d",  garglist[gargnum].array, varglist[ix+1], varglist[ix], gargnum, passin);
+
           gargnum++;
           ix++;
           garglist[gargnum].uint = varglist[ix];
@@ -645,7 +649,7 @@ static void parse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
           cx++;
           break;
         case 'I':
-          LOGW("glkop.c parse_glk_args typeclass I CaptureIArray");
+          LOGW("glkop.c parse_glk_args typeclass I CaptureIArray arg ix+1 %d arg ix %d gargnum %d passin %d", varglist[ix+1], varglist[ix], gargnum, passin);
           /* See comment above. */
           if (varglist[ix+1] > gEndMem/4 || varglist[ix+1] > (gEndMem-varglist[ix])/4)
             varglist[ix+1] = (gEndMem - varglist[ix]) / 4;
@@ -1181,6 +1185,7 @@ static void glulxe_classtable_unregister(void *obj, glui32 objclass,
 
 static char *grab_temp_c_array(glui32 addr, glui32 len, int passin)
 {
+  LOGW("grab_temp_c_array addr %d len %d passin %d", addr, len, passin);
   arrayref_t *arref = NULL;
   char *arr = NULL;
   glui32 ix, addr2;
@@ -1205,6 +1210,8 @@ static char *grab_temp_c_array(glui32 addr, glui32 len, int passin)
       }
     }
   }
+
+  LOGW("grab_temp_c_array END addr %d len %d passin %d arr '%s'", addr, len, passin, arr);
 
   return arr;
 }

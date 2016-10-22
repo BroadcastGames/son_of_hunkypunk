@@ -1583,7 +1583,8 @@ public class TextBufferWindow extends Window {
     @Override
     public void requestLineEvent(final String initial, final long maxlen,
                                  final int buffer, final int unicode) {
-        Log.d("Glk/TextBufferWindow","requestLineEvent buffer " + buffer);
+// is maxlen 1 here? THAT COULD BE OUR PROBLEM!!!
+        Log.d("Glk/TextBufferWindow","requestLineEvent buffer " + buffer + " maxlen " + maxlen);
         flush();
 
         Glk.getInstance().waitForUi(
@@ -1595,6 +1596,7 @@ public class TextBufferWindow extends Window {
                         Log.w(TAG, "Java calling C code retainVmArray requestLineEvent buffer " + buffer + " maxlen " + maxlen);
                         // Log.e(TAG, "Does crash go away if I SKIP the retainVmArray call from Java to C?");
                         try {
+                            int uselessReturnValue0 = retainVmArrayTest(buffer, maxlen, maxlen);
                             mLineEventBufferRock = retainVmArray(buffer, maxlen);
                         } catch (RuntimeException e) {
                             Log.e(TAG, "RuntimeException on retainVmArray", e);

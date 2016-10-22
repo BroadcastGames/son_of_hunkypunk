@@ -369,9 +369,55 @@ static void event2glk(JNIEnv *env, jobject ev, event_t *event)
 	}
 }
 
+
+jobject jni_newbytebuffer(void *buf, jlong len)
+{
+	JNIEnv *jni_env = JNU_GetEnv();
+    jobject bytebuf;
+
+    bytebuf = (*jni_env)->NewDirectByteBuffer(jni_env, buf, len);
+    // check exception, good idea: jni_exit_on_exc();
+    if (!bytebuf) {
+        LOGE("andglk.c JNI failed to create ByteBuffer");
+        // gli_fatal("JNI error: could not create ByteBuffer");
+    }
+    // this value for 'len' doesn't make much sense to me?
+    LOGI("jcall.c jobject jni_newbytebuffer created len %d", len);
+    return bytebuf;
+}
+
+// Here is a key to Son of Hunkypunk array changes in Git?
+static jobject gli_register_win_input(window_t *win, char *buf,
+        glui32 *ubuf, glui32 maxlen, int unicode)
+{
+    jobject bytebuf;
+    jlong buflen;
+    // what is this line doing? :
+    // textwin_data_t *text = win->text;
+
+    // HERE IT IS, collapse text->intbuf into a single field, because it never gets passed? That object text is only local, as return is bytebuf?
+    void *inbuf = (unicode ? (void *)ubuf : (void *)buf);
+    int  inbuf_unicode = unicode;
+    int  inbuf_len = maxlen;
+    gidispatch_rock_t inbuf_rock;
+
+    if (gli_register_arr) {
+        char *typedesc = (unicode ? "&+#!Iu" : "&+#!Cn");
+        LOGI("gli_register_win_input calling gli_register_arr unicode? %d typedesc %s", unicode, typedesc);
+        inbuf_rock = (*gli_register_arr)(inbuf, inbuf_len, typedesc);
+        LOGI("gli_register_win_input AFTER gli_register_arr unicode? %d typedesc %s rock %d", unicode, typedesc, inbuf_rock);
+    }
+
+    buflen = (unicode ? maxlen * sizeof(glui32) : maxlen);
+    LOGI("gli_register_win_input calced bufflen maxlen? %d buflen? %d sizeof(glui32)? %d text->inbuf? %d", maxlen, buflen, sizeof(glui32), inbuf);
+    bytebuf = jni_newbytebuffer(inbuf, buflen);
+
+    return bytebuf;
+}
+
 void gli_request_line_event(winid_t win, char *buf, glui32 *ubuf, glui32 maxlen, glui32 initlen, int unicode)
 {
-	LOGD("gli_request_line_event start");
+	LOGD("gli_request_line_event start buf %s *buf %d maxlen %d initlen %d unicode %d", buf, buf, maxlen, initlen, unicode);
 	JNIEnv *env = JNU_GetEnv();
 	static jmethodID javaMethodID = 0;
 
@@ -381,6 +427,7 @@ void gli_request_line_event(winid_t win, char *buf, glui32 *ubuf, glui32 maxlen,
 	jstring initialString = NULL;
 	jchar jbuf[initlen];
 
+    // This if almost always gets skipped, stuffing input in for user?
 	if (initlen > 0) {
 		if (unicode) {
 			glui32 *it = ubuf;
@@ -397,11 +444,15 @@ void gli_request_line_event(winid_t win, char *buf, glui32 *ubuf, glui32 maxlen,
 		initialString = (*env)->NewString(env, jbuf, maxlen);
 	}
 
+    jobject bytebuf;
+
 	if (unicode) {
 	    LOGI("CALLJAVA gli_request_line_event unicode, initial %s ubuf %d", initialString, ubuf);
 	    (*env)->CallVoidMethod(env, *win, javaMethodID, initialString, (jlong) maxlen, (jint) ubuf, (jint) unicode);
 	    LOGI("AFTER CALLJAVA gli_request_line_event unicode, initial %s ubuf %d", initialString, ubuf);
 	} else {
+	    bytebuf = gli_register_win_input(win, buf, ubuf, maxlen, unicode);
+
 	    LOGI("CALLJAVA gli_request_line_event ASCII, initial %s buf %d", initialString, buf);
 	    (*env)->CallVoidMethod(env, *win, javaMethodID, initialString, (jlong) maxlen, (jint) buf,  (jint) unicode);
 	    LOGI("AFTER CALLJAVA gli_request_line_event ASCII, initial %s buff %d", initialString, buf);
@@ -1229,12 +1280,16 @@ void glk_request_timer_events(glui32 millisecs)
 
 void glk_request_line_event(winid_t win, char *buf, glui32 maxlen, glui32 initlen)
 {
+    LOGI("glk_request_line_event calling gli_request_line_event");
 	gli_request_line_event(win, buf, NULL /* unicode buffer */, maxlen, initlen, FALSE /* ASCII */);
+    LOGI("glk_request_line_event AFTER calling gli_request_line_event");
 }
 
 void glk_request_line_event_uni(winid_t win, glui32 *buf, glui32 maxlen, glui32 initlen)
 {
+    LOGI("glk_request_line_event_uni calling gli_request_line_event");
 	gli_request_line_event(win, NULL /* ASCII buffer */, buf, maxlen, initlen, TRUE /* Unicode */);
+    LOGI("glk_request_line_event_uni AFTER calling gli_request_line_event");
 }
 
 void glk_request_char_event_uni(winid_t win)
