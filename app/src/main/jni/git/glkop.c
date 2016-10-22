@@ -630,6 +630,7 @@ static void parse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
 
         switch (typeclass) {
         case 'C':
+          LOGW("glkop.c parse_glk_args typeclass C CaptureCArray");
           /* This test checks for a giant array length, and cuts it down to
              something reasonable. Future releases of this interpreter may
              treat this case as a fatal error. */
@@ -644,6 +645,7 @@ static void parse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
           cx++;
           break;
         case 'I':
+          LOGW("glkop.c parse_glk_args typeclass I CaptureIArray");
           /* See comment above. */
           if (varglist[ix+1] > gEndMem/4 || varglist[ix+1] > (gEndMem-varglist[ix])/4)
             varglist[ix+1] = (gEndMem - varglist[ix]) / 4;
@@ -1244,6 +1246,7 @@ static void release_temp_c_array(char *arr, glui32 addr, glui32 len, int passout
 
 static glui32 *grab_temp_i_array(glui32 addr, glui32 len, int passin)
 {
+  LOGI("grab_temp_i_array %d %d %d", addr, len, passin);
   arrayref_t *arref = NULL;
   glui32 *arr = NULL;
   glui32 ix, addr2;
@@ -1392,6 +1395,8 @@ static gidispatch_rock_t glulxe_retained_register(void *array,
   arrayref_t **aptr;
   int elemsize = 0;
 
+  LOGW("glulxe_retained_register len %d typecode %s array %s arrays %d", len, typecode, array, arrays);
+
   if (typecode[4] == 'C')
     elemsize = 1;
   else if (typecode[4] == 'I')
@@ -1402,21 +1407,33 @@ static gidispatch_rock_t glulxe_retained_register(void *array,
     return rock;
   }
 
+  // where does arrays - plural, come from? changed it to 'arrayz' and it failed to compile, so it comes from somewhere!
   for (aptr=(&arrays); (*aptr); aptr=(&((*aptr)->next))) {
-    if ((*aptr)->array == array)
+    LOGI("glulxe_retained_register for loop cycle");
+    if ((*aptr)->array == array) {
+      LOGI("glulxe_retained_register for loop cycle HIT");
       break;
+    }
   }
+
   arref = *aptr;
   if (!arref)
     fatalError("Unable to re-find array argument in Glk call.");
   if (arref->elemsize != elemsize || arref->len != len) {
-    LOGE("array %d %d or %d %d typecode %s", arref->elemsize, elemsize, arref->len, len, typecode);
+    LOGE("glulxe_retained_register array %d %d or %d %d typecode %s", arref->elemsize, elemsize, arref->len, len, typecode);
     fatalError("Mismatched array argument in Glk call. glulxe_retained_register");
+
+    // try to recover from fatalError, which is fatal!
+    rock.ptr = NULL;
+    return rock;
   }
 
   arref->retained = TRUE;
 
   rock.ptr = arref;
+
+  LOGW("glulxe_retained_register array %d %d or %d %d typecode %s rock.ptr %d", arref->elemsize, elemsize, arref->len, len, typecode, rock.ptr);
+
   return rock;
 }
 

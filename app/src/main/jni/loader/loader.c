@@ -219,11 +219,16 @@ JNIEXPORT int Java_org_andglk_glk_MemoryStream_retainVmArray(JNIEnv *env, jobjec
 	int result = -1;
 	const char *FN = "andglk_loader_glk_MemoryStream_retainVmArray";
 
+    LOGW("well, did I call it? loader.c Java_org_andglk_glk_MemoryStream_retainVmArray here, buffer %d len %d", buffer, len);
+
 	// begin synchronize
 	pthread_mutex_lock (&_muQuery);
 
-	if (andglk_loader_glk_MemoryStream_retainVmArray) 
+	if (andglk_loader_glk_MemoryStream_retainVmArray) {
+        LOGW("INVOKING CALL loader.c Java_org_andglk_glk_MemoryStream_retainVmArray here, buffer %d len %d", buffer, len);
 		result = andglk_loader_glk_MemoryStream_retainVmArray(env, this, buffer, len);
+        LOGW("AFTER CALL loader.c Java_org_andglk_glk_MemoryStream_retainVmArray here, buffer %d len %d result %d", buffer, len, result);
+    }
 	else 
 		LOGE("invalid call -- not linked to %s", FN);	
 
@@ -240,6 +245,8 @@ JNIEXPORT int Java_org_andglkmod_glk_MemoryStream_retainVmArray(JNIEnv *env, job
 JNIEXPORT void Java_org_andglk_glk_MemoryStream_releaseVmArray(JNIEnv *env, jobject this, int buffer, int length, int dispatchRock)
 {
 	const char *FN = "andglk_loader_glk_MemoryStream_releaseVmArray";
+
+    LOGW("WATCHING loader.c Java_org_andglk_glk_MemoryStream_releaseVmArray here, buffer %d len %d rock %d", buffer, length, dispatchRock);
 
 	// begin synchronize
 	pthread_mutex_lock (&_muQuery);

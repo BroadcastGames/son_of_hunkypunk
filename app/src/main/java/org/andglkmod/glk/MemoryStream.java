@@ -19,6 +19,8 @@
 
 package org.andglkmod.glk;
 
+import android.util.Log;
+
 import java.io.IOException;
 
 	/* todo :
@@ -46,7 +48,10 @@ public class MemoryStream extends Stream {
 		mMode = mode;
 		mPos = 0;
 		if (mode != FileRef.FILEMODE_READ && cBuffer != 0) // we already copied it
+		{
+			Log.w("MemoryStream", "Java calling C code retainVmArray");
 			mDispatchRock = retainVmArray(cBuffer, buffer.length);
+		}
 	}
 	
 	

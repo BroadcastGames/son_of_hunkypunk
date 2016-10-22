@@ -128,6 +128,7 @@ void gli_initialize_misc()
 #ifndef ANDGLK
 void glk_exit()
 {
+    LOGW("glk_exit() press key");
     event_t event;
 
     garglk_set_story_title("[ press any key to exit ]");
@@ -135,8 +136,9 @@ void glk_exit()
     gli_terminated = 1;
 
     /* wait for gli_handle_input_key to exit() */
-    while (1)
+    while (1) {
         glk_select(&event);
+    }
 }
 
 void glk_set_interrupt_handler(void (*func)(void))
@@ -199,7 +201,7 @@ void gidispatch_set_retained_registry(
     void (*unregi)(void *array, glui32 len, char *typecode, 
         gidispatch_rock_t objrock))
 {
-    LOGW("andglk cgmisc.c gidispatch_set_retained_registry Important callbacks for Git 1.3.4 problem set.");
+    LOGW("andglk cgmisc.c gidispatch_set_retained_registry Important callbacks for Git 1.3.4 problem set. Look for gli_register_arr");
     gli_register_arr = regi;
     gli_unregister_arr = unregi;
 }

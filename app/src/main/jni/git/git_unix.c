@@ -25,12 +25,20 @@ glkunix_argumentlist_t glkunix_arguments[] =
 #define CACHE_SIZE (256 * 1024L)
 #define UNDO_SIZE (2 * 1024 * 1024L)
 
+
 void fatalError (const char * s)
 {
     LOGE("Git Interpreter, fatalError: %s", s);
+    LOGE("Git Interpreter, fatalError: %s", s);
     fprintf (stderr, "*** fatal error: %s ***\n", s);
     // exit (1);
-    // ToDo: Throw Java Exception
+    // Throw Java Exception
+    JNIEnv *env = JNU_GetEnv();
+		(*env)->ThrowNew(env, (*env)->FindClass(env,"java/lang/RuntimeException"),
+				"Error Fatal");
+    LOGE("Git Interpreter, FINAL fatalError: %s", s);
+
+    // ToDo: we need a way to shut down the VM immediate, end the opcode loop. Not "exit", which ends the Android app.
 }
 
 #ifdef USE_MMAP

@@ -45,6 +45,7 @@ import android.widget.TextView;
 
 /** <strong>DO NOT EVER INSTANTIATE OR START THIS CLASS MORE THAN ONCE IN A PROCESS' LIFETIME</strong> */
 public class Glk extends Thread {
+	@SuppressWarnings("unused")
 	public static class AlreadyRunning extends Exception {
 		private static final long serialVersionUID = -8966218915411360727L;
 	}
@@ -248,10 +249,14 @@ public class Glk extends Thread {
 		mUiHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				synchronized(Glk.this) {
-					runnable.run();
-					_done = true;
-					Glk.this.notify();
+				try {
+					synchronized (Glk.this) {
+						runnable.run();
+						_done = true;
+						Glk.this.notify();
+					}
+				} catch (RuntimeException r) {
+					Log.e("Java/Glk", "RuntimeException in Glk", r);
 				}
 			}
 		});

@@ -1496,12 +1496,14 @@ public class TextBufferWindow extends Window {
             echo.putChar('\n');
         }
 
-        //Log.d("Glk/TextBufferWindow", "lineInputAccepted:"+result);
+        Log.d("Glk/TextBufferWindow", "lineInputAccepted: '" + result + "' mLineEventBufferRock " + mLineEventBufferRock + " mLineEventBuffer " + mLineEventBuffer);
 
         LineInputEvent lie = new LineInputEvent(this, result, mLineEventBuffer,
                 mLineEventBufferLength, mLineEventBufferRock, mUnicodeEvent);
         mLineEventBufferLength = mLineEventBuffer = mLineEventBufferRock = 0;
         mGlk.postEvent(lie);
+
+        Log.d("Glk/TextBufferWindow", "AFTER mGlk.postEvent lineInputAccepted: '" + result + "' mLineEventBufferRock " + mLineEventBufferRock + " mLineEventBuffer " + mLineEventBuffer);
     }
 
     @Override
@@ -1581,7 +1583,7 @@ public class TextBufferWindow extends Window {
     @Override
     public void requestLineEvent(final String initial, final long maxlen,
                                  final int buffer, final int unicode) {
-        //Log.d("Glk/TextBufferWindow","requestLineEvent");
+        Log.d("Glk/TextBufferWindow","requestLineEvent buffer " + buffer);
         flush();
 
         Glk.getInstance().waitForUi(
@@ -1590,7 +1592,14 @@ public class TextBufferWindow extends Window {
                     public void run() {
                         mLineEventBuffer = buffer;
                         mLineEventBufferLength = maxlen;
-                        mLineEventBufferRock = retainVmArray(buffer, maxlen);
+                        Log.w(TAG, "Java calling C code retainVmArray requestLineEvent buffer " + buffer + " maxlen " + maxlen);
+                        // Log.e(TAG, "Does crash go away if I SKIP the retainVmArray call from Java to C?");
+                        try {
+                            mLineEventBufferRock = retainVmArray(buffer, maxlen);
+                        } catch (RuntimeException e) {
+                            Log.e(TAG, "RuntimeException on retainVmArray", e);
+                        }
+                        Log.w(TAG, "AFTER Java calling C code retainVmArray requestLineEvent buffer " + buffer + " maxlen " + maxlen + " rock " + mLineEventBufferRock);
                         mUnicodeEvent = (unicode != 0);
                         mActiveCommand.enableInput();
                         mScrollView.fullScroll(View.FOCUS_DOWN);

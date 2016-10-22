@@ -184,7 +184,9 @@ void andglk_loader_glk_main(JavaVM* jvm, JNIEnv *env, jobject this, const char* 
 int andglk_loader_glk_MemoryStream_retainVmArray(JNIEnv *env, jobject this, int buffer, long length)
 {
 	if (gli_register_arr) {
+		LOGW("andglk_loader_glk_MemoryStream_retainVmArray calling gli_register_arr call here! buffer? %d length? %d", buffer, length);
 		gidispatch_rock_t rock = gli_register_arr((void *)buffer, length, gidispatch_char_array);
+		LOGW("andglk_loader_glk_MemoryStream_retainVmArray AFTER   gli_register_arr call here! buffer? %d length? %d rock.num %d", buffer, length, rock.num);
 		return rock.num;
 	}
 }
@@ -245,7 +247,9 @@ void andglk_loader_glk_MemoryStream_releaseVmArray(JNIEnv *env, jobject this, in
 	if (gli_unregister_arr) {
 		gidispatch_rock_t rock;
 		rock.num = dispatchRock;
+        LOGW("andglk_loader_glk_MemoryStream_releaseVmArray calling gli_unregister_arr call  here! buffer? %d length? %d rock.num %d", buffer, length, dispatchRock);
 		gli_unregister_arr((void *)buffer, length, gidispatch_char_array, rock);
+        LOGW("andglk_loader_glk_MemoryStream_releaseVmArray calling gli_unregister_arr AFTER here! buffer? %d length? %d rock.num %d", buffer, length, dispatchRock);
 	}
 }
 
@@ -394,11 +398,13 @@ void gli_request_line_event(winid_t win, char *buf, glui32 *ubuf, glui32 maxlen,
 	}
 
 	if (unicode) {
-	    LOGI("CALLJAVA gli_request_line_event unicode, initial %s", initialString);
+	    LOGI("CALLJAVA gli_request_line_event unicode, initial %s ubuf %d", initialString, ubuf);
 	    (*env)->CallVoidMethod(env, *win, javaMethodID, initialString, (jlong) maxlen, (jint) ubuf, (jint) unicode);
+	    LOGI("AFTER CALLJAVA gli_request_line_event unicode, initial %s ubuf %d", initialString, ubuf);
 	} else {
-	    LOGI("CALLJAVA gli_request_line_event ASCII, initial %s", initialString);
+	    LOGI("CALLJAVA gli_request_line_event ASCII, initial %s buf %d", initialString, buf);
 	    (*env)->CallVoidMethod(env, *win, javaMethodID, initialString, (jlong) maxlen, (jint) buf,  (jint) unicode);
+	    LOGI("AFTER CALLJAVA gli_request_line_event ASCII, initial %s buff %d", initialString, buf);
 	}
 
 	if (initialString)
@@ -1308,4 +1314,12 @@ gidispatch_rock_t gidispatch_get_objrock(void *obj, glui32 objclass)
 	gidispatch_rock_t dummy;
 	dummy.num = 0;
 	return dummy;
+}
+
+
+void fatalErrorForwarder(char *message)
+{
+    JNIEnv *env = JNU_GetEnv();
+		(*env)->ThrowNew(env, (*env)->FindClass(env, "org/andglkmod/glk/Glk/AlreadyRunning"),
+				"Error Fatal");
 }
