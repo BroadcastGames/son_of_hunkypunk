@@ -382,7 +382,7 @@ gidispatch_function_t *gidispatch_get_function_by_id(glui32 id)
 
 char *gidispatch_prototype(glui32 funcnum)
 {
-	LOGD("gididispatch_call 0x%04x", funcnum);
+	LOGD("gidispatch_prototype gididispatch_call 0x%04x", funcnum);
     switch (funcnum) {
         case 0x0001: /* exit */
             return "0:";
@@ -662,6 +662,8 @@ char *gidispatch_prototype(glui32 funcnum)
 
 void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
 {
+    LOGV("gidispatch_call funcnum 0x%04x numargs %d", funcnum, numargs);
+
     switch (funcnum) {
         case 0x0001: /* exit */
             glk_exit();
@@ -967,6 +969,8 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             else {
                 glk_select(NULL);
             }
+            // Rover's Day Out may hang here?
+            LOGD("gi_dispa.c AFTER 0x00C0");
             break;
         case 0x00C1: /* select_poll */
             if (arglist[0].ptrflag) {

@@ -596,8 +596,10 @@ strid_t glk_window_get_echo_stream(winid_t win)
 void glk_set_window(winid_t win)
 {
 	strid_t str = NULL;
-	if (win)
+	if (win) {
+		LOGI("glk_set_window calling glk_window_get_stream");
 		str = glk_window_get_stream(win);
+	}
 
    	glk_stream_set_current(str);
 	
@@ -606,6 +608,8 @@ void glk_set_window(winid_t win)
 	if (mid == 0)
 		mid = (*env)->GetMethodID(env, _class, "setWindow", "(Lorg/andglkmod/glk/Window;)V");
 
+    LOGW("glk_set_window Rovers Day Out on Git Interpreter crashes here");
+    // It looks like this can possibly pass up a NULL value and that the receiver code didn't check for that.
 	(*env)->CallVoidMethod(env, _this, mid, win ? *win : NULL);
 }
 		
@@ -736,6 +740,7 @@ void glk_stream_set_current(strid_t str)
 	gli_stream_set_current(str);
 }
 
+
 strid_t glk_stream_get_current(void)
 {
 	return gli_stream_get_current();
@@ -852,6 +857,7 @@ void glk_set_style(glui32 styl)
 
 void glk_set_style_stream(strid_t str, glui32 styl)
 {
+	LOGD("glk_set_style_stream %d", styl);
 	if (!str || str->type != strtype_Window)
 		return;
 
@@ -861,6 +867,7 @@ void glk_set_style_stream(strid_t str, glui32 styl)
 		mid = (*env)->GetMethodID(env, _Stream, "setStyle", "(J)V");
 
 	(*env)->CallVoidMethod(env, *(str->st), mid, (jlong) styl);
+    LOGD("AFTER glk_set_style_stream %d", styl);
 }
 
 void garglk_set_reversevideo(glui32 reverse)

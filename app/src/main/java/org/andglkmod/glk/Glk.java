@@ -187,7 +187,13 @@ public class Glk extends Thread {
 	}
 	
 	public void setWindow(Window window) {
-		mCurrentStream = window.getStream();
+		if (window == null)
+		{
+			Log.e("Java/Glk", "setWindow on null window");
+		}
+		else {
+			mCurrentStream = window.getStream();
+		}
 	}
 	
 	@SuppressWarnings("unused")
