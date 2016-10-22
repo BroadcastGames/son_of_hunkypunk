@@ -14,7 +14,7 @@ void ( * andglk_loader_glk_Glk_notifyLinked ) (JNIEnv *env, jobject this) = NULL
 jint ( * andglk_loader_glk_CPointed_makePoint ) (JNIEnv *env, jobject this) = NULL;
 void ( * andglk_loader_glk_CPointed_releasePoint ) (JNIEnv *env, jobject this, jint point) = NULL;
 void ( * andglk_loader_glk_MemoryStream_writeOut )(JNIEnv *env, jobject this, jint nativeBuf, jarray jbuf) = NULL;
-int  ( * andglk_loader_glk_MemoryStream_retainVmArray )(JNIEnv *env, jobject this, int buffer, long length) = NULL;
+int  ( * andglk_loader_glk_MemoryStream_retainVmArray )(JNIEnv *env, jobject this, int buffer, jlong length) = NULL;
 void ( * andglk_loader_glk_MemoryStream_releaseVmArray )(JNIEnv *env, jobject this, int buffer, int length, int dispatchRock) = NULL;
 
 static JavaVM* _jvm;
@@ -81,11 +81,11 @@ JNIEXPORT void Java_org_andglk_glk_Glk_startTerp
 	// link entry points
 	andglk_loader_glk_main = link(copy_terpPath, "andglk_loader_glk_main");   
 	andglk_loader_glk_Glk_notifyLinked = link(copy_terpPath, "andglk_loader_glk_Glk_notifyLinked");
-	andglk_loader_glk_MemoryStream_retainVmArray = link(copy_terpPath,"andglk_loader_glk_MemoryStream_retainVmArray");   
-	andglk_loader_glk_MemoryStream_releaseVmArray = link(copy_terpPath,"andglk_loader_glk_MemoryStream_releaseVmArray");   
-	andglk_loader_glk_MemoryStream_writeOut = link(copy_terpPath,"andglk_loader_glk_MemoryStream_writeOut");   
-	andglk_loader_glk_CPointed_makePoint = link(copy_terpPath,"andglk_loader_glk_CPointed_makePoint");   
-	andglk_loader_glk_CPointed_releasePoint = link(copy_terpPath,"andglk_loader_glk_CPointed_releasePoint");   
+	andglk_loader_glk_MemoryStream_retainVmArray = link(copy_terpPath, "andglk_loader_glk_MemoryStream_retainVmArray");
+	andglk_loader_glk_MemoryStream_releaseVmArray = link(copy_terpPath, "andglk_loader_glk_MemoryStream_releaseVmArray");
+	andglk_loader_glk_MemoryStream_writeOut = link(copy_terpPath, "andglk_loader_glk_MemoryStream_writeOut");
+	andglk_loader_glk_CPointed_makePoint = link(copy_terpPath, "andglk_loader_glk_CPointed_makePoint");
+	andglk_loader_glk_CPointed_releasePoint = link(copy_terpPath, "andglk_loader_glk_CPointed_releasePoint");
 
 	(*env)->ReleaseStringUTFChars(env, terpPath, copy_terpPath);
 
@@ -148,7 +148,7 @@ JNIEXPORT void Java_org_andglk_glk_Glk_startTerp
 JNIEXPORT void Java_org_andglkmod_glk_Glk_startTerp
 (JNIEnv *env, jobject obj1, jstring terpPath, jstring saveFilePath, jint argc, jobjectArray argv)
 {
-	Java_org_andglk_glk_Glk_startTerp(env,obj1,terpPath,saveFilePath,argc,argv);
+	Java_org_andglk_glk_Glk_startTerp(env, obj1, terpPath, saveFilePath, argc, argv);
 }
 
 JNIEXPORT jint Java_org_andglk_glk_CPointed_makePoint(JNIEnv *env, jobject this)
@@ -191,7 +191,7 @@ JNIEXPORT void Java_org_andglk_glk_CPointed_releasePoint(JNIEnv *env, jobject th
 }
 JNIEXPORT void Java_org_andglkmod_glk_CPointed_releasePoint(JNIEnv *env, jobject this, jint point)
 {
-	Java_org_andglk_glk_CPointed_releasePoint(env,this,point);
+	Java_org_andglk_glk_CPointed_releasePoint(env, this, point);
 }
 
 JNIEXPORT void Java_org_andglk_glk_MemoryStream_writeOut(JNIEnv *env, jobject this, jint nativeBuf, jarray jbuf)
@@ -211,10 +211,10 @@ JNIEXPORT void Java_org_andglk_glk_MemoryStream_writeOut(JNIEnv *env, jobject th
 }
 JNIEXPORT void Java_org_andglkmod_glk_MemoryStream_writeOut(JNIEnv *env, jobject this, jint nativeBuf, jarray jbuf)
 {
-	Java_org_andglk_glk_MemoryStream_writeOut(env,this,nativeBuf,jbuf);
+	Java_org_andglk_glk_MemoryStream_writeOut(env, this, nativeBuf, jbuf);
 }
 
-JNIEXPORT int Java_org_andglk_glk_MemoryStream_retainVmArray(JNIEnv *env, jobject this, int buffer, long len)
+JNIEXPORT int Java_org_andglk_glk_MemoryStream_retainVmArray(JNIEnv *env, jobject this, int buffer, jlong length)
 {
 	int result = -1;
 	const char *FN = "andglk_loader_glk_MemoryStream_retainVmArray";
@@ -222,9 +222,16 @@ JNIEXPORT int Java_org_andglk_glk_MemoryStream_retainVmArray(JNIEnv *env, jobjec
 	// begin synchronize
 	pthread_mutex_lock (&_muQuery);
 
-	if (andglk_loader_glk_MemoryStream_retainVmArray) 
-		result = andglk_loader_glk_MemoryStream_retainVmArray(env, this, buffer, len);
-	else 
+	if (andglk_loader_glk_MemoryStream_retainVmArray) {
+		LOGI("Java_org_andglk_glk_MemoryStream_retainVmArray length %d : %lu  : %llu, cast length %d : %lu  : %llu, cast length %d : %lu  : %llu, cast glui32 %d",
+		 length, length, length,
+		 (long) length, (long) length, (long) length,
+		 (jint) length, (jint) length, (jint) length,
+		 (glui32) length
+		 );
+		// NOTE: We are passing java-specific objects here, this and length are java-types.
+		result = andglk_loader_glk_MemoryStream_retainVmArray(env, this, buffer, length);
+	} else
 		LOGE("invalid call -- not linked to %s", FN);	
 
 	// end synchronize
@@ -232,11 +239,12 @@ JNIEXPORT int Java_org_andglk_glk_MemoryStream_retainVmArray(JNIEnv *env, jobjec
 
 	return result;
 }
-JNIEXPORT int Java_org_andglkmod_glk_MemoryStream_retainVmArray(JNIEnv *env, jobject this, int buffer, long len)
+JNIEXPORT int Java_org_andglkmod_glk_MemoryStream_retainVmArray(JNIEnv *env, jobject this, int buffer, jlong length)
 {
-	return Java_org_andglk_glk_MemoryStream_retainVmArray(env,this,buffer,len);
+	return Java_org_andglk_glk_MemoryStream_retainVmArray(env, this, buffer, length);
 }
 
+// NOTE: length is an int here, in retain calls it is a long
 JNIEXPORT void Java_org_andglk_glk_MemoryStream_releaseVmArray(JNIEnv *env, jobject this, int buffer, int length, int dispatchRock)
 {
 	const char *FN = "andglk_loader_glk_MemoryStream_releaseVmArray";
@@ -252,16 +260,17 @@ JNIEXPORT void Java_org_andglk_glk_MemoryStream_releaseVmArray(JNIEnv *env, jobj
 	// end synchronize
 	pthread_mutex_unlock (&_muQuery);
 }
+// NOTE: length is an int here, in retain calls it is a long
 JNIEXPORT void Java_org_andglkmod_glk_MemoryStream_releaseVmArray(JNIEnv *env, jobject this, int buffer, int length, int dispatchRock)
 {
-	Java_org_andglk_glk_MemoryStream_releaseVmArray(env,this,buffer,length,dispatchRock);
+	Java_org_andglk_glk_MemoryStream_releaseVmArray(env, this, buffer, length, dispatchRock);
 }
 
-JNIEXPORT int Java_org_andglk_glk_Window_retainVmArray(JNIEnv *env, jobject this, int buffer, long length)
+JNIEXPORT int Java_org_andglk_glk_Window_retainVmArray(JNIEnv *env, jobject this, int buffer, jlong length)
 {
 	return Java_org_andglk_glk_MemoryStream_retainVmArray(env, this, buffer, length);
 }
-JNIEXPORT int Java_org_andglkmod_glk_Window_retainVmArray(JNIEnv *env, jobject this, int buffer, long length)
+JNIEXPORT int Java_org_andglkmod_glk_Window_retainVmArray(JNIEnv *env, jobject this, int buffer, jlong length)
 {
-	return Java_org_andglk_glk_Window_retainVmArray(env,this,buffer,length);
+	return Java_org_andglk_glk_Window_retainVmArray(env, this, buffer, length);
 }

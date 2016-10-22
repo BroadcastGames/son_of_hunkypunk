@@ -59,11 +59,13 @@ public class MemoryStream extends Stream {
 				buf[i] = (byte)mBuffer[i];
 
 			writeOut(mCBuffer, buf);
-			releaseVmArray(mCBuffer, mBuffer.length, mDispatchRock);
+			// note, in retainVmArray the length param is long, but here it is int
+			releaseVmArray(mCBuffer, (int) mBuffer.length, mDispatchRock);
 		}
 	}
 
-	protected native int retainVmArray(int buffer, long len);
+	protected native int retainVmArray(int buffer, long length);
+	// NOTE: in retainVmArray the length is a long, in releaseVmArray it is an int
 	protected native void releaseVmArray(int buffer, int length, int dispatchRock);
 	private native void writeOut(int buffer, byte[] buffer2);
 

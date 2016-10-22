@@ -180,10 +180,15 @@ void andglk_loader_glk_main(JavaVM* jvm, JNIEnv *env, jobject this, const char* 
 	}
 }
 
-int andglk_loader_glk_MemoryStream_retainVmArray(JNIEnv *env, jobject this, int buffer, long length)
+// with jobject on param, go with jlong too
+int andglk_loader_glk_MemoryStream_retainVmArray(JNIEnv *env, jobject this, int buffer, jlong length)
 {
 	if (gli_register_arr) {
-		gidispatch_rock_t rock = gli_register_arr((void *)buffer, length, gidispatch_char_array);
+		LOGI("andglk_loader_glk_MemoryStream_retainVmArray length %d : %lu  : %llu cast %d", length, length, length, (glui32) length);
+		// ok, length here is expecting type glui32, gli_register_arr will translate to glulxe_retained_unregister
+		// This stuff is a mess, because we are cross-compiling for tons of different CPU's that Android runs (tablets x86_64, phones armv7, arm 64bit, etc).
+		// BUGFIX: Actual bug fix for Git Interpreter 1.3.0 to 1.3.4 upgrade is this cast on the length parameter passing.
+		gidispatch_rock_t rock = gli_register_arr((void *)buffer, (glui32) length, gidispatch_char_array);
 		return rock.num;
 	}
 }

@@ -1409,8 +1409,11 @@ static gidispatch_rock_t glulxe_retained_register(void *array,
   arref = *aptr;
   if (!arref)
     fatalError("Unable to re-find array argument in Glk call.");
-  if (arref->elemsize != elemsize || arref->len != len)
-    fatalError("Mismatched array argument in Glk call.");
+  if (arref->elemsize != elemsize || arref->len != len) {
+    fatalError("Mismatched array argument in Glk call. glulxe_retained_register");
+    rock.ptr = NULL;
+    return rock;
+  }
 
   arref->retained = TRUE;
 
@@ -1421,6 +1424,8 @@ static gidispatch_rock_t glulxe_retained_register(void *array,
 static void glulxe_retained_unregister(void *array, glui32 len,
   char *typecode, gidispatch_rock_t objrock)
 {
+  LOGW("glulxe_retained_unregister got length %d", len);
+
   arrayref_t *arref = NULL;
   arrayref_t **aptr;
   glui32 ix, addr2, val;
