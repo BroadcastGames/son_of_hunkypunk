@@ -91,4 +91,5 @@
     <string name="dayNight">Night Mode</string>
     <string name="deleteShortcuts">Do you want to delete the current shortcuts and restore the predefined shortcuts?</string>
     <string name="placeholder">Long-press any object to fill the placeholder</string>
+    <string name="oldGamesList">Old GamesList</string>
 </resources>

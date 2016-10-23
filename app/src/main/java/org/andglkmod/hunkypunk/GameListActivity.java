@@ -124,10 +124,7 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
         // Inflate the menu; this adds items to the action bar if it is present.
         // getMenuInflater().inflate(R.menu.menu_main, menu);
 
-        // ToDo: why isn't this in R.menu?
-        MenuInflater inflater = new MenuInflater(getApplication());
-        //noinspection ResourceType
-        inflater.inflate(R.layout.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -152,6 +149,13 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
                 } catch (PackageManager.NameNotFoundException e) {
                     e.printStackTrace();
                 }
+                break;
+        }
+        switch (id)
+        {
+            case R.id.oldGamesList:
+                intent = new Intent(this, GamesList.class);
+                startActivity(intent);
                 break;
         }
 

@@ -158,8 +158,7 @@ public class GamesList extends ListActivity implements OnClickListener {
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         MenuInflater inflater = new MenuInflater(getApplication());
-        //noinspection ResourceType
-        inflater.inflate(R.layout.menu_main, menu);
+        inflater.inflate(R.menu.menu_main, menu);
         return true;
     }
 
