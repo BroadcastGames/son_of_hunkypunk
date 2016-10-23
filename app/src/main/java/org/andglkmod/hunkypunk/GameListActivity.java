@@ -13,7 +13,7 @@ import android.view.View;
 
 import org.andglkmod.hunkypunk.dummy.DummyContent;
 
-public class MainActivity extends AppCompatActivity implements ItemFragment.OnListFragmentInteractionListener {
+public class GameListActivity extends AppCompatActivity implements GameListFragment.OnListFragmentInteractionListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnLi
                 // fragmentTransaction.replace(R.id.mainActivityContainer,     BlankFragment.newInstance("hi", "there"));
                 break;
             case 3:
-                fragmentTransaction.replace(R.id.mainActivityContainer,     ItemFragment.newInstance(1 /* Column */));
+                fragmentTransaction.replace(R.id.mainActivityContainer,     GameListFragment.newInstance(1 /* Column */));
                 break;
         }
         fragmentTransaction.commit();
@@ -71,6 +71,6 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnLi
     }
 
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
-        Log.i("MainActivity", "onListFragmentInteraction");
+        Log.i("GameListActivity", "onListFragmentInteraction");
     }
 }
