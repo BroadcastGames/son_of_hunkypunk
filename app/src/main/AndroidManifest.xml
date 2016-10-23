@@ -33,7 +33,9 @@
 
     <application
         android:icon="@drawable/icon"
-        android:label="@string/app_name">
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme"
+        >
         <!-- android:debuggable="true" -->
         <activity
             android:name="org.andglkmod.hunkypunk.Interpreter"
@@ -53,11 +55,19 @@
         <activity
             android:name="org.andglkmod.hunkypunk.GamesList"
             android:label="@string/hunky_punk">
+
+        </activity>
+
+        <activity android:name=".MainActivity"
+            android:label="@string/hunky_punk"
+            android:theme="@style/AppTheme.NoActionBar"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name="org.andglkmod.hunkypunk.GameDetails"
             android:label="@string/game_details">
