@@ -155,11 +155,7 @@ public class GamesList extends ListActivity implements OnClickListener {
         mScanner.setHandler(mHandler);
         mScanner.checkExisting();
 
-        /** This part creates the list of Ifs */
-        Cursor cursor = managedQuery(Games.CONTENT_URI, PROJECTION, Games.PATH + " IS NOT NULL", null, null);
-        adapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_2, cursor,
-                new String[]{Games.TITLE, Games.AUTHOR}, new int[]{android.R.id.text1, android.R.id.text2});
-        setListAdapter(adapter);
+        setupListAdapter();
 
         setContentView(R.layout.games_list);
         findViewById(R.id.go_to_ifdb).setOnClickListener(this);
@@ -193,6 +189,17 @@ public class GamesList extends ListActivity implements OnClickListener {
         startScan();
 
         //closing cursors locks start screen + crash
+    }
+
+
+    protected void setupListAdapter()
+    {
+        /** This part creates the list of Ifs */
+        Cursor cursor = managedQuery(Games.CONTENT_URI, PROJECTION, Games.PATH + " IS NOT NULL", null, null);
+        // ToDo: use {@link android.app.LoaderManager} with a {@link android.content.CursorLoader}.
+        adapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_2, cursor,
+                new String[]{Games.TITLE, Games.AUTHOR}, new int[]{android.R.id.text1, android.R.id.text2});
+        setListAdapter(adapter);
     }
 
 
@@ -365,7 +372,7 @@ public class GamesList extends ListActivity implements OnClickListener {
                 progressDialog.dismiss();
             }
         };
-
+        downloadThread.setName("downloadThread");
         downloadThread.start();
     }
 }
