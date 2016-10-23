@@ -8,10 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.andglkmod.hunkypunk.dummy.DummyContent;
-
-import java.util.List;
-
 /**
  */
 public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<GameListDatabaseRecyclerViewAdapter.ViewHolder> {
@@ -27,7 +23,7 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_item, parent, false);
+                .inflate(R.layout.fragment_gamelist_item, parent, false);
         return new ViewHolder(view);
     }
 
@@ -71,8 +67,8 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mIdView = (TextView) view.findViewById(R.id.id);
-            mContentView = (TextView) view.findViewById(R.id.content);
+            mIdView = (TextView) view.findViewById(R.id.gameListGameTitle);
+            mContentView = (TextView) view.findViewById(R.id.gameListGameInfo0);
         }
 
         @Override
