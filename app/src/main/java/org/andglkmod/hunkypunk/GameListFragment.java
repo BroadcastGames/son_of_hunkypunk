@@ -26,6 +26,7 @@ import org.andglkmod.hunkypunk.dummy.DummyContent;
  */
 public class GameListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    public static final String TAG = "GameListFragment";
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
@@ -33,7 +34,7 @@ public class GameListFragment extends Fragment implements LoaderManager.LoaderCa
     private OnListFragmentInteractionListener mListener;
 
     private GameListDatabaseRecyclerViewAdapter recyclerViewAdapter;
-    private int LOADER_ID = 1;
+    private static final int LOADMANAGER_GAMELIST_ID = 1;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -93,7 +94,8 @@ public class GameListFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(LOADER_ID, null, this);
+        Log.i(TAG, "onActivityCreated LoadManager kickoff");
+        getLoaderManager().initLoader(LOADMANAGER_GAMELIST_ID, null, this);
     }
 
     @Override
@@ -103,7 +105,7 @@ public class GameListFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Log.i("GameListFragment", "onLoadFinished swapCursor");
+        Log.i(TAG, "onLoadFinished swapCursor");
         recyclerViewAdapter.swapCursor(data);
     }
 
@@ -141,6 +143,7 @@ public class GameListFragment extends Fragment implements LoaderManager.LoaderCa
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
+        // ToDo: DummyContent.DummyItem is only temporary until we get GameList Database implemented
         void onListFragmentInteraction(DummyContent.DummyItem item);
     }
 }
