@@ -110,7 +110,22 @@ public class StorageManager {
 		c.close();
 	}
 
-	public void scan(File dir) {
+	public void scanKnownDirectoryTrees() {
+		scanDirectoryTree(Paths.ifDirectory());
+		// ToDo: proper path buildingin the SDK 24 style, ToDo: preference list of paths
+		File extraDir0 = new File("/sdcard/story000/Glulx_Tests0");
+		scanDirectoryTree(extraDir0);
+		File extraDir1 = new File("/sdcard/story000/setZ");
+		scanDirectoryTree(extraDir1);
+		File extraDir2 = new File("/sdcard/story000/setA");
+		scanDirectoryTree(extraDir2);
+		File extraDir3 = new File("/sdcard/storyGames0");
+		scanDirectoryTree(extraDir3);
+		File extraDir4 = new File("/sdcard/storyGames1");
+		scanDirectoryTree(extraDir4);
+	}
+
+	private void scanDirectoryTree(File dir) {
 		if (!dir.exists() || !dir.isDirectory())
 			return;
 		
@@ -118,6 +133,7 @@ public class StorageManager {
 		if (files == null)
 			return;
 
+		Log.d(TAG, "scanDirectoryTree " + dir.toString() + " " + Thread.currentThread());
 		for (File f : files)
 			if (!f.isDirectory())
 				try {
@@ -137,20 +153,20 @@ public class StorageManager {
 						|| g.matches(".*\\.t3$")
 
 						/* glulx */
-						/*
 						|| g.matches(".*\\.blorb$")
 						|| g.matches(".*\\.gblorb$")
 						|| g.matches(".*\\.blb$")
 						|| g.matches(".*\\.glb$")
 						|| g.matches(".*\\.ulx$")
-						*/
 						)
 						checkFile(f);
 				} catch (IOException e) {
 					Log.w(TAG, "IO exception while checking " + f, e);
 				}
-			else
-				scan(f);
+			else {
+				// Recursively call into the subdirectory
+				scanDirectoryTree(f);
+			}
 	}
 
 	public void updateGame(String ifid, String title) {
@@ -232,18 +248,28 @@ public class StorageManager {
 	}
 
 	public void startScan() {
-		new Thread() {
+		Thread scanFilesThread = new Thread() {
 			@Override
 			public void run() {
-				scan(Paths.ifDirectory());
-				Message.obtain(mHandler, DONE).sendToTarget();
+				try {
+					scanKnownDirectoryTrees();
+					Message.obtain(mHandler, DONE).sendToTarget();
+				}
+				catch (Exception e0)
+				{
+					Log.e(TAG, "Exception in Scan thread run", e0);
+				}
 			}
-		}.start();
+		};
+		scanFilesThread.setName("scanFilesThread");
+		scanFilesThread.start();
 	}
+
+
 
 	public static String unknownContent = "IFID_";
 	public void startInstall(final Uri game, final String scheme) {
-		new Thread() {
+		Thread startInstallThread = new Thread() {
 			@Override
 			public void run() {
 
@@ -295,7 +321,7 @@ public class StorageManager {
 						return;
 					}
 				} catch (Exception e){
-					Log.i("HunkyPunk/StorageManager",e.toString());
+					Log.i("HunkyPunk/StorageManagr",e.toString());
 				} finally {
 					if (scheme.equals(ContentResolver.SCHEME_CONTENT)) {
 						if (ftemp != null && ftemp.exists()) ftemp.delete();
@@ -305,8 +331,11 @@ public class StorageManager {
 
 				Message.obtain(mHandler, INSTALL_FAILED).sendToTarget();
 			}
-		}.start();
+		};
+		startInstallThread.setName("startInstallThread");
+		startInstallThread.start();
 	}
+
 	//added for Swipe
 	//creates an array with pathes of all games
 	public File[] getFiles(File dir) {

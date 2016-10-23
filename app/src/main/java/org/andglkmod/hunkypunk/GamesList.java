@@ -62,8 +62,6 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
-import java.util.regex.Pattern;
-
 public class GamesList extends ListActivity implements OnClickListener {
     private static final String[] PROJECTION = {
             Games._ID,
@@ -118,18 +116,25 @@ public class GamesList extends ListActivity implements OnClickListener {
         if (!path.equals(""))
             Paths.setIfDirectory(new File(path));
 
-        /** deletes all Ifs, which are not in the current Path, in other words, it delets the
+// ToDo: this is some kind of upgrade path remover? I think this should be removed to allow mutliple directories.
+        /** deletes all Ifs, which are not in the current Path, in other words, it deletes the
          * Ifs from the older Directory*/
+
         DatabaseHelper mOpenHelper = new DatabaseHelper(this);
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+
+        // Disabled!
+        /*
         for (int i = 0; i < adapter.getCount(); i++) {
             Cursor c = (Cursor) adapter.getItem(i);
             if (!Pattern.matches(".*" + Paths.ifDirectory() + ".*", c.getString(4))) {
                 db.execSQL("delete from games where ifid = '" + c.getString(1) + "'");
             }
         }
+        */
 
         /** helps to refresh the View, when come back from preferences */
+        // ToDo: move to onPreferenceResults?
        // startScan(); //!!!crashes the app and doubles the first game!!!
 
         //closing cursors locks start screen + crash
@@ -351,7 +356,7 @@ public class GamesList extends ListActivity implements OnClickListener {
                 }
 
                 try {
-                    mScanner.scan(Paths.ifDirectory());
+                    mScanner.scanKnownDirectoryTrees();
                     IFDb.getInstance(getContentResolver()).lookupGames();
                 } catch (IOException e) {
                     Log.e(TAG, "I/O error when fetching metadata", e);

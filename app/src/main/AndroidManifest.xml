@@ -207,6 +207,8 @@
                 <data android:pathPattern=".*\\..*\\.BLB" />
                 <data android:pathPattern=".*\\.BLB" />
 
+                <data android:pathPattern=".*\\.ulx" />
+
                 <data android:host="*" />
             </intent-filter>
         </activity-alias>
