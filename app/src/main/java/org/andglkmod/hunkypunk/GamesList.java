@@ -63,54 +63,19 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 public class GamesList extends ListActivity implements OnClickListener {
-    private static final String[] PROJECTION = {
-            Games._ID,
-            Games.IFID,
-            Games.TITLE,
-            Games.AUTHOR,
-            Games.PATH
-    };
-
-    protected static final String[] BEGINNER_GAMES = {
-            "http://www.ifarchive.org/if-archive/games/zcode/905.z5",
-            "http://www.ifarchive.org/if-archive/games/zcode/Advent.z5",
-            "http://www.ifarchive.org/if-archive/games/zcode/awaken.z5",
-            "http://www.ifarchive.org/if-archive/games/zcode/dreamhold.z8",
-            "http://www.ifarchive.org/if-archive/games/zcode/LostPig.z8",
-            "http://www.ifarchive.org/if-archive/games/zcode/shade.z5",
-            "http://www.ifarchive.org/if-archive/games/tads/indigo.t3",
-            "http://www.ifarchive.org/if-archive/games/competition98/tads/plant/plant.gam",
-            "http://www.ifarchive.org/if-archive/games/zcode/Bronze.zblorb",
-            "http://www.ifarchive.org/if-archive/games/zcode/theatre.z5",
-            "http://hunkypunk.googlecode.com/files/uu1.gam"
-    };
 
     protected static final String TAG = "HunkyPunk";
 
-    private StorageManager mScanner;
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case StorageManager.DONE:
-                    setProgressBarIndeterminateVisibility(false);
-                    startLookup();
-                    break;
-            }
-        }
-    };
 
-    private ProgressDialog progressDialog;
 
-    private Thread downloadThread;
 
-    protected boolean downloadCancelled;
-
+    private GameListHelper gameListHelper;
     private SimpleCursorAdapter adapter;
 
     @Override
     protected void onResume() {
         super.onResume();
+
         /** gets the If-Path from SharedPrefences, which could be changed at the last session */
         String path = getSharedPreferences("ifPath", Context.MODE_PRIVATE).getString("ifPath", "");
         if (!path.equals(""))
@@ -146,14 +111,15 @@ public class GamesList extends ListActivity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Log.i(TAG, "onCreate");
+
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setDefaultKeyMode(DEFAULT_KEYS_SEARCH_LOCAL);
 
         getPermissionToUseStorage();
 
-        mScanner = StorageManager.getInstance(this);
-        mScanner.setHandler(mHandler);
-        mScanner.checkExisting();
+        // Rotation will create and destroy this, causing problems if done rapidly?
+        gameListHelper = new GameListHelper(this);
 
         setupListAdapter();
 
@@ -186,7 +152,8 @@ public class GamesList extends ListActivity implements OnClickListener {
             shortcutEditor.commit();
             prefEditor.commit();
         }
-        startScan();
+
+        gameListHelper.startScan();
 
         //closing cursors locks start screen + crash
     }
@@ -195,7 +162,7 @@ public class GamesList extends ListActivity implements OnClickListener {
     protected void setupListAdapter()
     {
         /** This part creates the list of Ifs */
-        Cursor cursor = managedQuery(Games.CONTENT_URI, PROJECTION, Games.PATH + " IS NOT NULL", null, null);
+        Cursor cursor = managedQuery(Games.CONTENT_URI, GameListHelper.PROJECTION, Games.PATH + " IS NOT NULL", null, null);
         // ToDo: use {@link android.app.LoaderManager} with a {@link android.content.CursorLoader}.
         adapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_2, cursor,
                 new String[]{Games.TITLE, Games.AUTHOR}, new int[]{android.R.id.text1, android.R.id.text2});
@@ -290,20 +257,7 @@ public class GamesList extends ListActivity implements OnClickListener {
         startActivity(i);
     }
 
-    private void startScan() {
-        setProgressBarIndeterminateVisibility(true);
-        mScanner.startScan();
-    }
 
-    private void startLookup() {
-        IFDb ifdb = IFDb.getInstance(getContentResolver());
-        ifdb.startLookup(new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                Toast.makeText(GamesList.this, R.string.ifdb_connection_error, Toast.LENGTH_LONG).show();
-            }
-        });
-    }
 
     @Override
     public void onClick(View v) {
@@ -312,67 +266,8 @@ public class GamesList extends ListActivity implements OnClickListener {
                 startActivity(new Intent(Intent.ACTION_DEFAULT, Uri.parse("http://ifdb.tads.org")));
                 break;
             case R.id.download_preselected:
-                downloadPreselected();
+                gameListHelper.downloadPreselected();
                 break;
         }
-    }
-
-    private void downloadPreselected() {
-        downloadCancelled = false;
-
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setTitle(R.string.please_wait);
-        progressDialog.setMessage(getString(R.string.downloading_stories));
-        progressDialog.setCancelable(true);
-        progressDialog.setOnCancelListener(
-                new OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        synchronized (downloadThread) {
-                            downloadCancelled = true;
-                        }
-                        downloadThread.interrupt();
-                    }
-                }
-        );
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressDialog.setMax(BEGINNER_GAMES.length);
-        progressDialog.show();
-
-        downloadThread = new Thread() {
-            @Override
-            public void run() {
-                int i = 0;
-                for (String s : BEGINNER_GAMES) {
-                    synchronized (this) {
-                        if (downloadCancelled)
-                            return;
-                    }
-                    try {
-                        final URL u = new URL(s);
-                        final String fileName = Uri.parse(s).getLastPathSegment();
-                        Utils.copyStream(u.openStream(), new FileOutputStream(new File(Paths.ifDirectory(), fileName)));
-                    } catch (MalformedURLException e) {
-                        Log.e(TAG, "malformed URL when fetching " + s, e);
-                    } catch (FileNotFoundException e) {
-                        Log.e(TAG, "file not found when fetching " + s, e);
-                    } catch (IOException e) {
-                        Log.e(TAG, "I/O error when fetching " + s, e);
-                    }
-                    progressDialog.setProgress(++i);
-                }
-
-                try {
-                    mScanner.scanKnownDirectoryTrees();
-                    IFDb.getInstance(getContentResolver()).lookupGames();
-                } catch (IOException e) {
-                    Log.e(TAG, "I/O error when fetching metadata", e);
-                }
-
-                progressDialog.dismiss();
-            }
-        };
-        downloadThread.setName("downloadThread");
-        downloadThread.start();
     }
 }
