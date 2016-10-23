@@ -43,6 +43,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.view.Display;
 import android.view.GestureDetector;
@@ -62,7 +64,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class GameDetails extends Activity implements OnClickListener {
+public class GameDetails extends AppCompatActivity implements OnClickListener {
     private static final String TAG = "hunkypunk.GameDetails";
 
     private static final String[] PROJECTION = {
@@ -161,15 +163,13 @@ public class GameDetails extends Activity implements OnClickListener {
 
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        MenuInflater inflater = new MenuInflater(getApplication());
-        //noinspection ResourceType
-        inflater.inflate(R.layout.menu_game_details, menu);
+        getMenuInflater().inflate(R.menu.menu_game_details, menu);
         return true;
     }
 
 
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
         switch (item.getNumericShortcut()) {
             case '1':
@@ -221,7 +221,7 @@ public class GameDetails extends Activity implements OnClickListener {
                 }
                 break;
         }
-        return super.onMenuItemSelected(featureId, item);
+        return super.onOptionsItemSelected(item);
     }
 
     private void install(Uri game, String scheme) {

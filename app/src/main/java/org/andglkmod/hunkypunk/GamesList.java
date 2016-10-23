@@ -62,6 +62,12 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
+/*
+Note:
+Moving this app to SDK 24 has made the ActionBar disappear on this GameList Activity.
+The newer replacement is the "ToolBar". There are solutions to restore it.
+Likley the Night Mode style work will need to be redone too.
+ */
 public class GamesList extends ListActivity implements OnClickListener {
 
     protected static final String TAG = "HunkyPunk";
