@@ -1,11 +1,17 @@
 package org.andglkmod.hunkypunk;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,13 +24,16 @@ import org.andglkmod.hunkypunk.dummy.DummyContent;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class GameListFragment extends Fragment {
+public class GameListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+
+    private GameListDatabaseRecyclerViewAdapter recyclerViewAdapter;
+    private int LOADER_ID = 1;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -66,11 +75,42 @@ public class GameListFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new GameListRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+
+            switch (2) {
+                case 1:
+                    recyclerView.setAdapter(new GameListRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+                    break;
+                case 2:
+                    recyclerViewAdapter = new GameListDatabaseRecyclerViewAdapter(getActivity(), null /* Cursor will be stuffed in later */);
+                    recyclerView.setAdapter(recyclerViewAdapter);
+                    break;
+            }
         }
+
         return view;
     }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getLoaderManager().initLoader(LOADER_ID, null, this);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getContext(), HunkyPunk.Games.CONTENT_URI, null, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.i("GameListFragment", "onLoadFinished swapCursor");
+        recyclerViewAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        recyclerViewAdapter.swapCursor(null);
+    }
 
     @Override
     public void onAttach(Context context) {
