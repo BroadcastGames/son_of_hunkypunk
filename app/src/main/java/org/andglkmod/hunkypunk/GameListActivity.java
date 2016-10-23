@@ -1,6 +1,8 @@
 package org.andglkmod.hunkypunk;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -129,6 +131,7 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
         return true;
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -136,10 +139,29 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        Intent intent;
+        switch (item.getNumericShortcut()) {
+            case '1':
+                intent = new Intent(this, PreferencesActivity.class);
+                startActivity(intent);
+                break;
+            case '2':
+                AlertDialog builder;
+                try {
+                    builder = DialogBuilder.showAboutDialog(this);
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
+                break;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
         Log.i("GameListActivity", "onListFragmentInteraction");
     }
+
+    // ToDo: GamesList.java has onClick at bottom, what to do to replace this?
+    //   how about have another fragment for virgin opening page, intro page iwth those two choices?
 }
