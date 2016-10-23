@@ -1,23 +1,41 @@
 package org.andglkmod.hunkypunk;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import org.andglkmod.hunkypunk.dummy.DummyContent;
 
 public class GameListActivity extends AppCompatActivity implements GameListFragment.OnListFragmentInteractionListener {
 
+    protected static final String TAG = "GameListActivity";
+
+    private GameListHelper gameListHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.i(TAG, "onCreate");
+
+        getPermissionToUseStorage();
+
+        // ToDo: Rotation will create and destroy this, causing problems if done rapidly? Test and solve.
+        gameListHelper = new GameListHelper(this);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -31,6 +49,10 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
                 // changeMainFragment(2);
             }
         });
+
+        gameListHelper.sharedPreferencesAndFirstRunSetup();
+
+        gameListHelper.startScan();
 
         changeMainFragment(3);
     }
@@ -53,10 +75,57 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
         fragmentTransaction.commit();
     }
 
+
+    // Identifier for the permission request
+    private static final int WRITE_STORAGE_PERMISSIONS_REQUEST = 1;
+
+
+    public void getPermissionToUseStorage() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE },
+                        WRITE_STORAGE_PERMISSIONS_REQUEST);
+
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case WRITE_STORAGE_PERMISSIONS_REQUEST: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "Write Storage permission granted",
+                            Toast.LENGTH_SHORT).show();
+
+                } else {
+                    Toast.makeText(this, "Write Storage permission denied",
+                            Toast.LENGTH_SHORT).show();
+                    // ToDo: use non /sdcard/ path, use application local storage path
+                }
+                return;
+            }
+        }
+    }
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         // getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        // ToDo: why isn't this in R.menu?
+        MenuInflater inflater = new MenuInflater(getApplication());
+        //noinspection ResourceType
+        inflater.inflate(R.layout.menu_main, menu);
         return true;
     }
 
