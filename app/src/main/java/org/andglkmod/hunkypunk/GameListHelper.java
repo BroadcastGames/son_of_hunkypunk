@@ -3,6 +3,8 @@ package org.andglkmod.hunkypunk;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
@@ -18,6 +20,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by adminsag on 10/23/16.
@@ -76,6 +82,71 @@ public class GameListHelper {
         mScanner.setHandler(mHandler);
         mScanner.checkExisting();
     }
+
+    public void cleanDatabase() {
+        Log.i(TAG, "cleanDatabase");
+        /** gets the If-Path from SharedPrefences, which could be changed at the last session */
+        String path = parentContext.getSharedPreferences("ifPath", MODE_PRIVATE).getString("ifPath", "");
+        if (!path.equals(""))
+            Paths.setIfDirectory(new File(path));
+
+// ToDo: this is some kind of upgrade path remover? I think this should be removed to allow mutliple directories.
+        /** deletes all Ifs, which are not in the current Path, in other words, it deletes the
+         * Ifs from the older Directory*/
+
+        DatabaseHelper mOpenHelper = new DatabaseHelper(parentContext);
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+
+        // Disabled!
+        /*
+        for (int i = 0; i < adapter.getCount(); i++) {
+            Cursor c = (Cursor) adapter.getItem(i);
+            if (!Pattern.matches(".*" + Paths.ifDirectory() + ".*", c.getString(4))) {
+                db.execSQL("delete from games where ifid = '" + c.getString(1) + "'");
+            }
+        }
+        */
+
+        /** helps to refresh the View, when come back from preferences */
+        // ToDo: move to onPreferenceResults?
+        // startScan(); //!!!crashes the app and doubles the first game!!!
+
+        //closing cursors locks start screen + crash
+
+        db.close();//not closing db locks it and results in an exception onResume
+    }
+
+
+    public void sharedPreferencesAndFirstRunSetup()
+    {
+        SharedPreferences sharedPreferences = parentContext.getSharedPreferences("shortcutPrefs", MODE_PRIVATE);
+        SharedPreferences sharedShortcuts = parentContext.getSharedPreferences("shortcuts", MODE_PRIVATE);
+        SharedPreferences sharedShortcutIDs = parentContext.getSharedPreferences("shortcutIDs", MODE_PRIVATE);
+
+        if (sharedPreferences.getBoolean("firstStart", true)) {
+            SharedPreferences.Editor prefEditor = sharedPreferences.edit();
+            SharedPreferences.Editor shortcutEditor = sharedShortcuts.edit();
+            SharedPreferences.Editor shortcutIDEditor = sharedShortcutIDs.edit();
+
+            String[] defaults = new String[]{"look", "examine", "take", "inventory", "ask", "drop", "tell", "again", "open", "close", "give", "show"};
+            ArrayList<String> list = new ArrayList<String>();
+
+            for (int i = 0; i < defaults.length; i++)
+                list.add(defaults[i]);
+            Collections.sort(list);
+
+            for (int i = 0; i < list.size(); i++) {
+                shortcutEditor.putString(list.get(i), list.get(i));
+                shortcutIDEditor.putString(i + "", list.get(i));
+            }
+            prefEditor.putBoolean("firstStart", false);
+
+            shortcutIDEditor.commit();
+            shortcutEditor.commit();
+            prefEditor.commit();
+        }
+    }
+
 
     public void startScan() {
         // setProgressBarIndeterminateVisibility(true);

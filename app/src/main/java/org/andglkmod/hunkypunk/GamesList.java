@@ -66,9 +66,6 @@ public class GamesList extends ListActivity implements OnClickListener {
 
     protected static final String TAG = "HunkyPunk";
 
-
-
-
     private GameListHelper gameListHelper;
     private SimpleCursorAdapter adapter;
 
@@ -76,35 +73,7 @@ public class GamesList extends ListActivity implements OnClickListener {
     protected void onResume() {
         super.onResume();
 
-        /** gets the If-Path from SharedPrefences, which could be changed at the last session */
-        String path = getSharedPreferences("ifPath", Context.MODE_PRIVATE).getString("ifPath", "");
-        if (!path.equals(""))
-            Paths.setIfDirectory(new File(path));
-
-// ToDo: this is some kind of upgrade path remover? I think this should be removed to allow mutliple directories.
-        /** deletes all Ifs, which are not in the current Path, in other words, it deletes the
-         * Ifs from the older Directory*/
-
-        DatabaseHelper mOpenHelper = new DatabaseHelper(this);
-        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-
-        // Disabled!
-        /*
-        for (int i = 0; i < adapter.getCount(); i++) {
-            Cursor c = (Cursor) adapter.getItem(i);
-            if (!Pattern.matches(".*" + Paths.ifDirectory() + ".*", c.getString(4))) {
-                db.execSQL("delete from games where ifid = '" + c.getString(1) + "'");
-            }
-        }
-        */
-
-        /** helps to refresh the View, when come back from preferences */
-        // ToDo: move to onPreferenceResults?
-       // startScan(); //!!!crashes the app and doubles the first game!!!
-
-        //closing cursors locks start screen + crash
-
-        db.close();//not closing db locks it and results in an exception onResume
+        gameListHelper.cleanDatabase();
     }
 
     @Override
@@ -118,7 +87,7 @@ public class GamesList extends ListActivity implements OnClickListener {
 
         getPermissionToUseStorage();
 
-        // Rotation will create and destroy this, causing problems if done rapidly?
+        // ToDo: Rotation will create and destroy this, causing problems if done rapidly? Test and solve.
         gameListHelper = new GameListHelper(this);
 
         setupListAdapter();
@@ -127,31 +96,7 @@ public class GamesList extends ListActivity implements OnClickListener {
         findViewById(R.id.go_to_ifdb).setOnClickListener(this);
         findViewById(R.id.download_preselected).setOnClickListener(this);
 
-        SharedPreferences sharedPreferences = getSharedPreferences("shortcutPrefs", MODE_PRIVATE);
-        SharedPreferences sharedShortcuts = getSharedPreferences("shortcuts", MODE_PRIVATE);
-        SharedPreferences sharedShortcutIDs = getSharedPreferences("shortcutIDs", MODE_PRIVATE);
-
-        if (sharedPreferences.getBoolean("firstStart", true)) {
-            SharedPreferences.Editor prefEditor = sharedPreferences.edit();
-            SharedPreferences.Editor shortcutEditor = sharedShortcuts.edit();
-            SharedPreferences.Editor shortcutIDEditor = sharedShortcutIDs.edit();
-
-            String[] defaults = new String[]{"look", "examine", "take", "inventory", "ask", "drop", "tell", "again", "open", "close", "give", "show"};
-            ArrayList<String> list = new ArrayList<String>();
-            for (int i = 0; i < defaults.length; i++)
-                list.add(defaults[i]);
-            Collections.sort(list);
-
-
-            for (int i = 0; i < list.size(); i++) {
-                shortcutEditor.putString(list.get(i), list.get(i));
-                shortcutIDEditor.putString(i + "", list.get(i));
-            }
-            prefEditor.putBoolean("firstStart", false);
-            shortcutIDEditor.commit();
-            shortcutEditor.commit();
-            prefEditor.commit();
-        }
+        gameListHelper.sharedPreferencesAndFirstRunSetup();
 
         gameListHelper.startScan();
 
@@ -238,6 +183,7 @@ public class GamesList extends ListActivity implements OnClickListener {
         return super.onMenuItemSelected(featureId, item);
     }
 
+
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         /** the id is not equal to the position, cause of the list is alphabetical sorted.
@@ -256,7 +202,6 @@ public class GamesList extends ListActivity implements OnClickListener {
         i.putExtra("ifIDs", ifIDs); //commiting the array, where the positions matches the ids
         startActivity(i);
     }
-
 
 
     @Override
