@@ -980,7 +980,7 @@ static void unparse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
     LOGW("unparse_glk_args CHECKPOINT_H - after rock dispatch, unparseCallCount %d", unparseCallCount);
   }
   thisval = 0;
-G  // Molly and the Butter skip
+  // Molly and the Butter skip
   if (unparseCallCount != 92) {
               thisval = ((classref_t *)objrock.ptr)->id;
   }
