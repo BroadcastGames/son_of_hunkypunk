@@ -20,6 +20,7 @@
 package org.andglkmod.glk;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -306,6 +307,7 @@ public class PairWindow extends Window {
 
 	@Override
 	public void flush() {
+		Log.i("PairWindow", "flush()");
 		mChildren[0].flush();
 		mChildren[1].flush();
 	}

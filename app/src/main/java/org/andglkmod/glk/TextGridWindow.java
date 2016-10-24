@@ -33,6 +33,7 @@ import android.graphics.Typeface;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextPaint;
+import android.util.Log;
 import android.view.KeyEvent;
 
 public class TextGridWindow extends Window {
@@ -653,6 +654,7 @@ public class TextGridWindow extends Window {
 
     @Override
     public void flush() {
+        Log.i("TextGridWindow", "flush()");
         if (mView == null) return;
 
         mView.flush();

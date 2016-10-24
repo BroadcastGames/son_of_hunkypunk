@@ -272,7 +272,7 @@ public class IFDb {
 	}
 
 	public void startLookup(final Handler errorHandler) {
-		new Thread() {
+		Thread lookupThread = new Thread() {
 			@Override
 			public void run() {
 				try {
@@ -281,7 +281,9 @@ public class IFDb {
 					Message.obtain(errorHandler).sendToTarget();
 				}
 			}
-		}.start();
+		};
+		lookupThread.setName("lookupMultipleThread");
+		lookupThread.start();
 	}
 
 	public void lookupGames() throws IOException {
@@ -371,8 +373,9 @@ public class IFDb {
 		return new URL(BASE_URL + hack_ifid);
 	}
 
+	// ToDo: rename these methods, there are two with startLookup. Distinguish names on purpose, single games or all games?
 	public void startLookup(final String ifid, final Handler lookupHandler) {
-		new Thread() {
+		Thread lookupThread = new Thread() {
 			@Override
 			public void run() {
 				try {
@@ -383,6 +386,8 @@ public class IFDb {
 					Log.e(TAG, "error while looking up " + ifid, e);
 				}
 			}
-		}.start();
+		};
+		lookupThread.setName("lookupSingleThread");
+		lookupThread.start();
 	}
 }

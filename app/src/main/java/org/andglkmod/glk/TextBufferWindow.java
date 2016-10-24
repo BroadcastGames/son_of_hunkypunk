@@ -1533,6 +1533,7 @@ public class TextBufferWindow extends Window {
 
     @Override
     public void flush() {
+        Log.i(TAG, "flush()");
         ((_Stream) mStream).flush();
     }
 

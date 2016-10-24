@@ -1156,6 +1156,9 @@ void glk_select(event_t *event)
 
 void glk_select_poll(event_t *event)
 {
+    LOGI("andglk.c glk_select_poll start");
+    return;
+
 	JNIEnv *env = JNU_GetEnv();
 	static jmethodID mid = 0;
 	if (mid == 0)
@@ -1163,6 +1166,8 @@ void glk_select_poll(event_t *event)
 
 	(*env)->CallVoidMethod(env, _this, mid);
 	if (event) event->type = evtype_None;
+
+    LOGI("andglk.c glk_select_poll end");
 }
 
 void glk_request_timer_events(glui32 millisecs)

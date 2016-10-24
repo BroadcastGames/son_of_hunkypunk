@@ -662,7 +662,18 @@ char *gidispatch_prototype(glui32 funcnum)
 
 void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
 {
-    LOGV("gidispatch_call funcnum 0x%04x numargs %d", funcnum, numargs);
+    static int callNumber = 0;
+    callNumber++;
+    LOGV("gidispatch_call funcnum 0x%04x numargs %d callNumber %d", funcnum, numargs, callNumber);
+
+    // For serious crash debugging, use this? Basically it allows us to ee if a previous gidispatch_call is triggering crash or the current gidispatch_call operation.
+    // Molly and the Butter Thieves git Interpreter crashes here on this call. Maybe in opcodes that follow?
+    if (callNumber > 87)
+    {
+        LOGE("exiting on gidispatch_call callNumber %d", callNumber);
+        glk_exit();
+        return;
+    }
 
     switch (funcnum) {
         case 0x0001: /* exit */
@@ -973,6 +984,7 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             LOGD("gi_dispa.c AFTER 0x00C0");
             break;
         case 0x00C1: /* select_poll */
+            LOGI("gi_dispa.c gidispatch_call funcnum 0x00C1 starting");
             if (arglist[0].ptrflag) {
                 event_t dat;
                 glk_select_poll(&dat);
@@ -984,6 +996,7 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             else {
                 glk_select_poll(NULL);
             }
+            LOGI("gi_dispa.c gidispatch_call funcnum 0x00C1 AFTER");
             break;
         case 0x00D0: /* request_line_event */
             if (arglist[1].ptrflag)

@@ -125,10 +125,16 @@ public class Glk extends Thread {
 
 	@Override
 	public void run() {
-		startTerp(_arguments[0], _autoSavePath, _arguments.length, _arguments);
-		notifyQuit();
-		_instance = null;
-		Window.setRoot(null);
+		try {
+			startTerp(_arguments[0], _autoSavePath, _arguments.length, _arguments);
+			notifyQuit();
+			_instance = null;
+			Window.setRoot(null);
+		}
+		catch (Exception e)
+		{
+			Log.e("Glk.java", "Exception in Interpreter, startTerp", e);
+		}
 	}
 
 	// loader has successfully loaded and linked to glk interpreter and is about to start
@@ -185,8 +191,12 @@ public class Glk extends Thread {
 		if (activity != null)
 			activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 	}
-	
+
+	public static int setWindowCallCount = 0;
+
 	public void setWindow(Window window) {
+		setWindowCallCount++;
+		Log.i("Java/Glk", "setWindow Java side " + setWindowCallCount);
 		if (window == null)
 		{
 			Log.e("Java/Glk", "setWindow on null window");
