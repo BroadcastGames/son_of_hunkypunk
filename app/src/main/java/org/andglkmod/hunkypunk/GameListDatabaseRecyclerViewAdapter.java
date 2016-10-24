@@ -15,6 +15,11 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
     private Cursor dataCursor;
     private Context parentContext;
     private GameListClickListener parentClickListener;
+    private int columnIndex0 = 0;
+    private int columnIndex1 = 0;
+    private int columnIndex2 = 0;
+    private int columnIndex3 = 0;
+    private int columnIndex4 = 0;
 
     public GameListDatabaseRecyclerViewAdapter(Context context, Cursor cursor) {
         dataCursor = cursor;
@@ -36,6 +41,13 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
         Cursor oldCursor = dataCursor;
         this.dataCursor = cursor;
         if (cursor != null) {
+            // cache these once so that every single Item doesn't have to look them up
+            columnIndex0 = dataCursor.getColumnIndex(HunkyPunk.Games.TITLE);
+            columnIndex1 = dataCursor.getColumnIndex(HunkyPunk.Games.AUTHOR);
+            columnIndex2 = dataCursor.getColumnIndex(HunkyPunk.Games._ID);
+            columnIndex3 = dataCursor.getColumnIndex(HunkyPunk.Games.PATH);
+            columnIndex4 = dataCursor.getColumnIndex(HunkyPunk.Games.IFID);
+
             this.notifyDataSetChanged();
         }
         return oldCursor;
@@ -46,14 +58,16 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
     public void onBindViewHolder(final ViewHolder holder, int position) {
         dataCursor.moveToPosition(position);
 
-        final String gameTitle  = dataCursor.getString(dataCursor.getColumnIndex(HunkyPunk.Games.TITLE));
-        final String gameAuthor = dataCursor.getString(dataCursor.getColumnIndex(HunkyPunk.Games.AUTHOR));
-        final int dataRecordId =  dataCursor.getInt(dataCursor.getColumnIndex(HunkyPunk.Games._ID));
-        String gameFilePath = dataCursor.getString(dataCursor.getColumnIndex(HunkyPunk.Games.PATH));
+        final String gameTitle  = dataCursor.getString(columnIndex0);
+        final String gameAuthor = dataCursor.getString(columnIndex1);
+        final int dataRecordId =  dataCursor.getInt(   columnIndex2);
+        String gameFilePath     = dataCursor.getString(columnIndex3);
+        String gameId0          = dataCursor.getString(columnIndex4);
         gameFilePath = gameFilePath.replace("/storage/emulated/0/", "/SE0:");
 
         holder.refPosition = position;
         holder.dataRecordId = dataRecordId;
+        holder.gameIdentity0 = gameId0;
         holder.mTitleLineView.setText(gameTitle + " [" + position + " / " + dataRecordId + "]");
         if (gameAuthor == null) {
             holder.mFirstDetailView.setVisibility(View.GONE);
@@ -84,7 +98,8 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
         public final TextView mFirstDetailView;
         public final TextView mSecondDetailView;
         public int dataRecordId;
-        public int refPosition;
+        public String gameIdentity0;
+        public int refPosition;  // Won't be accurate, gets recycled.
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -103,7 +118,7 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
 
         @Override
         public void onClick(View v) {
-            if (parentClickListener != null) parentClickListener.onClick(v, getAdapterPosition());
+            if (parentClickListener != null) parentClickListener.onGameListItemClick(v, getAdapterPosition(), this);
         }
     }
 }

@@ -23,6 +23,7 @@ import java.io.File;
 
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 public final class HunkyPunk {
 
@@ -63,6 +64,10 @@ public final class HunkyPunk {
 		public static Uri uriOfId(long id) {
 			return CONTENT_URI.buildUpon().appendPath(Long.toString(id)).build();
 		}
+
+		public static Uri uriOfDataRecordId(int dataRecordId) {
+			return CONTENT_URI.buildUpon().appendPath(Integer.toString(dataRecordId)).build();
+		}
 	}
 
 	public static File getCover(String ifid) {
@@ -70,13 +75,15 @@ public final class HunkyPunk {
 	}
 	
 	public static File getGameDataDir(Uri uri, String ifid) {
+		Log.i("HunkyPunk", "getGameDataDir " + uri);
+
 		File fGame = new File(uri.getPath());
 
 		File fData = Paths.dataDirectory();
 
 		//search
 		String dirName = fGame.getName()+"."+ifid;
-		GameDataDirFilter filter = new GameDataDirFilter(ifid);		
+		GameDataDirFilter filter = new GameDataDirFilter(ifid);
 		File[] fs = fData.listFiles(filter);
 		if (fs != null && fs.length>0)
 			dirName = fs[0].getName();

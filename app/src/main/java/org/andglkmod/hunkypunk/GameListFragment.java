@@ -1,8 +1,8 @@
 package org.andglkmod.hunkypunk;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -141,9 +141,14 @@ public class GameListFragment extends Fragment implements LoaderManager.LoaderCa
     Animation itemClickAnimation;
 
     @Override
-    public void onClick(View view, int position) {
-        Log.i(TAG, "GameList RecyclerView onClick position " + position);
+    public void onGameListItemClick(View view, int position, GameListDatabaseRecyclerViewAdapter.ViewHolder viewHolder) {
+        Log.i(TAG, "GameList RecyclerView onClick position " + position + " identity " + viewHolder.gameIdentity0);
         view.startAnimation(itemClickAnimation);
+
+        Intent i = new Intent(Intent.ACTION_VIEW, HunkyPunk.Games.uriOfDataRecordId(viewHolder.dataRecordId), getActivity(), GameDetails.class);
+        i.putExtra("position", position); // commit the position of the clicked item
+        i.putExtra("ifIDs", viewHolder.gameIdentity0); //commiting the array, where the positions matches the ids
+        startActivity(i);
     }
 
     /**

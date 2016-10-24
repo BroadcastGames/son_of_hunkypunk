@@ -7,5 +7,5 @@ import android.view.View;
  */
 
 public interface GameListClickListener {
-    void onClick(View view, int position);
+    void onGameListItemClick(View view, int position, GameListDatabaseRecyclerViewAdapter.ViewHolder viewHolder);
 }
