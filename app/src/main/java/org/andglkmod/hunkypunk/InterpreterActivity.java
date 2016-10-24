@@ -19,18 +19,6 @@
 
 package org.andglkmod.hunkypunk;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-
-import org.andglkmod.glk.Glk;
-import org.andglkmod.glk.Window;
-import org.andglkmod.glk.TextBufferWindow;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -44,6 +32,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -51,10 +40,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.andglkmod.glk.Glk;
+import org.andglkmod.glk.TextBufferWindow;
+import org.andglkmod.glk.Window;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+
 /*
-ToDo: right now with SDK 24, this has broken ActionBar/ToolBar so it effectively behaves like Immersive mode on Android 5.1 10" Tablet I tested on.
+Proper SDK 24 Activity
  */
-public class Interpreter extends Activity {
+public class InterpreterActivity extends AppCompatActivity {
     private static final String TAG = "hunkypunk.Interpreter";
     private Glk glk;
     private File mDataDir;
@@ -122,13 +123,13 @@ public class Interpreter extends Activity {
 		 */
         SharedPreferences sharedPrefs = getSharedPreferences("Night", Context.MODE_PRIVATE);
         if (sharedPrefs.getBoolean("NightOn", false)) {
-            org.andglkmod.glk.TextBufferWindow.DefaultBackground = Color.DKGRAY;
-            org.andglkmod.glk.TextBufferWindow.DefaultTextColor = Color.WHITE;
-            org.andglkmod.glk.TextBufferWindow.DefaultInputStyle = Glk.STYLE_NIGHT;
+            TextBufferWindow.DefaultBackground = Color.DKGRAY;
+            TextBufferWindow.DefaultTextColor = Color.WHITE;
+            TextBufferWindow.DefaultInputStyle = Glk.STYLE_NIGHT;
         } else {
-            org.andglkmod.glk.TextBufferWindow.DefaultBackground = Color.WHITE;
-            org.andglkmod.glk.TextBufferWindow.DefaultTextColor = Color.BLACK;
-            org.andglkmod.glk.TextBufferWindow.DefaultInputStyle = Glk.STYLE_INPUT;
+            TextBufferWindow.DefaultBackground = Color.WHITE;
+            TextBufferWindow.DefaultTextColor = Color.BLACK;
+            TextBufferWindow.DefaultInputStyle = Glk.STYLE_INPUT;
         }
     }
 
@@ -140,7 +141,8 @@ public class Interpreter extends Activity {
     }
 
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // ToDo: this switch/case is the same for all these Activity classes, isn't it? We could create one single Base Activity class (MyBaseActivity) and inherit it for all of them...
         Intent intent;
         switch (item.getNumericShortcut()) {
             case '1':
@@ -157,7 +159,7 @@ public class Interpreter extends Activity {
                 }
                 break;
         }
-        return super.onMenuItemSelected(featureId, item);
+        return super.onOptionsItemSelected(item);
     }
 
     private void loadBookmark() {

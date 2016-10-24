@@ -400,7 +400,9 @@ public class GameDetails extends AppCompatActivity implements OnClickListener {
         Intent intent = new Intent(Intent.ACTION_VIEW,
                 Uri.parse(mGameFile.getAbsolutePath()),
                 this,
-                Interpreter.class);
+                // Interpreter.class
+                InterpreterActivity.class
+        );
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra("terp", getTerp());
         intent.putExtra("ifid", mGameIfid);

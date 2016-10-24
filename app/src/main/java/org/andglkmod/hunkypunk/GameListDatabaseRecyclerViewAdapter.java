@@ -62,7 +62,8 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
         final String gameAuthor = dataCursor.getString(columnIndex1);
         final int dataRecordId =  dataCursor.getInt(   columnIndex2);
         String gameFilePath     = dataCursor.getString(columnIndex3);
-        String gameId0          = dataCursor.getString(columnIndex4);
+        final String gameId0    = dataCursor.getString(columnIndex4);
+
         gameFilePath = gameFilePath.replace("/storage/emulated/0/", "/SE0:");
 
         holder.refPosition = position;
