@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -20,6 +21,8 @@ import android.widget.Toast;
 
 import org.andglkmod.hunkypunk.dummy.DummyContent;
 
+import java.util.Arrays;
+
 public class GameListActivity extends AppCompatActivity implements GameListFragment.OnListFragmentInteractionListener {
 
     protected static final String TAG = "GameListActivity";
@@ -32,7 +35,7 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
 
         Log.i(TAG, "onCreate");
 
-        getPermissionToUseStorage();
+        boolean permissionGranted = getPermissionToUseStorage();
 
         // ToDo: Rotation will create and destroy this, causing problems if done rapidly? Test and solve.
         gameListHelper = new GameListHelper(this);
@@ -51,11 +54,19 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
             }
         });
 
-        gameListHelper.sharedPreferencesAndFirstRunSetup();
+        if (permissionGranted) {
+            gameListHelper.sharedPreferencesAndFirstRunSetup();
 
-        gameListHelper.startScan();
+            gameListHelper.startScan();
 
-        changeMainFragment(3);
+            changeMainFragment(3);
+        }
+        else
+        {
+            // permission not granted, so don't do scan yet.
+            Log.i(TAG, "GameListAcitivty didn't detect permissions to scan and use storage, sending to Welcome fragment");
+            changeMainFragment(1);
+        }
     }
 
 
@@ -64,7 +75,7 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         switch (fragmentSelector) {
             case 1:
-                // fragmentTransaction.replace(R.id.mainActivityContainer,     new MainActivityFragment());
+                fragmentTransaction.replace(R.id.mainActivityContainer,     new GameListActivityWelcomeFragment());
                 break;
             case 2:
                 // fragmentTransaction.replace(R.id.mainActivityContainer,     BlankFragment.newInstance("hi", "there"));
@@ -81,32 +92,39 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
     private static final int WRITE_STORAGE_PERMISSIONS_REQUEST = 1;
 
 
-    public void getPermissionToUseStorage() {
+    // ToDo: testing reveals this only works the very first time App is started, if user denies, they must manually go into Android Settings to grant?
+    //     can we detect that and alter the message/directions to user? One answer: keep track of the Denial response in preferences so we we know that was situation.
+    public boolean getPermissionToUseStorage() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-
+                return false;
             } else {
                 ActivityCompat.requestPermissions(this,
                         new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE },
                         WRITE_STORAGE_PERMISSIONS_REQUEST);
-
+                return false;
             }
+        }
+        else
+        {
+            return true;
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        Log.i(TAG, "onRequestPermissionsResult " + requestCode + " " + Arrays.toString(permissions));
         switch (requestCode) {
             case WRITE_STORAGE_PERMISSIONS_REQUEST: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this, "Write Storage permission granted",
-                            Toast.LENGTH_SHORT).show();
-
+                            Toast.LENGTH_LONG).show();
+                    // ToDo: kick off the scan, change fragment?
                 } else {
                     Toast.makeText(this, "Write Storage permission denied",
                             Toast.LENGTH_SHORT).show();
