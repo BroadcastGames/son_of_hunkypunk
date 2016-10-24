@@ -148,10 +148,8 @@ public class GameListHelper {
     }
 
 
-    // It is fine to send in null for appContext, this will skip toast at end.
-    public void startScanForGameFiles(Context appContext) {
-        // setProgressBarIndeterminateVisibility(true);
-        mScanner.startScanForGameFiles(appContext);
+    public void startScanForGameFiles() {
+        mScanner.startScanForGameFiles();
     }
 
     private void startLookup() {
@@ -164,8 +162,6 @@ public class GameListHelper {
             }
         });
     }
-
-
 
 
     public void downloadPreselected() {
@@ -214,7 +210,7 @@ public class GameListHelper {
                 }
 
                 try {
-                    mScanner.startScanForGameFiles(progressDialog.getOwnerActivity() /* Context for Toast */);
+                    mScanner.startScanForGameFiles();
                     // ToDo: should we do this as part of normal scan, or does it generate a lot of Internet traffic? Manual menu option?
                     IFDb.getInstance(parentContext.getContentResolver()).lookupGames();
                 } catch (IOException e) {

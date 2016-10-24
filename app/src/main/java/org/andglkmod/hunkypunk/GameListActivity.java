@@ -62,7 +62,8 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
         if (permissionGranted) {
             gameListHelper.sharedPreferencesAndFirstRunSetup();
 
-            gameListHelper.startScanForGameFiles(this.getApplicationContext());
+            // setProgressBarIndeterminateVisibility(true);
+            gameListHelper.startScanForGameFiles();
 
             changeMainFragment(3);
         }
@@ -180,7 +181,8 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
                 startActivity(intent);
                 break;
             case R.id.runScanForGames:
-                gameListHelper.startScanForGameFiles(this.getApplicationContext());
+                // setProgressBarIndeterminateVisibility(true);
+                gameListHelper.startScanForGameFiles();
                 break;
         }
 
@@ -208,6 +210,8 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
                         Toast.LENGTH_SHORT);
                 outToast.setGravity(Gravity.CENTER, 0, 0);
                 outToast.show();
+
+                // setProgressBarIndeterminateVisibility(false);
                 break;
         }
     };

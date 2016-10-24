@@ -116,7 +116,7 @@ public class StorageManager {
 
 	public static AtomicBoolean scanRunning = new AtomicBoolean(false);
 
-	public void startScanForGameFiles(final Context appContext) {
+	public void startScanForGameFiles() {
 		if (scanRunning.compareAndSet(false, true)) {
 			Thread scanFilesThread = new Thread() {
 				@Override

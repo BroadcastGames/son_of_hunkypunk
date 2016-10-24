@@ -85,7 +85,8 @@ public class GamesList extends ListActivity implements OnClickListener {
 
         gameListHelper.sharedPreferencesAndFirstRunSetup();
 
-        gameListHelper.startScanForGameFiles(this.getApplicationContext());
+        // setProgressBarIndeterminateVisibility(true);
+        gameListHelper.startScanForGameFiles();
 
         //closing cursors locks start screen + crash
     }
