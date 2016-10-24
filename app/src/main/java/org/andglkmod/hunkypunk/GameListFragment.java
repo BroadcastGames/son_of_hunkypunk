@@ -16,6 +16,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import org.andglkmod.hunkypunk.dummy.DummyContent;
 
@@ -67,6 +69,9 @@ public class GameListFragment extends Fragment implements LoaderManager.LoaderCa
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_gamelist_list, container, false);
+
+        // itemClickAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.item_press_animation0);
+        itemClickAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.item_press_animation_shake0);
 
         // Set the adapter
         if (view instanceof RecyclerView) {
@@ -133,10 +138,12 @@ public class GameListFragment extends Fragment implements LoaderManager.LoaderCa
         mListener = null;
     }
 
+    Animation itemClickAnimation;
+
     @Override
     public void onClick(View view, int position) {
         Log.i(TAG, "GameList RecyclerView onClick position " + position);
-        view.setBackgroundColor(Color.RED);
+        view.startAnimation(itemClickAnimation);
     }
 
     /**
