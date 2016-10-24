@@ -7,7 +7,7 @@
     android:name="code.google.com.emptyapp102.ItemFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
+    android:layout_marginLeft="12dp"
+    android:layout_marginRight="12dp"
     app:layoutManager="LinearLayoutManager"
     tools:listitem="@layout/fragment_gamelist_item"/>

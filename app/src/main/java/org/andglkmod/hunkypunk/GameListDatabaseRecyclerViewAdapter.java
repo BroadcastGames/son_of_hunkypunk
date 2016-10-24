@@ -45,12 +45,20 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
     public void onBindViewHolder(final ViewHolder holder, int position) {
         dataCursor.moveToPosition(position);
 
-        String gameTitle  = dataCursor.getString(dataCursor.getColumnIndex(HunkyPunk.Games.TITLE));
-        String gameAuthor = dataCursor.getString(dataCursor.getColumnIndex(HunkyPunk.Games.AUTHOR));
+        final String gameTitle  = dataCursor.getString(dataCursor.getColumnIndex(HunkyPunk.Games.TITLE));
+        final String gameAuthor = dataCursor.getString(dataCursor.getColumnIndex(HunkyPunk.Games.AUTHOR));
+        final int dataRecordId =  dataCursor.getInt(dataCursor.getColumnIndex(HunkyPunk.Games._ID));
 
-        //holder.mItem = mValues.get(position);
-        holder.mIdView.setText(gameTitle);
-        holder.mContentView.setText(gameAuthor);
+        holder.refPosition = position;
+        holder.dataRecordId = dataRecordId;
+        holder.mTitleLineView.setText(gameTitle + " [" + position + " / " + dataRecordId + "]");
+        if (gameAuthor == null) {
+            holder.mFirstDetailView.setVisibility(View.GONE);
+        }
+        else {
+            holder.mFirstDetailView.setVisibility(View.VISIBLE);
+            holder.mFirstDetailView.setText(gameAuthor);
+        }
     }
 
     @Override
@@ -60,20 +68,21 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
-        public final TextView mIdView;
-        public final TextView mContentView;
-        //public DummyContent.DummyItem mItem;
+        public final TextView mTitleLineView;
+        public final TextView mFirstDetailView;
+        public int dataRecordId;
+        public int refPosition;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mIdView = (TextView) view.findViewById(R.id.gameListGameTitle);
-            mContentView = (TextView) view.findViewById(R.id.gameListGameInfo0);
+            mTitleLineView = (TextView) view.findViewById(R.id.gameListGameTitle);
+            mFirstDetailView = (TextView) view.findViewById(R.id.gameListGameInfo0);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString() + " '" + mFirstDetailView.getText() + "'";
         }
     }
 }
