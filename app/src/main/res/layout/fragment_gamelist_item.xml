@@ -21,9 +21,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
+        android:layout_marginBottom="0dp"
         android:paddingStart="10dp"
         android:paddingLeft="10dp"
         android:textAppearance="?attr/textAppearanceListItemSmall"
+        />
+
+    <TextView
+        android:id="@+id/gameListGameInfo1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:paddingStart="10dp"
+        android:paddingLeft="10dp"
+        android:textAppearance="?attr/textAppearanceListItemSmall"
+        android:visibility="gone"
         />
 
 </LinearLayout>

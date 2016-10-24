@@ -48,6 +48,8 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
         final String gameTitle  = dataCursor.getString(dataCursor.getColumnIndex(HunkyPunk.Games.TITLE));
         final String gameAuthor = dataCursor.getString(dataCursor.getColumnIndex(HunkyPunk.Games.AUTHOR));
         final int dataRecordId =  dataCursor.getInt(dataCursor.getColumnIndex(HunkyPunk.Games._ID));
+        String gameFilePath = dataCursor.getString(dataCursor.getColumnIndex(HunkyPunk.Games.PATH));
+        gameFilePath = gameFilePath.replace("/storage/emulated/0/", "/SE0:");
 
         holder.refPosition = position;
         holder.dataRecordId = dataRecordId;
@@ -59,6 +61,9 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
             holder.mFirstDetailView.setVisibility(View.VISIBLE);
             holder.mFirstDetailView.setText(gameAuthor);
         }
+
+        holder.mSecondDetailView.setVisibility(View.VISIBLE);
+        holder.mSecondDetailView.setText("path " + gameFilePath);
     }
 
     @Override
@@ -70,6 +75,7 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
         public final View mView;
         public final TextView mTitleLineView;
         public final TextView mFirstDetailView;
+        public final TextView mSecondDetailView;
         public int dataRecordId;
         public int refPosition;
 
@@ -78,6 +84,7 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
             mView = view;
             mTitleLineView = (TextView) view.findViewById(R.id.gameListGameTitle);
             mFirstDetailView = (TextView) view.findViewById(R.id.gameListGameInfo0);
+            mSecondDetailView = (TextView) view.findViewById(R.id.gameListGameInfo1);
         }
 
         @Override
