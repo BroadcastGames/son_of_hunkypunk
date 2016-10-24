@@ -5,4 +5,7 @@
     <item android:title="@string/oldGamesList"
           android:id="@+id/oldGamesList"
         />
+    <item android:title="@string/runScanForGames"
+          android:id="@+id/runScanForGames"
+        />
 </menu>

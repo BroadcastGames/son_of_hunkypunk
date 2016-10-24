@@ -65,7 +65,7 @@ public class GameListHelper {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case StorageManager.DONE:
+                case StorageManager.MESSAGE_CODE_DONE:
                     // setProgressBarIndeterminateVisibility(false);
                     startLookup();
                     break;
@@ -148,9 +148,10 @@ public class GameListHelper {
     }
 
 
-    public void startScan() {
+    // It is fine to send in null for appContext, this will skip toast at end.
+    public void startScanForGameFiles(Context appContext) {
         // setProgressBarIndeterminateVisibility(true);
-        mScanner.startScan();
+        mScanner.startScanForGameFiles(appContext);
     }
 
     private void startLookup() {
@@ -213,7 +214,8 @@ public class GameListHelper {
                 }
 
                 try {
-                    mScanner.scanKnownDirectoryTrees();
+                    mScanner.startScanForGameFiles(progressDialog.getOwnerActivity() /* Context for Toast */);
+                    // ToDo: should we do this as part of normal scan, or does it generate a lot of Internet traffic? Manual menu option?
                     IFDb.getInstance(parentContext.getContentResolver()).lookupGames();
                 } catch (IOException e) {
                     Log.e(TAG, "I/O error when fetching metadata", e);

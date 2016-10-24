@@ -14,12 +14,17 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
 import org.andglkmod.hunkypunk.dummy.DummyContent;
+import org.andglkmod.hunkypunk.events.BackgroundScanEvent;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Arrays;
 
@@ -57,7 +62,7 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
         if (permissionGranted) {
             gameListHelper.sharedPreferencesAndFirstRunSetup();
 
-            gameListHelper.startScan();
+            gameListHelper.startScanForGameFiles(this.getApplicationContext());
 
             changeMainFragment(3);
         }
@@ -174,6 +179,9 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
                 intent = new Intent(this, GamesList.class);
                 startActivity(intent);
                 break;
+            case R.id.runScanForGames:
+                gameListHelper.startScanForGameFiles(this.getApplicationContext());
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -183,6 +191,36 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
         Log.i("GameListActivity", "onListFragmentInteraction");
     }
 
+
     // ToDo: GamesList.java has onClick at bottom, what to do to replace this?
     //   how about have another fragment for virgin opening page, intro page iwth those two choices?
+
+
+    /*
+    Use the Main thread so we can interact with User Interface.
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(BackgroundScanEvent event) {
+        switch (event.eventCode)
+        {
+            case BackgroundScanEvent.ECODE_GAME_FOLDER_SCAN_COMPLETED:
+                Toast outToast = Toast.makeText(this, "Scan of folders for games completed.",
+                        Toast.LENGTH_SHORT);
+                outToast.setGravity(Gravity.CENTER, 0, 0);
+                outToast.show();
+                break;
+        }
+    };
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
 }

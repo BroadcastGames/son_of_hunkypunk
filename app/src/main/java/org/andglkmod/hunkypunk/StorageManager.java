@@ -26,10 +26,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.andglkmod.babel.Babel;
 import org.andglkmod.glk.Utils;
 import org.andglkmod.hunkypunk.HunkyPunk.Games;
+import org.andglkmod.hunkypunk.events.BackgroundScanEvent;
+import org.greenrobot.eventbus.EventBus;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -41,9 +44,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.database.sqlite.SQLiteDatabase;
+import android.widget.Toast;
 
 public class StorageManager {
-	public static final int DONE = 0;
+	public static final int MESSAGE_CODE_DONE = 0;
 	public static final int INSTALLED = 1;
 	public static final int INSTALL_FAILED = 2;
 
@@ -96,7 +100,7 @@ public class StorageManager {
 				path = query.getString(PATH);			
 		return path;
 	}
-	
+
 	public void checkExisting() {
 		Cursor c = mContentResolver.query(Games.CONTENT_URI, PROJECTION, Games.PATH + " IS NOT NULL", null, null);
 		
@@ -110,22 +114,51 @@ public class StorageManager {
 		c.close();
 	}
 
-	public void scanKnownDirectoryTrees() {
-		scanDirectoryTree(Paths.ifDirectory());
-		// ToDo: proper path buildingin the SDK 24 style, ToDo: preference list of paths
-		File extraDir0 = new File("/sdcard/story000/Glulx_Tests0");
-		scanDirectoryTree(extraDir0);
-		File extraDir1 = new File("/sdcard/story000/setZ");
-		scanDirectoryTree(extraDir1);
-		File extraDir2 = new File("/sdcard/story000/setA");
-		scanDirectoryTree(extraDir2);
-		File extraDir3 = new File("/sdcard/storyGames0");
-		scanDirectoryTree(extraDir3);
-		File extraDir4 = new File("/sdcard/storyGames1");
-		scanDirectoryTree(extraDir4);
+	public static AtomicBoolean scanRunning = new AtomicBoolean(false);
+
+	public void startScanForGameFiles(final Context appContext) {
+		if (scanRunning.compareAndSet(false, true)) {
+			Thread scanFilesThread = new Thread() {
+				@Override
+				public void run() {
+					try {
+						internalScanKnownDirectoryTrees();
+						Message.obtain(mHandler, MESSAGE_CODE_DONE).sendToTarget();
+					} catch (Exception e0) {
+						Log.e(TAG, "Exception in Scan thread run", e0);
+					}
+
+					scanRunning.set(false);
+					Log.i(TAG, "scanKnownDirectoryTrees scanRunning set false, finished.");
+					EventBus.getDefault().post(new BackgroundScanEvent(BackgroundScanEvent.ECODE_GAME_FOLDER_SCAN_COMPLETED));
+				}
+			};
+			scanFilesThread.setName("scanFilesThread");
+			scanFilesThread.start();
+		} else {
+			Log.w(TAG, "scanKnownDirectoryTrees found scanRunning, skip.");
+		}
 	}
 
-	private void scanDirectoryTree(File dir) {
+	/*
+	Do not call directly, make sure on thread and that scanRunning AtomicBoolean is true.
+	 */
+	private void internalScanKnownDirectoryTrees() {
+		scanDirectoryTreeRecursive(Paths.ifDirectory());
+		// ToDo: proper path buildingin the SDK 24 style, ToDo: preference list of paths
+		File extraDir0 = new File("/sdcard/story000/Glulx_Tests0");
+		scanDirectoryTreeRecursive(extraDir0);
+		File extraDir1 = new File("/sdcard/story000/setZ");
+		scanDirectoryTreeRecursive(extraDir1);
+		File extraDir2 = new File("/sdcard/story000/setA");
+		scanDirectoryTreeRecursive(extraDir2);
+		File extraDir3 = new File("/sdcard/storyGames0");
+		scanDirectoryTreeRecursive(extraDir3);
+		File extraDir4 = new File("/sdcard/storyGames1");
+		scanDirectoryTreeRecursive(extraDir4);
+	}
+
+	private void scanDirectoryTreeRecursive(File dir) {
 		if (!dir.exists() || !dir.isDirectory())
 			return;
 		
@@ -134,39 +167,40 @@ public class StorageManager {
 			return;
 
 		Log.d(TAG, "scanDirectoryTree " + dir.toString() + " " + Thread.currentThread());
-		for (File f : files)
+		for (File f : files) {
 			if (!f.isDirectory())
 				try {
-					
+
 					String g = f.getName().toLowerCase();
 					if (
 						/* zcode: frotz, nitfol */
-						g.matches(".*\\.z[1-9]$")
-						|| g.matches(".*\\.dat$")
-						|| g.matches(".*\\.zcode$")
-						|| g.matches(".*\\.zblorb$")
-						|| g.matches(".*\\.zlb$")
+							g.matches(".*\\.z[1-9]$")
+									|| g.matches(".*\\.dat$")
+									|| g.matches(".*\\.zcode$")
+									|| g.matches(".*\\.zblorb$")
+									|| g.matches(".*\\.zlb$")
 
 						/* tads */
-						|| g.matches(".*\\.gam$")
-						|| g.matches(".*\\.t2$")
-						|| g.matches(".*\\.t3$")
+									|| g.matches(".*\\.gam$")
+									|| g.matches(".*\\.t2$")
+									|| g.matches(".*\\.t3$")
 
 						/* glulx */
-						|| g.matches(".*\\.blorb$")
-						|| g.matches(".*\\.gblorb$")
-						|| g.matches(".*\\.blb$")
-						|| g.matches(".*\\.glb$")
-						|| g.matches(".*\\.ulx$")
-						)
+									|| g.matches(".*\\.blorb$")
+									|| g.matches(".*\\.gblorb$")
+									|| g.matches(".*\\.blb$")
+									|| g.matches(".*\\.glb$")
+									|| g.matches(".*\\.ulx$")
+							)
 						checkFile(f);
 				} catch (IOException e) {
 					Log.w(TAG, "IO exception while checking " + f, e);
 				}
 			else {
 				// Recursively call into the subdirectory
-				scanDirectoryTree(f);
+				scanDirectoryTreeRecursive(f);
 			}
+		}
 	}
 
 	public void updateGame(String ifid, String title) {
@@ -186,10 +220,10 @@ public class StorageManager {
 		String path = null;
 		Uri uri = HunkyPunk.Games.uriOfIfid(ifid);
 		//Log.d("StorageManager",uri.toString());
-		Cursor query = mContentResolver.query(uri, PROJECTION, null, null, null);		
+		Cursor query = mContentResolver.query(uri, PROJECTION, null, null, null);
 		if (query != null || query.getCount() == 1)
 			if (query.moveToNext())
-				path = query.getString(PATH);			
+				path = query.getString(PATH);
 
 		if (path != null){
 			File fp = new File(path);
@@ -202,7 +236,7 @@ public class StorageManager {
 	}
 
 	private String checkFile(File f) throws IOException {
-		String ifid = Babel.examine(f);		
+		String ifid = Babel.examine(f);
 		if (ifid == null) return null;
 
 		return checkFile(f, ifid);
@@ -229,6 +263,7 @@ public class StorageManager {
 		return ifid;
 	}
 
+	// ToDo: currently unused? Ideas on why this was intended? Validate the file is working - and mark DB as corrupted/problem?
 	public void startCheckingFile(final File file) {
 		new Thread() {
 			@Override
@@ -247,27 +282,9 @@ public class StorageManager {
 		}.run();
 	}
 
-	public void startScan() {
-		Thread scanFilesThread = new Thread() {
-			@Override
-			public void run() {
-				try {
-					scanKnownDirectoryTrees();
-					Message.obtain(mHandler, DONE).sendToTarget();
-				}
-				catch (Exception e0)
-				{
-					Log.e(TAG, "Exception in Scan thread run", e0);
-				}
-			}
-		};
-		scanFilesThread.setName("scanFilesThread");
-		scanFilesThread.start();
-	}
-
-
 
 	public static String unknownContent = "IFID_";
+
 	public void startInstall(final Uri game, final String scheme) {
 		Thread startInstallThread = new Thread() {
 			@Override

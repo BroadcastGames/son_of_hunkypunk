@@ -19,36 +19,17 @@
 
 package org.andglkmod.hunkypunk;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-
-import org.andglkmod.glk.Utils;
 import org.andglkmod.hunkypunk.HunkyPunk.Games;
-import org.andglkmod.ifdb.IFDb;
 
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ListActivity;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.DialogInterface.OnCancelListener;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -104,7 +85,7 @@ public class GamesList extends ListActivity implements OnClickListener {
 
         gameListHelper.sharedPreferencesAndFirstRunSetup();
 
-        gameListHelper.startScan();
+        gameListHelper.startScanForGameFiles(this.getApplicationContext());
 
         //closing cursors locks start screen + crash
     }
