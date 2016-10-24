@@ -1173,6 +1173,7 @@ void glk_select_poll(event_t *event)
 void glk_request_timer_events(glui32 millisecs)
 {
 	/* TODO */
+	LOGW("ToDo: glk_request_timer_events");
 }
 
 void gli_request_line_event(winid_t win, void *buf, glui32 maxlen, glui32 initlen, glui32 unicode)
@@ -1237,6 +1238,7 @@ void glk_request_char_event(winid_t win)
 void glk_request_mouse_event(winid_t win)
 {
 	/* TODO */
+	LOGW("ToDo: glk_request_mouse_event");
 }
 
 void glk_cancel_line_event(winid_t win, event_t *event)
@@ -1266,26 +1268,50 @@ void glk_cancel_char_event(winid_t win)
 void glk_cancel_mouse_event(winid_t win)
 {
 	/* TODO */
+	LOGW("ToDo: glk_cancel_mouse_event");
 }
+
+static int windowDispatchCount = 0;
 
 gidispatch_rock_t gidispatch_get_objrock(void *obj, glui32 objclass)
 {
+    LOGE("andglk.c gidispatch_get_objrock %d winDispatch %d", objclass, windowDispatchCount);
+
     switch (objclass)
     {
-		//case gidisp_Class_Schannel:
-        case gidisp_Class_Window:
+        case gidisp_Class_Window:   // 0
+        {
 			if (obj) {
-				JNIEnv *env = JNU_GetEnv();
+				windowDispatchCount++;
+                LOGE("andglk.c gidispatch_get_objrock PROBLEM_POINT %d winDispatch %d", objclass, windowDispatchCount);
 				gidispatch_rock_t rock;
-				rock.num = (*env)->CallIntMethod(env, *(jobject*)obj, _getDispatchRock);
+                if (windowDispatchCount != 4)
+                {
+                    LOGE("andglk.c gidispatch_get_objrock PROBLEM_POINT GOING FOR IT %d winDispatch %d", objclass, windowDispatchCount);
+                    JNIEnv *env = JNU_GetEnv();
+                    rock.num = (*env)->CallIntMethod(env, *(jobject*)obj, _getDispatchRock);
+				}
 				return rock;
 			}
-        case gidisp_Class_Stream:
+			else
+			{
+                LOGE("andglk.c gidispatch_get_objrock gidisp_Class_Window given null object, skip");
+                // borrow logic from non-Android. Probably a bad idea, but reuturn NULL?
+                return ((window_t *)obj)->disprock;
+			}
+        }
+        case gidisp_Class_Stream:   // 1
             return ((stream_t *)obj)->disprock;
-        case gidisp_Class_Fileref:
+        case gidisp_Class_Fileref:  // 2
             return ((fileref_t *)obj)->disprock;
+		case gidisp_Class_Schannel: // 3
+		default:
+		{
+            LOGE("andglk.c gidispatch_get_objrock %d gidisp_Class_Schannel or dummy", objclass);
+
+            gidispatch_rock_t dummy;
+            dummy.num = 0;
+            return dummy;
+        }
     }
-	gidispatch_rock_t dummy;
-	dummy.num = 0;
-	return dummy;
 }

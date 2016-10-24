@@ -38,6 +38,14 @@
 #include <string.h>
 #include "glk.h"
 #include "garglk.h"
+#include <android/log.h>
+
+#define LOGW(...) __android_log_print(ANDROID_LOG_WARN   , "HunkyPunk", __VA_ARGS__)
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR  , "HunkyPunk", __VA_ARGS__)
+#define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, "HunkyPunk", __VA_ARGS__)
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG  , "HunkyPunk", __VA_ARGS__)
+#define LOGI(...) __android_log_print(ANDROID_LOG_INFO   , "HunkyPunk", __VA_ARGS__)
+#define LOG(...)  __android_log_print(ANDROID_LOG_DEBUG  , "HunkyPunk", __VA_ARGS__)
 
 int gli_terminated = 0;
 
@@ -192,6 +200,8 @@ void gidispatch_set_retained_registry(
 
 gidispatch_rock_t gidispatch_get_objrock(void *obj, glui32 objclass)
 {
+    LOGE("garglk/cgmisc.c gidispatch_get_objrock %d", objclass);
+
     switch (objclass)
     {
         case gidisp_Class_Window:

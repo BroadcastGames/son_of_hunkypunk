@@ -112,7 +112,7 @@ public class GameListFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Log.i(TAG, "onLoadFinished swapCursor");
+        Log.d(TAG, "onLoadFinished swapCursor");
         recyclerViewAdapter.swapCursor(data);
     }
 

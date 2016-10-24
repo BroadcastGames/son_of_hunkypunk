@@ -31,11 +31,15 @@ void fatalError (const char * s)
     LOGE("Git Interpreter, fatalError: %s", s);
     fprintf (stderr, "*** fatal error: %s ***\n", s);
     // exit (1);
+
     // Throw Java Exception
+    /*
     JNIEnv *env = JNU_GetEnv();
-		(*env)->ThrowNew(env, (*env)->FindClass(env,"java/lang/RuntimeException"),
-				"Error Fatal");
-    LOGE("Git Interpreter, FINAL fatalError: %s", s);
+    (*env)->ThrowNew(env, (*env)->FindClass(env,"java/lang/RuntimeException"),
+            "Error Fatal");
+    */
+    LOGE("Git Interpreter, FINAL glk_exit() fatalError: %s", s);
+    glk_exit();
 
     // ToDo: we need a way to shut down the VM immediate, end the opcode loop. Not "exit", which ends the Android app.
 }

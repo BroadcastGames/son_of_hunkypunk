@@ -113,6 +113,8 @@
 #include "git.h"
 #include "gi_dispa.h"
 
+static int heavyLogA = 0;
+
 static char * DecodeVMString (git_uint32 addr)
 {
     glui32 end;
@@ -310,6 +312,10 @@ int git_init_dispatch()
 */
 glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
 {
+  static int callNumber = 0;
+  callNumber++;
+  LOGV("git/glkop.c git_perform_glk callNumber %d funcnum 0x%04x", callNumber, funcnum);
+
   glui32 retval = 0;
 
   switch (funcnum) {
@@ -401,13 +407,35 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
 
     /* Phase 2. */
     gidispatch_call(funcnum, argnum, splot.garglist);
+    if (callNumber > 85)
+    {
+        LOGV("git/glkop.c git_perform_glk callNumber %d funcnum 0x%04x PHASE 2 AFTER", callNumber, funcnum);
+        heavyLogA = 1;
+    }
 
     /* Phase 3. */
     argnum2 = 0;
     cx = proto;
-    unparse_glk_args(&splot, &cx, 0, &argnum2, 0, 0);
-    if (argnum != argnum2)
-      fatalError("Argument counts did not match.");
+    // if (callNumber != 88)
+    //{
+        unparse_glk_args(&splot, &cx, 0, &argnum2, 0, 0);
+    //}
+    if (callNumber > 85)
+    {
+        LOGV("git/glkop.c git_perform_glk callNumber %d funcnum 0x%04x PHASE 2 SPOTA AFTER", callNumber, funcnum);
+    }
+    if (argnum != argnum2) {
+      LOGE("git/glkop.c git_perform_glk callNumber %d funcnum 0x%04x arg counts mismatch %d %d", callNumber, funcnum, argnum, argnum2);
+      // dispatch exit
+      // gidispatch_call(1, 0, splot.garglist);
+      // glk_exit();
+      fatalError("Argument counts did not match. git_perform_glk");
+    }
+
+    if (callNumber > 85)
+    {
+        LOGV("git/glkop.c git_perform_glk callNumber %d funcnum 0x%04x PHASE 3 AFTER", callNumber, funcnum);
+    }
 
     break;
   }
@@ -475,6 +503,10 @@ static char *read_prefix(char *cx, int *isref, int *isarray,
 */
 static void prepare_glk_args(char *proto, dispatch_splot_t *splot)
 {
+  static int callNumber = 0;
+  callNumber++;
+  LOGV("git/glkop.c prepare_glk_args callNumber %d", callNumber);
+
   static gluniversal_t *garglist = NULL;
   static int garglist_size = 0;
 
@@ -575,6 +607,10 @@ static void prepare_glk_args(char *proto, dispatch_splot_t *splot)
 static void parse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
   int *argnumptr, glui32 subaddress, int subpassin)
 {
+  static int callNumber = 0;
+  callNumber++;
+  LOGV("git/glkop.c parse_glk_args callNumber %d", callNumber);
+
   char *cx;
   int ix, argx;
   int gargnum, numwanted;
@@ -787,12 +823,16 @@ static void parse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
   *argnumptr = gargnum;
 }
 
+
+static int unparseCallCount = 0;
+
 /* unparse_glk_args():
-   This is about the reverse of parse_glk_args(). 
+   This is about the reverse of parse_glk_args().
 */
 static void unparse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
   int *argnumptr, glui32 subaddress, int subpassout)
 {
+  unparseCallCount++;
   char *cx;
   int ix, argx;
   int gargnum, numwanted;
@@ -811,6 +851,10 @@ static void unparse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
     cx++;
   }
 
+  if (heavyLogA)
+  {
+    LOGW("unparse_glk_args CHECKPOINT_A");
+  }
   for (argx = 0, ix = 0; argx < numwanted; argx++, ix++) {
     char typeclass;
     int skipval;
@@ -838,13 +882,27 @@ static void unparse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
     if (!skipval) {
       glui32 thisval = 0;
 
+  if (heavyLogA)
+  {
+    LOGW("unparse_glk_args CHECKPOINT_B");
+  }
+
       if (typeclass == '[') {
 
+  if (heavyLogA)
+  {
+    LOGW("unparse_glk_args CHECKPOINT_C");
+  }
         unparse_glk_args(splot, &cx, depth+1, &gargnum, varglist[ix], passout);
 
       }
       else if (isarray) {
         /* definitely isref */
+
+  if (heavyLogA)
+  {
+    LOGW("unparse_glk_args CHECKPOINT_D typeclass %c", typeclass);
+  }
 
         switch (typeclass) {
         case 'C':
@@ -876,12 +934,22 @@ static void unparse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
       else {
         /* a plain value or a reference to one. */
 
+  if (heavyLogA)
+  {
+    LOGW("unparse_glk_args CHECKPOINT_F typeclass %c", typeclass);
+  }
+
         if (isreturn || (depth > 0 && subpassout) || (isref && passout)) {
           skipval = FALSE;
         }
         else {
           skipval = TRUE;
         }
+
+  if (heavyLogA)
+  {
+    LOGW("unparse_glk_args CHECKPOINT_G");
+  }
 
         switch (typeclass) {
         case 'I':
@@ -900,14 +968,31 @@ static void unparse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
           if (!skipval) {
             opref = garglist[gargnum].opaqueref;
             if (opref) {
+  if (heavyLogA)
+  {
+    LOGW("unparse_glk_args CHECKPOINT_H - BEFORE rock dispatch, proto %s depth %d subaddress %d", proto, depth, subaddress);
+  }
               gidispatch_rock_t objrock = 
                 gidispatch_get_objrock(opref, *cx-'a');
+
+  if (heavyLogA)
+  {
+    LOGW("unparse_glk_args CHECKPOINT_H - after rock dispatch, unparseCallCount %d", unparseCallCount);
+  }
+  thisval = 0;
+G  // Molly and the Butter skip
+  if (unparseCallCount != 92) {
               thisval = ((classref_t *)objrock.ptr)->id;
+  }
             }
             else {
               thisval = 0;
             }
           }
+  if (heavyLogA)
+  {
+    LOGW("unparse_glk_args CHECKPOINT_H - AFTER IF logic");
+  }
           gargnum++;
           cx++;
           break;
@@ -958,6 +1043,12 @@ static void unparse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
     }
     else {
       /* We got a null reference, so we have to skip the format element. */
+
+  if (heavyLogA)
+  {
+    LOGW("unparse_glk_args CHECKPOINT_M");
+  }
+
       if (typeclass == '[') {
         int numsubwanted, refdepth;
         numsubwanted = 0;
@@ -985,6 +1076,11 @@ static void unparse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
     }    
   }
 
+  if (heavyLogA)
+  {
+    LOGW("unparse_glk_args CHECKPOINT_P");
+  }
+
   if (depth > 0) {
     if (*cx != ']')
       fatalError("Illegal format string.");
@@ -997,6 +1093,11 @@ static void unparse_glk_args(dispatch_splot_t *splot, char **proto, int depth,
   
   *proto = cx;
   *argnumptr = gargnum;
+
+    if (heavyLogA)
+    {
+      LOGW("unparse_glk_args CHECKPOINT_Z");
+    }
 }
 
 /* git_find_stream_by_id():

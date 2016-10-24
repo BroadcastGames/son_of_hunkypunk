@@ -666,9 +666,9 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     callNumber++;
     LOGV("gidispatch_call funcnum 0x%04x numargs %d callNumber %d", funcnum, numargs, callNumber);
 
-    // For serious crash debugging, use this? Basically it allows us to ee if a previous gidispatch_call is triggering crash or the current gidispatch_call operation.
+    // For serious crash debugging, use this? Basically it allows us to see if a previous gidispatch_call is triggering crash or the current gidispatch_call operation.
     // Molly and the Butter Thieves git Interpreter crashes here on this call. Maybe in opcodes that follow?
-    if (callNumber > 87)
+    if (callNumber > 100)
     {
         LOGE("exiting on gidispatch_call callNumber %d", callNumber);
         glk_exit();

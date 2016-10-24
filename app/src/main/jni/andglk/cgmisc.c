@@ -204,6 +204,8 @@ void gidispatch_set_retained_registry(
 #ifndef ANDGLK
 gidispatch_rock_t gidispatch_get_objrock(void *obj, glui32 objclass)
 {
+    LOGE("ANDGLK gidispatch_get_objrock %d", objclass);
+
     switch (objclass)
     {
         case gidisp_Class_Window:
