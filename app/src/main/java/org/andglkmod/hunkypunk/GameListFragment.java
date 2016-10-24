@@ -2,6 +2,7 @@ package org.andglkmod.hunkypunk;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -24,7 +25,7 @@ import org.andglkmod.hunkypunk.dummy.DummyContent;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class GameListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class GameListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, GameListClickListener {
 
     public static final String TAG = "GameListFragment";
     // TODO: Customize parameter argument names
@@ -84,6 +85,7 @@ public class GameListFragment extends Fragment implements LoaderManager.LoaderCa
                 case 2:
                     recyclerViewAdapter = new GameListDatabaseRecyclerViewAdapter(getActivity(), null /* Cursor will be stuffed in later */);
                     recyclerView.setAdapter(recyclerViewAdapter);
+                    recyclerViewAdapter.setParentClickListener(this);
                     break;
             }
         }
@@ -129,6 +131,12 @@ public class GameListFragment extends Fragment implements LoaderManager.LoaderCa
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onClick(View view, int position) {
+        Log.i(TAG, "GameList RecyclerView onClick position " + position);
+        view.setBackgroundColor(Color.RED);
     }
 
     /**

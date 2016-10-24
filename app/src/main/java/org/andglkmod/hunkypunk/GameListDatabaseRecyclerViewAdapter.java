@@ -14,6 +14,7 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
 
     private Cursor dataCursor;
     private Context parentContext;
+    private GameListClickListener parentClickListener;
 
     public GameListDatabaseRecyclerViewAdapter(Context context, Cursor cursor) {
         dataCursor = cursor;
@@ -71,7 +72,13 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
         return  (dataCursor == null) ? 0 : dataCursor.getCount();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+
+    public void setParentClickListener(GameListClickListener itemClickListener) {
+        this.parentClickListener = itemClickListener;
+    }
+
+
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public final View mView;
         public final TextView mTitleLineView;
         public final TextView mFirstDetailView;
@@ -79,17 +86,24 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
         public int dataRecordId;
         public int refPosition;
 
-        public ViewHolder(View view) {
-            super(view);
-            mView = view;
-            mTitleLineView = (TextView) view.findViewById(R.id.gameListGameTitle);
-            mFirstDetailView = (TextView) view.findViewById(R.id.gameListGameInfo0);
-            mSecondDetailView = (TextView) view.findViewById(R.id.gameListGameInfo1);
+        public ViewHolder(View itemView) {
+            super(itemView);
+            mView = itemView;
+            mTitleLineView = (TextView) itemView.findViewById(R.id.gameListGameTitle);
+            mFirstDetailView = (TextView) itemView.findViewById(R.id.gameListGameInfo0);
+            mSecondDetailView = (TextView) itemView.findViewById(R.id.gameListGameInfo1);
+            itemView.setTag(itemView);
+            itemView.setOnClickListener(this);
         }
 
         @Override
         public String toString() {
             return super.toString() + " '" + mFirstDetailView.getText() + "'";
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (parentClickListener != null) parentClickListener.onClick(v, getAdapterPosition());
         }
     }
 }
