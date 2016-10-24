@@ -20,6 +20,10 @@ android {
         applicationId "org.andglkmod.hunkypunk"
         minSdkVersion 14
         targetSdkVersion 24
+
+        versionCode 11
+        versionName "0.9.4-BG1"
+
         vectorDrawables.useSupportLibrary = true
     }
     sourceSets.main {
