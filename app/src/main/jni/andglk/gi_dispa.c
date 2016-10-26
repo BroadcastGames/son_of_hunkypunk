@@ -1,8 +1,8 @@
-/* gi_dispa.c: Dispatch layer for Glk API, version 0.7.3.
+/* gi_dispa.c: Dispatch layer for Glk API, version 0.7.4.
     Designed by Andrew Plotkin <erkyrath@eblong.com>
     http://eblong.com/zarf/glk/
 
-    This file is copyright 1998-2011 by Andrew Plotkin. You may copy,
+    This file is copyright 1998-2012 by Andrew Plotkin. You may copy,
     distribute, and incorporate it into your own programs, by any means
     and under any conditions, as long as you do not modify it. You may
     also modify this file, incorporate it into your own programs,
@@ -80,6 +80,7 @@ static gidispatch_intconst_t intconstant_table[] = {
     { "gestalt_LineTerminatorKey", (19) },
     { "gestalt_LineTerminators", (18) },
     { "gestalt_MouseInput", (4) },
+    { "gestalt_ResourceStream", (22) },
     { "gestalt_Sound", (8) },
     { "gestalt_Sound2", (21) },
     { "gestalt_SoundMusic", (13) },
@@ -316,6 +317,10 @@ static gidispatch_function_t function_table[] = {
     { 0x016E, glk_date_to_simple_time_utc, "date_to_simple_time_utc" },
     { 0x016F, glk_date_to_simple_time_local, "date_to_simple_time_local" },
 #endif /* GLK_MODULE_DATETIME */
+#ifdef GLK_MODULE_RESOURCE_STREAM
+    { 0x0049, glk_stream_open_resource, "stream_open_resource" },
+    { 0x013A, glk_stream_open_resource_uni, "stream_open_resource_uni" },
+#endif /* GLK_MODULE_RESOURCE_STREAM */
 };
 
 glui32 gidispatch_count_classes()
@@ -382,7 +387,6 @@ gidispatch_function_t *gidispatch_get_function_by_id(glui32 id)
 
 char *gidispatch_prototype(glui32 funcnum)
 {
-	LOGD("gidispatch_prototype gididispatch_call 0x%04x", funcnum);
     switch (funcnum) {
         case 0x0001: /* exit */
             return "0:";
@@ -614,7 +618,7 @@ char *gidispatch_prototype(glui32 funcnum)
         case 0x0141: /* request_line_event_uni */
             return "3Qa&+#!IuIu:";
 #endif /* GLK_MODULE_UNICODE */
-
+            
 #ifdef GLK_MODULE_UNICODE_NORM
         case 0x0123: /* buffer_canon_decompose_uni */
             return "3&+#IuIu:Iu";
@@ -631,7 +635,7 @@ char *gidispatch_prototype(glui32 funcnum)
         case 0x0151: /* set_terminators_line_event */
             return "2Qa>#Iu:";
 #endif /* GLK_MODULE_LINE_TERMINATORS */
-
+            
 #ifdef GLK_MODULE_DATETIME
         case 0x0160: /* current_time */
             return "1<+[3IsIuIs]:";
@@ -654,7 +658,14 @@ char *gidispatch_prototype(glui32 funcnum)
         case 0x016F: /* date_to_simple_time_local */
             return "3>+[8IsIsIsIsIsIsIsIs]Iu:Is";
 #endif /* GLK_MODULE_DATETIME */
-            
+
+#ifdef GLK_MODULE_RESOURCE_STREAM
+        case 0x0049: /* stream_open_resource */
+            return "3IuIu:Qb";
+        case 0x013A: /* stream_open_resource_uni */
+            return "3IuIu:Qb";
+#endif /* GLK_MODULE_RESOURCE_STREAM */
+
         default:
             return NULL;
     }
@@ -662,8 +673,6 @@ char *gidispatch_prototype(glui32 funcnum)
 
 void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
 {
-    LOGV("gidispatch_call funcnum 0x%04x numargs %d", funcnum, numargs);
-
     switch (funcnum) {
         case 0x0001: /* exit */
             glk_exit();
@@ -969,8 +978,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             else {
                 glk_select(NULL);
             }
-            // Rover's Day Out may hang here?
-            LOGD("gi_dispa.c AFTER 0x00C0");
             break;
         case 0x00C1: /* select_poll */
             if (arglist[0].ptrflag) {
@@ -1241,19 +1248,19 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
 
 #ifdef GLK_MODULE_UNICODE_NORM
         case 0x0123: /* buffer_canon_decompose_uni */
-            if (arglist[0].ptrflag)
+            if (arglist[0].ptrflag) 
                 arglist[5].uint = glk_buffer_canon_decompose_uni(arglist[1].array, arglist[2].uint, arglist[3].uint);
             else
                 arglist[3].uint = glk_buffer_canon_decompose_uni(NULL, 0, arglist[1].uint);
             break;
         case 0x0124: /* buffer_canon_normalize_uni */
-            if (arglist[0].ptrflag)
+            if (arglist[0].ptrflag) 
                 arglist[5].uint = glk_buffer_canon_normalize_uni(arglist[1].array, arglist[2].uint, arglist[3].uint);
             else
                 arglist[3].uint = glk_buffer_canon_normalize_uni(NULL, 0, arglist[1].uint);
             break;
 #endif /* GLK_MODULE_UNICODE_NORM */
-
+            
 #ifdef GLK_MODULE_LINE_ECHO
         case 0x0150: /* set_echo_line_event */
             glk_set_echo_line_event(arglist[0].opaqueref, arglist[1].uint);
@@ -1262,15 +1269,15 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
 
 #ifdef GLK_MODULE_LINE_TERMINATORS
         case 0x0151: /* set_terminators_line_event */
-            if (arglist[1].ptrflag)
-                glk_set_terminators_line_event(arglist[0].opaqueref,
+            if (arglist[1].ptrflag) 
+                glk_set_terminators_line_event(arglist[0].opaqueref, 
                     arglist[2].array, arglist[3].uint);
             else
-                glk_set_terminators_line_event(arglist[0].opaqueref,
+                glk_set_terminators_line_event(arglist[0].opaqueref, 
                     NULL, 0);
             break;
 #endif /* GLK_MODULE_LINE_TERMINATORS */
-
+            
 #ifdef GLK_MODULE_DATETIME
         case 0x0160: /* current_time */
             if (arglist[0].ptrflag) {
@@ -1476,7 +1483,16 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             }
             break;
 #endif /* GLK_MODULE_DATETIME */
-            
+
+#ifdef GLK_MODULE_RESOURCE_STREAM
+        case 0x0049: /* stream_open_resource */
+            arglist[3].opaqueref = glk_stream_open_resource(arglist[0].uint, arglist[1].uint);
+            break;
+        case 0x013A: /* stream_open_resource_uni */
+            arglist[3].opaqueref = glk_stream_open_resource_uni(arglist[0].uint, arglist[1].uint);
+            break;
+#endif /* GLK_MODULE_RESOURCE_STREAM */
+
         default:
             /* do nothing */
             break;

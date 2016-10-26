@@ -818,6 +818,8 @@ static void gli_put_buffer(stream_t *str, char *buf, glui32 len)
     }
 }
 
+#endif /* ANDGLK */
+
 static void gli_put_buffer_uni(stream_t *str, glui32 *buf, glui32 len)
 {
     glui32 lx;
@@ -932,6 +934,9 @@ static void gli_put_buffer_uni(stream_t *str, glui32 *buf, glui32 len)
             break;
     }
 }
+
+
+#ifndef ANDGLK
 
 static void gli_unput_buffer(stream_t *str, char *buf, glui32 len)
 {
@@ -1892,6 +1897,8 @@ void glk_put_string(char *s)
     gli_put_buffer(gli_currentstr, s, strlen(s));
 }
 
+#endif  /* ANDGLK */
+
 glui32 strlen_uni(glui32 *s)
 {
     glui32 length = 0;
@@ -1899,10 +1906,13 @@ glui32 strlen_uni(glui32 *s)
     return length;
 }
 
+
 void glk_put_string_uni(glui32 *s)
 {
     gli_put_buffer_uni(gli_currentstr, s, strlen_uni(s));
 }
+
+#ifndef ANDGLK
 
 void glk_put_string_stream(stream_t *str, char *s)
 {
@@ -1929,10 +1939,17 @@ void glk_put_buffer(char *buf, glui32 len)
     gli_put_buffer(gli_currentstr, buf, len);
 }
 
+
+
 void glk_put_buffer_uni(glui32 *buf, glui32 len)
 {
     gli_put_buffer_uni(gli_currentstr, buf, len);
 }
+
+
+#endif  /* ANDGLK */
+
+#ifndef ANDGLK
 
 void glk_put_buffer_stream(stream_t *str, char *buf, glui32 len)
 {
@@ -2083,7 +2100,7 @@ glui32 glk_get_buffer_stream_uni(stream_t *str, glui32 *buf, glui32 len)
     }
     return gli_get_buffer_uni(str, buf, len);
 }
-#else
+#else   /* ANDGLK */
 
 stream_t* gli_find_window_stream(winid_t win)
 {
