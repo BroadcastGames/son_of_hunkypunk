@@ -750,7 +750,7 @@ public class TextBufferWindow extends Window {
 
                 setTextIsSelectable(true);
                 // for EditText?
-                setSelectAllOnFocus(true);
+                // setSelectAllOnFocus(true);
                 setFocusable(true);
                 setFocusableInTouchMode(true);
             }
@@ -774,19 +774,6 @@ public class TextBufferWindow extends Window {
 
         }
 
-        private boolean mEnabled = true; // is this edittext enabled
-
-        @Override
-        protected void onAttachedToWindow() {
-            super.onAttachedToWindow();
-            try {
-                if (!mEnabled) return;
-                super.setEnabled(false);
-                super.setEnabled(mEnabled);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
 
         /* Fixes a bug in version 0.8. Enabling/Disabling read-only use of a view.*/
         private void setReadOnly(final TextView view, final boolean readOnly) {
