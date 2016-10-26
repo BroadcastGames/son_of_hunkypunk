@@ -175,6 +175,7 @@ public class Glk extends Thread {
 			protected void onLayout(boolean changed, int left, int top,
 					int right, int bottom) {
 				super.onLayout(changed, left, top, right, bottom);
+				Log.i("Glk/Java", "FrameLayout onLayout " + changed + " left " + left + " top " + top);
 				if (changed)
 					postEvent(new ArrangeEvent());
 			}

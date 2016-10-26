@@ -65,6 +65,7 @@ public class InterpreterActivity extends AppCompatActivity {
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG, "onCreate InterpreterActivity AppCompatActivity, going to load library");
         System.loadLibrary("andglk-loader");
 
         if (getSharedPreferences("Night", Context.MODE_PRIVATE).getBoolean("NightOn", false))

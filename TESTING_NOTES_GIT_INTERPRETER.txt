@@ -22,10 +22,14 @@ Graphics
 
 Unicode error messages in game output
 
-1. "Pogoman GO!.gblorb" in opening messages.
+1. "Pogoman GO!.gblorb" in opening messages. (This was built from source off Github using Inform 7)
 2. "CounterfeitMonkey.gblorb" in opening messages.
 
 Text coloring results in invisible text
 
 1. "rover.gblorb" will not show the blue text that works on other interpreters. These appear early in the game.
 
+
+Test for crashes and technical issues:
+===========================================
+https://github.com/DavidGriffith/frotz/tree/master/src/test

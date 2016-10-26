@@ -26,6 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.andglkmod.glk.Styles.StyleSpan;
+import org.andglkmod.hunkypunk.EasyGlobalsA;
 import org.andglkmod.hunkypunk.R;
 
 import android.content.Context;
@@ -737,7 +738,22 @@ public class TextBufferWindow extends Window {
         public _View(Context context) {
             super(context, null, R.attr.textBufferWindowStyle);
 
-            setMovementMethod(mMovementMethod = new _MovementMethod());
+            // User feature: click on word of story output to stuff into input.
+            if (EasyGlobalsA.storyWordTouchEnabled) {
+                setMovementMethod(mMovementMethod = new _MovementMethod());
+            }
+            if (EasyGlobalsA.storyWordClipboardSelectCopy) {
+                // Bug workaround for losing text selection ability, see:
+                // https://code.google.com/p/android/issues/detail?id=208169
+                setEnabled(false);
+                setEnabled(true);
+
+                setTextIsSelectable(true);
+                // for EditText?
+                setSelectAllOnFocus(true);
+                setFocusable(true);
+                setFocusableInTouchMode(true);
+            }
 
             setPaintFlags(Paint.SUBPIXEL_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG | Paint.DEV_KERN_TEXT_FLAG);
             setBackgroundResource(0);
@@ -749,11 +765,27 @@ public class TextBufferWindow extends Window {
 			   differ in size) and text overflow bug/issue too.
 			 */
             setTypeface(TextBufferWindow.this.getDefaultTypeface());
-            setReadOnly(this, true);
+            if (EasyGlobalsA.storyWordTouchSetReadOnly) {
+                setReadOnly(this, true);
+            }
 
             /* Typeface NOT ONLY! to be set here, since if other than text's one, it results in TextOverflow */
             /* Typeface set in org.andglkmod.glk.Styles.updatePaint() */
 
+        }
+
+        private boolean mEnabled = true; // is this edittext enabled
+
+        @Override
+        protected void onAttachedToWindow() {
+            super.onAttachedToWindow();
+            try {
+                if (!mEnabled) return;
+                super.setEnabled(false);
+                super.setEnabled(mEnabled);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         /* Fixes a bug in version 0.8. Enabling/Disabling read-only use of a view.*/
@@ -846,7 +878,7 @@ public class TextBufferWindow extends Window {
             return offset;
         }
 
-        // left off as a posibility to pass it through Clip-Board memory instead of directly setting it.
+        // left off as a possibility to pass it through Clip-Board memory instead of directly setting it.
         /**
          * private void putInClipMemory(String str) {
          * if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
@@ -870,6 +902,8 @@ public class TextBufferWindow extends Window {
         }
 
         public void appendEx(CharSequence t) {
+            Log.d(TAG, "_View appendEx '" + t + "'");
+
             if (t == null || t.length() == 0) return;
 
             if (mTrailingCr) {
@@ -932,6 +966,7 @@ public class TextBufferWindow extends Window {
 
         /* see TextBufferWindow.clear() */
         public void clear() {
+            Log.i(TAG, "_View clear()");
             Glk.getInstance().waitForUi(
                     new Runnable() {
                         @Override
@@ -1111,10 +1146,14 @@ public class TextBufferWindow extends Window {
 
                         mView = new _View(mContext);
                         mView.setPadding(pad, pad, pad, 0);
-                        mView.setFocusable(false);
+                        if (EasyGlobalsA.storyWordTouchForceNonFocusable) {
+                            mView.setFocusable(false);
+                        }
 
+                        // Slow to do this every lookup
+                        // mContext.getSharedPreferences("Night", Context.MODE_PRIVATE).getBoolean("NightOn", false)
                         mLayout.addView(mView, paramsDefault);
-                        if (mContext.getSharedPreferences("Night", Context.MODE_PRIVATE).getBoolean("NightOn", false)) {
+                        if (EasyGlobalsA.storyOutputNightMode) {
                             mLayout.addView(hll, paramsLLayout);
                             mLayout.addView(hl, paramsHLayout);
                         } else {
