@@ -127,11 +127,6 @@ void gli_delete_stream(stream_t *str)
   free(str);
 }
 
-//stream_t *glk_stream_iterate(stream_t *str, glui32 *rock)
-//{
-//    return gli_stream_iterate(str, rock);
-//}
-
 // ToDo: investigate glk_ to gli_ prefix change
 stream_t *gli_stream_iterate(stream_t *str, glui32 *rock)
 {
@@ -266,6 +261,7 @@ stream_t *glk_stream_open_file_uni(frefid_t fref, glui32 fmode, glui32 rock)
     return gli_stream_open_file(fref, fmode, rock, TRUE);
 }
 
+// Investigate - are there two overloads of this function, one with the 'const' added?
 stream_t *gli_stream_open_pathname(const char *pathname, int textmode, glui32 rock)
 {
   char modestr[16];
@@ -276,7 +272,7 @@ stream_t *gli_stream_open_pathname(const char *pathname, int textmode, glui32 ro
   if (!textmode)
     strcat(modestr, "b");
 
-  LOGD("gli_stream_open_pathname (%s) %s",modestr,pathname);
+  LOGD("gli_stream_open_pathname (%s) %s", modestr, pathname);
   fl = fopen(pathname, modestr);
   if (!fl)
     return 0;
@@ -555,7 +551,14 @@ glui32 glk_stream_get_position(stream_t *str)
           return 0;
   }
 }
+#endif
 
+void gli_stream_set_current(stream_t *str)
+{
+    gli_currentstr = str;
+}
+
+#ifndef ANDGLK
 void glk_stream_set_current(stream_t *str)
 {
   if (!str)
@@ -567,12 +570,6 @@ void glk_stream_set_current(stream_t *str)
   gli_currentstr = str;
 }
 #endif
-
-// ToDo: investigate glk_ to gli_ prefix change here
-void gli_stream_set_current(stream_t *str)
-{
-    gli_currentstr = str;
-}
 
 // ToDo: glk_ to gli_ prefix?
 stream_t *gli_stream_get_current()
@@ -660,8 +657,8 @@ static void gli_put_char(stream_t *str, unsigned char ch)
           break;
   }
 }
-
 #endif
+
 static void gli_put_char_uni(stream_t *str, glui32 ch)
 {
   if (!str || !str->writable)
@@ -910,7 +907,7 @@ static void gli_put_buffer_uni(stream_t *str, glui32 *buf, glui32 len)
             break;
         case strtype_Window:
         /*
-        INCOMPLETE for Android Sony of HunkyPunk, commented out to get to compile
+        INCOMPLETE for Android Son of Hunky Punk, commented out to get to compile
 
             if (str->win->line_request || str->win->line_request_uni)
             {
