@@ -613,10 +613,10 @@ void glk_set_window(winid_t win)
 	(*env)->CallVoidMethod(env, _this, mid, win ? *win : NULL);
 }
 		
-strid_t glk_stream_open_file(frefid_t fileref, glui32 fmode, glui32 rock)
-{
-    return gli_stream_open_file(fileref, fmode, rock, FALSE);
-}
+//strid_t glk_stream_open_file(frefid_t fileref, glui32 fmode, glui32 rock)
+//{
+//    return gli_stream_open_file(fileref, fmode, rock, FALSE);
+//}
 
 strid_t glkunix_stream_open_pathname(const char *pathname, glui32 textmode, glui32 rock)
 {
@@ -686,15 +686,15 @@ void glk_stream_close(strid_t str, stream_result_t *result)
 	}
 }
 
-strid_t glk_stream_iterate(strid_t str, glui32 *rockptr)
-{
-	return gli_stream_iterate(str, rockptr);
-}
+//strid_t glk_stream_iterate(strid_t str, glui32 *rockptr)
+//{
+//	return gli_stream_iterate(str, rockptr);
+//}
 
-glui32 glk_stream_get_rock(strid_t str)
-{
-	return gli_stream_get_rock(str);
-}
+//glui32 glk_stream_get_rock(strid_t str)
+//{
+//	return gli_stream_get_rock(str);
+//}
 
 void glk_stream_set_position(strid_t str, glsi32 pos, glui32 seekmode)
 {
@@ -741,10 +741,10 @@ void glk_stream_set_current(strid_t str)
 }
 
 
-strid_t glk_stream_get_current(void)
-{
-	return gli_stream_get_current();
-}
+//strid_t glk_stream_get_current(void)
+//{
+//	return gli_stream_get_current();
+//}
 
 void glk_put_char_uni(glui32 ch)
 {

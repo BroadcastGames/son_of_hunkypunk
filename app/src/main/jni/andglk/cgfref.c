@@ -60,7 +60,7 @@ char *garglk_fileref_get_name(fileref_t *fref)
 /* Linked list of all filerefs */
 static fileref_t *gli_filereflist = NULL; 
 
-fileref_t *gli_new_fileref(const char *filename, glui32 usage, glui32 rock)
+fileref_t *gli_new_fileref(char *filename, glui32 usage, glui32 rock)
 {
     fileref_t *fref = (fileref_t *)malloc(sizeof(fileref_t));
     if (!fref)

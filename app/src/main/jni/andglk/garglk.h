@@ -342,6 +342,14 @@ struct glk_stream_struct
     void *bufend;
     void *bufeof;
     glui32 buflen;	/* # of bytes for latin1, # of 4-byte words for unicode */
+
+#ifdef ANDGLK
+    /* for strtype_Window */
+    /* for strtype_Memory */
+	jobject* st;
+	winid_t winid;
+#endif
+
     gidispatch_rock_t arrayrock;
 
     gidispatch_rock_t disprock;

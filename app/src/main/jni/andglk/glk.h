@@ -64,7 +64,7 @@ typedef int32_t glsi32;
 //#define GLK_MODULE_SOUND
 //#define GLK_MODULE_SOUND2
 //#define GLK_MODULE_HYPERLINKS
-//#define GLK_MODULE_DATETIME
+#define GLK_MODULE_DATETIME
 
 /* These types are opaque object identifiers. They're pointers to opaque
     C structures, which are defined differently by each library. */
