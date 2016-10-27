@@ -1,7 +1,7 @@
 /******************************************************************************
  *                                                                            *
  * Copyright (C) 2006-2009 by Tor Andersson, Jesse McGrew.                    *
- * Copyright (C) 2010 by Ben Cressey, Andrew Plotkin, Jï¿½rg Walter.            *
+ * Copyright (C) 2010 by Ben Cressey, Andrew Plotkin, Jörg Walter.            *
  *                                                                            *
  * This file is part of Gargoyle.                                             *
  *                                                                            *
@@ -127,7 +127,7 @@ void gli_delete_stream(stream_t *str)
   free(str);
 }
 
-stream_t *gli_stream_iterate(stream_t *str, glui32 *rock)
+stream_t *glk_stream_iterate(stream_t *str, glui32 *rock)
 {
   if (!str)
     str = gli_streamlist;
@@ -146,7 +146,7 @@ stream_t *gli_stream_iterate(stream_t *str, glui32 *rock)
   return NULL;
 }
 
-glui32 gli_stream_get_rock(stream_t *str)
+glui32 glk_stream_get_rock(stream_t *str)
 {
   if (!str)
   {
@@ -156,7 +156,7 @@ glui32 gli_stream_get_rock(stream_t *str)
   return str->rock;
 }
 
-stream_t *gli_stream_open_file(frefid_t fref, glui32 fmode,
+static stream_t *gli_stream_open_file(frefid_t fref, glui32 fmode,
     glui32 rock, int unicode)
 {
   char modestr[16];
@@ -183,7 +183,6 @@ stream_t *gli_stream_open_file(frefid_t fref, glui32 fmode,
 
   if (fmode == filemode_ReadWrite || fmode == filemode_WriteAppend)
   {
-    LOGD("gli_stream_open_file (ab) %s",fref->filename);
     fl = fopen(fref->filename, "ab");
     if (!fl)
     {
@@ -215,7 +214,6 @@ stream_t *gli_stream_open_file(frefid_t fref, glui32 fmode,
   if (!fref->textmode)
     strcat(modestr, "b");
 
-  LOGD("gli_stream_open_file (%s) %s",modestr,fref->filename);
   fl = fopen(fref->filename, modestr);
   if (!fl)
   {
@@ -238,30 +236,34 @@ stream_t *gli_stream_open_file(frefid_t fref, glui32 fmode,
     fclose(fl);
     return 0;
   }
-    
+
   str->file = fl;
   str->lastop = 0;
   str->textfile = fref->textmode;
-    
+
   return str;
 }
 
-stream_t *gli_stream_open_file_uni(frefid_t fref, glui32 fmode, glui32 rock)
+stream_t *glk_stream_open_file(frefid_t fref, glui32 fmode, glui32 rock)
+{
+    return gli_stream_open_file(fref, fmode, rock, FALSE);
+}
+
+stream_t *glk_stream_open_file_uni(frefid_t fref, glui32 fmode, glui32 rock)
 {
     return gli_stream_open_file(fref, fmode, rock, TRUE);
 }
 
-stream_t *gli_stream_open_pathname(const char *pathname, int textmode, glui32 rock)
+stream_t *gli_stream_open_pathname(char *pathname, int textmode, glui32 rock)
 {
   char modestr[16];
   stream_t *str;
   FILE *fl;
-    
+
   strcpy(modestr, "r");
   if (!textmode)
     strcat(modestr, "b");
 
-  LOGD("gli_stream_open_pathname (%s) %s",modestr,pathname);
   fl = fopen(pathname, modestr);
   if (!fl)
     return 0;
@@ -273,15 +275,14 @@ stream_t *gli_stream_open_pathname(const char *pathname, int textmode, glui32 ro
     fclose(fl);
     return 0;
   }
-    
+
   str->file = fl;
   str->lastop = 0;
   str->textfile = textmode;
-    
+
   return str;
 }
 
-#ifndef ANDGLK
 stream_t *glk_stream_open_memory(char *buf, glui32 buflen, glui32 fmode, 
     glui32 rock)
 {
@@ -434,30 +435,24 @@ void gli_stream_close(stream_t *str)
 
   gli_delete_stream(str);
 }
-#endif
 
 void gli_streams_close_all()
 {
   /* This is used only at shutdown time; it closes file streams (the
      only ones that need finalization.) */
-	stream_t *str, *strnext;
+  stream_t *str, *strnext;
 
-	str = gli_streamlist;
-    
+  str = gli_streamlist;
+
   while (str)
   {
-	strnext = str->next;
+    strnext = str->next;
     if (str->type == strtype_File)
-#ifdef ANDGLK
-	{ fclose(str->file); str->file = NULL; }
-#else
       gli_stream_close(str);
-#endif
-	str = strnext;
+    str = strnext;
   }
 }
 
-#ifndef ANDGLK
 void glk_stream_set_position(stream_t *str, glsi32 pos, glui32 seekmode)
 {
   if (!str)
@@ -539,6 +534,11 @@ glui32 glk_stream_get_position(stream_t *str)
   }
 }
 
+void gli_stream_set_current(stream_t *str)
+{
+    gli_currentstr = str;
+}
+
 void glk_stream_set_current(stream_t *str)
 {
   if (!str)
@@ -549,14 +549,8 @@ void glk_stream_set_current(stream_t *str)
 
   gli_currentstr = str;
 }
-#endif
 
-void gli_stream_set_current(stream_t *str)
-{
-    gli_currentstr = str;
-}
-
-stream_t *gli_stream_get_current()
+stream_t *glk_stream_get_current()
 {
   if (!gli_currentstr)
     return 0;
@@ -575,7 +569,6 @@ static void gli_stream_ensure_op(stream_t *str, glui32 op)
   str->lastop = op;
 }
 
-#ifndef ANDGLK
 static void gli_put_char(stream_t *str, unsigned char ch)
 {
   if (!str || !str->writable)
@@ -811,14 +804,12 @@ static void gli_put_buffer(stream_t *str, char *buf, glui32 len)
                     putc(((ch >> 16) & 0xFF), str->file);
                     putc(((ch >>  8) & 0xFF), str->file);
                     putc( (ch        & 0xFF), str->file);
-            	}
+                }
             }
             fflush(str->file);
             break;
     }
 }
-
-#endif /* ANDGLK */
 
 static void gli_put_buffer_uni(stream_t *str, glui32 *buf, glui32 len)
 {
@@ -928,15 +919,12 @@ static void gli_put_buffer_uni(stream_t *str, glui32 *buf, glui32 len)
                     putc(((ch >> 16) & 0xFF), str->file);
                     putc(((ch >>  8) & 0xFF), str->file);
                     putc( (ch        & 0xFF), str->file);
-            	}
+                }
             }
             fflush(str->file);
             break;
     }
 }
-
-
-#ifndef ANDGLK
 
 static void gli_unput_buffer(stream_t *str, char *buf, glui32 len)
 {
@@ -1268,7 +1256,7 @@ static glsi32 gli_get_char_uni(stream_t *str)
             gli_stream_ensure_op(str, filemode_Read);
             int res;
             if (!str->unicode)
-        {
+            {
                 res = getc(str->file);
             }
             else if (str->textfile)
@@ -1655,7 +1643,7 @@ static glui32 gli_get_line(stream_t *str, char *cbuf, glui32 len)
                     lx = strlen(cbuf);
                     str->readcount += lx;
                     return lx;
-            }
+                }
             }
             else if (str->textfile)
             {
@@ -1897,8 +1885,6 @@ void glk_put_string(char *s)
     gli_put_buffer(gli_currentstr, s, strlen(s));
 }
 
-#endif  /* ANDGLK */
-
 glui32 strlen_uni(glui32 *s)
 {
     glui32 length = 0;
@@ -1906,13 +1892,10 @@ glui32 strlen_uni(glui32 *s)
     return length;
 }
 
-
 void glk_put_string_uni(glui32 *s)
 {
     gli_put_buffer_uni(gli_currentstr, s, strlen_uni(s));
 }
-
-#ifndef ANDGLK
 
 void glk_put_string_stream(stream_t *str, char *s)
 {
@@ -1939,17 +1922,10 @@ void glk_put_buffer(char *buf, glui32 len)
     gli_put_buffer(gli_currentstr, buf, len);
 }
 
-
-
 void glk_put_buffer_uni(glui32 *buf, glui32 len)
 {
     gli_put_buffer_uni(gli_currentstr, buf, len);
 }
-
-
-#endif  /* ANDGLK */
-
-#ifndef ANDGLK
 
 void glk_put_buffer_stream(stream_t *str, char *buf, glui32 len)
 {
@@ -1971,12 +1947,12 @@ void glk_put_buffer_stream_uni(stream_t *str, glui32 *buf, glui32 len)
   gli_put_buffer_uni(str, buf, len);
 }
 
-void glk_unput_string(char *s)
+void garglk_unput_string(char *s)
 {
     gli_unput_buffer(gli_currentstr, s, strlen(s));
 }
 
-void glk_unput_string_uni(glui32 *s)
+void garglk_unput_string_uni(glui32 *s)
 {
     gli_unput_buffer_uni(gli_currentstr, s, strlen_uni(s));
 }
@@ -2100,34 +2076,3 @@ glui32 glk_get_buffer_stream_uni(stream_t *str, glui32 *buf, glui32 len)
     }
     return gli_get_buffer_uni(str, buf, len);
 }
-#else   /* ANDGLK */
-
-stream_t* gli_find_window_stream(winid_t win)
-{
-	// This is used only at shutdown time; it closes file streams (the
-    // only ones that need finalization.) 
-	stream_t *str, *strnext;
-
-	str = gli_streamlist;
-    
-	while (str) {
-		strnext = str->next;
-		if (str->type == strtype_Window && str->winid == win)
-			return str;
-		str = strnext;
-	}
-	return NULL;
-}
-
-
-/* todo */
-void garglk_set_zcolors(glui32 fg, glui32 bg)
-{
-}
-
-void garglk_set_zcolors_stream(stream_t *str, glui32 fg, glui32 bg)
-{
-}
-
-
-#endif /* ANDGLK */

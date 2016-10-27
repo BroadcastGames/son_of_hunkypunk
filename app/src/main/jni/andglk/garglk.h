@@ -48,7 +48,7 @@
  */
 
 #define gli_strict_warning(msg)   \
-	(LOGW("Glk library error: %s\n", msg))
+    (fprintf(stderr, "Glk library error: %s\n", msg))
 
 extern int gli_utf8output, gli_utf8input;
 
@@ -211,6 +211,8 @@ extern int gli_wbordery;
 
 extern int gli_wmarginx;
 extern int gli_wmarginy;
+extern int gli_wmarginx_save;
+extern int gli_wmarginy_save;
 extern int gli_wpaddingx;
 extern int gli_wpaddingy;
 extern int gli_tmarginx;
@@ -227,11 +229,15 @@ extern int gli_conf_safeclicks;
 
 extern int gli_conf_justify;
 extern int gli_conf_quotes;
+extern int gli_conf_dashes;
 extern int gli_conf_spaces;
 extern int gli_conf_caps;
 
-extern int gli_rows;
 extern int gli_cols;
+extern int gli_rows;
+
+extern int gli_conf_lockcols;
+extern int gli_conf_lockrows;
 
 extern unsigned char gli_scroll_bg[3];
 extern unsigned char gli_scroll_fg[3];
@@ -336,14 +342,6 @@ struct glk_stream_struct
     void *bufend;
     void *bufeof;
     glui32 buflen;	/* # of bytes for latin1, # of 4-byte words for unicode */
-
-#ifdef ANDGLK
-    /* for strtype_Window */
-    /* for strtype_Memory */
-	jobject* st;
-	winid_t winid;
-#endif	
-
     gidispatch_rock_t arrayrock;
 
     gidispatch_rock_t disprock;
@@ -610,7 +608,7 @@ extern void win_textbuffer_cancel_line(window_t *win, event_t *ev);
 extern void win_textbuffer_click(window_textbuffer_t *dwin, int x, int y);
 extern void gcmd_buffer_accept_readchar(window_t *win, glui32 arg);
 extern void gcmd_buffer_accept_readline(window_t *win, glui32 arg);
-extern void gcmd_accept_scroll(window_t *win, glui32 arg);
+extern int gcmd_accept_scroll(window_t *win, glui32 arg);
 
 /* Declarations of library internal functions. */
 
@@ -647,17 +645,15 @@ extern stream_t *gli_new_stream(glui32 type, int readable, int writable,
     glui32 rock, int unicode);
 extern void gli_delete_stream(stream_t *str);
 extern stream_t *gli_stream_open_window(window_t *win);
-extern strid_t gli_stream_open_pathname(const char *pathname, int textmode,
+extern strid_t gli_stream_open_pathname(char *pathname, int textmode,
     glui32 rock);
-extern stream_t *gli_stream_open_file(frefid_t fref, glui32 fmode, 
-	glui32 rock, int unicode);
 extern void gli_stream_set_current(stream_t *str);
 extern void gli_stream_fill_result(stream_t *str,
     stream_result_t *result);
 extern void gli_stream_echo_line(stream_t *str, char *buf, glui32 len);
 extern void gli_stream_echo_line_uni(stream_t *str, glui32 *buf, glui32 len);
 
-extern fileref_t *gli_new_fileref(const char *filename, glui32 usage,
+extern fileref_t *gli_new_fileref(char *filename, glui32 usage,
     glui32 rock);
 extern void gli_delete_fileref(fileref_t *fref);
 
@@ -681,7 +677,6 @@ extern void gli_select(event_t *event, int polled);
 
 enum FILEFILTERS { FILTER_SAVE, FILTER_TEXT, FILTER_ALL };
 
-#ifndef ANDGLK
 void wininit(int *argc, char **argv);
 void winopen(void);
 void wintitle(void);
@@ -705,6 +700,8 @@ picture_t *gli_picture_load(unsigned long id);
 void gli_picture_store(picture_t *pic);
 picture_t *gli_picture_retrieve(unsigned long id, int scaled);
 picture_t *gli_picture_scale(picture_t *src, int destwidth, int destheight);
+void gli_picture_increment(picture_t *pic);
+void gli_picture_decrement(picture_t *pic);
 void gli_piclist_increment(void);
 void gli_piclist_decrement(void);
 
@@ -726,7 +723,6 @@ glui32 win_textbuffer_draw_picture(window_textbuffer_t *dwin, glui32 image, glui
 glui32 win_textbuffer_flow_break(window_textbuffer_t *win);
 
 void gli_calc_padding(window_t *win, int *x, int *y);
-#endif
 
 /* unicode case mapping */
 
@@ -764,8 +760,3 @@ int attrequal(attr_t *a1, attr_t *a2);
 unsigned char *attrfg(style_t *styles, attr_t *attr);
 unsigned char *attrbg(style_t *styles, attr_t *attr);
 int attrfont(style_t *styles, attr_t *attr);
-
-glui32 gli_stream_get_rock(stream_t *str);
-stream_t *gli_stream_iterate(stream_t *str, glui32 *rock);
-stream_t *gli_stream_get_current();
-stream_t* gli_find_window_stream(winid_t win);
