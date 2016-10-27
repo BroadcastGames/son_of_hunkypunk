@@ -127,6 +127,12 @@ void gli_delete_stream(stream_t *str)
   free(str);
 }
 
+//stream_t *glk_stream_iterate(stream_t *str, glui32 *rock)
+//{
+//    return gli_stream_iterate(str, rock);
+//}
+
+// ToDo: investigate glk_ to gli_ prefix change
 stream_t *gli_stream_iterate(stream_t *str, glui32 *rock)
 {
   if (!str)
@@ -146,6 +152,7 @@ stream_t *gli_stream_iterate(stream_t *str, glui32 *rock)
   return NULL;
 }
 
+// ToDo: investigate glk_ to gli_ prefix change, see comments about this elsewhere in file
 glui32 gli_stream_get_rock(stream_t *str)
 {
   if (!str)
@@ -156,6 +163,7 @@ glui32 gli_stream_get_rock(stream_t *str)
   return str->rock;
 }
 
+// ToDo: should static be added like Gargoyle?
 stream_t *gli_stream_open_file(frefid_t fref, glui32 fmode,
     glui32 rock, int unicode)
 {
@@ -238,15 +246,22 @@ stream_t *gli_stream_open_file(frefid_t fref, glui32 fmode,
     fclose(fl);
     return 0;
   }
-    
+
   str->file = fl;
   str->lastop = 0;
   str->textfile = fref->textmode;
-    
+
   return str;
 }
 
+// ToDo: Investigate glk_ to gli_ prefix mixing here? Why is glk_ not being used as wrapper like the original Gargoyle cgstream.c? where is glk_stream_open_file function stub?
 stream_t *gli_stream_open_file_uni(frefid_t fref, glui32 fmode, glui32 rock)
+{
+	// ToDo: Final parameter TRUE is not same as Gargoyle, investigate
+    return gli_stream_open_file(fref, fmode, rock, TRUE);
+}
+
+stream_t *glk_stream_open_file_uni(frefid_t fref, glui32 fmode, glui32 rock)
 {
     return gli_stream_open_file(fref, fmode, rock, TRUE);
 }
@@ -256,7 +271,7 @@ stream_t *gli_stream_open_pathname(const char *pathname, int textmode, glui32 ro
   char modestr[16];
   stream_t *str;
   FILE *fl;
-    
+
   strcpy(modestr, "r");
   if (!textmode)
     strcat(modestr, "b");
@@ -273,11 +288,11 @@ stream_t *gli_stream_open_pathname(const char *pathname, int textmode, glui32 ro
     fclose(fl);
     return 0;
   }
-    
+
   str->file = fl;
   str->lastop = 0;
   str->textfile = textmode;
-    
+
   return str;
 }
 
@@ -318,6 +333,7 @@ stream_t *glk_stream_open_memory(char *buf, glui32 buflen, glui32 fmode,
 
   return str;
 }
+#endif
 
 stream_t *glk_stream_open_memory_uni(glui32 *buf, glui32 buflen, glui32 fmode, 
     glui32 rock)
@@ -356,6 +372,7 @@ stream_t *glk_stream_open_memory_uni(glui32 *buf, glui32 buflen, glui32 fmode,
   return str;
 }
 
+#ifndef ANDGLK
 stream_t *gli_stream_open_window(window_t *win)
 {
   stream_t *str;
@@ -440,20 +457,20 @@ void gli_streams_close_all()
 {
   /* This is used only at shutdown time; it closes file streams (the
      only ones that need finalization.) */
-	stream_t *str, *strnext;
+  stream_t *str, *strnext;
 
-	str = gli_streamlist;
-    
+  str = gli_streamlist;
+
   while (str)
   {
-	strnext = str->next;
+    strnext = str->next;
     if (str->type == strtype_File)
 #ifdef ANDGLK
 	{ fclose(str->file); str->file = NULL; }
 #else
       gli_stream_close(str);
 #endif
-	str = strnext;
+    str = strnext;
   }
 }
 
@@ -551,11 +568,13 @@ void glk_stream_set_current(stream_t *str)
 }
 #endif
 
+// ToDo: investigate glk_ to gli_ prefix change here
 void gli_stream_set_current(stream_t *str)
 {
     gli_currentstr = str;
 }
 
+// ToDo: glk_ to gli_ prefix?
 stream_t *gli_stream_get_current()
 {
   if (!gli_currentstr)
@@ -642,6 +661,7 @@ static void gli_put_char(stream_t *str, unsigned char ch)
   }
 }
 
+#endif
 static void gli_put_char_uni(stream_t *str, glui32 ch)
 {
   if (!str || !str->writable)
@@ -710,6 +730,7 @@ static void gli_put_char_uni(stream_t *str, glui32 ch)
   }
 }
 
+#ifndef ANDGLK
 static void gli_put_buffer(stream_t *str, char *buf, glui32 len)
 {
     glui32 lx;
@@ -811,12 +832,13 @@ static void gli_put_buffer(stream_t *str, char *buf, glui32 len)
                     putc(((ch >> 16) & 0xFF), str->file);
                     putc(((ch >>  8) & 0xFF), str->file);
                     putc( (ch        & 0xFF), str->file);
-            	}
+                }
             }
             fflush(str->file);
             break;
     }
 }
+#endif
 
 static void gli_put_buffer_uni(stream_t *str, glui32 *buf, glui32 len)
 {
@@ -887,6 +909,9 @@ static void gli_put_buffer_uni(stream_t *str, glui32 *buf, glui32 len)
             }
             break;
         case strtype_Window:
+        /*
+        INCOMPLETE for Android Sony of HunkyPunk, commented out to get to compile
+
             if (str->win->line_request || str->win->line_request_uni)
             {
                 if (gli_conf_safeclicks && gli_forceclick)
@@ -904,6 +929,7 @@ static void gli_put_buffer_uni(stream_t *str, glui32 *buf, glui32 len)
                 gli_window_put_char_uni(str->win, *cx);
             if (str->win->echostr)
                 gli_put_buffer_uni(str->win->echostr, buf, len);
+        */
             break;
         case strtype_File:
             gli_stream_ensure_op(str, filemode_Write);
@@ -926,13 +952,14 @@ static void gli_put_buffer_uni(stream_t *str, glui32 *buf, glui32 len)
                     putc(((ch >> 16) & 0xFF), str->file);
                     putc(((ch >>  8) & 0xFF), str->file);
                     putc( (ch        & 0xFF), str->file);
-            	}
+                }
             }
             fflush(str->file);
             break;
     }
 }
 
+#ifndef ANDGLK
 static void gli_unput_buffer(stream_t *str, char *buf, glui32 len)
 {
     glui32 lx;
@@ -1227,6 +1254,7 @@ static glsi32 gli_get_char(stream_t *str)
             return -1;
     }
 }
+#endif
 
 static glsi32 gli_get_char_uni(stream_t *str)
 {
@@ -1263,7 +1291,7 @@ static glsi32 gli_get_char_uni(stream_t *str)
             gli_stream_ensure_op(str, filemode_Read);
             int res;
             if (!str->unicode)
-        {
+            {
                 res = getc(str->file);
             }
             else if (str->textfile)
@@ -1306,6 +1334,7 @@ static glsi32 gli_get_char_uni(stream_t *str)
     }
 }
 
+#ifndef ANDGLK
 static glui32 gli_get_buffer(stream_t *str, char *buf, glui32 len)
 {
     if (!str || !str->readable)
@@ -1432,6 +1461,7 @@ static glui32 gli_get_buffer(stream_t *str, char *buf, glui32 len)
             return 0;
     }
 }
+#endif
 
 static glui32 gli_get_buffer_uni(stream_t *str, glui32 *buf, glui32 len)
 {
@@ -1561,6 +1591,7 @@ static glui32 gli_get_buffer_uni(stream_t *str, glui32 *buf, glui32 len)
     }
 }
 
+#ifndef ANDGLK
 static glui32 gli_get_line(stream_t *str, char *cbuf, glui32 len)
 {
     glui32 lx;
@@ -1650,7 +1681,7 @@ static glui32 gli_get_line(stream_t *str, char *cbuf, glui32 len)
                     lx = strlen(cbuf);
                     str->readcount += lx;
                     return lx;
-            }
+                }
             }
             else if (str->textfile)
             {
@@ -1709,6 +1740,7 @@ static glui32 gli_get_line(stream_t *str, char *cbuf, glui32 len)
             return 0;
     }
 }
+#endif
 
 static glui32 gli_get_line_uni(stream_t *str, glui32 *ubuf, glui32 len)
 {
@@ -1857,6 +1889,7 @@ static glui32 gli_get_line_uni(stream_t *str, glui32 *ubuf, glui32 len)
     }
 }
 
+#ifndef ANDGLK
 void glk_put_char(unsigned char ch)
 {
     gli_put_char(gli_currentstr, ch);
@@ -1891,6 +1924,7 @@ void glk_put_string(char *s)
 {
     gli_put_buffer(gli_currentstr, s, strlen(s));
 }
+#endif
 
 glui32 strlen_uni(glui32 *s)
 {
@@ -1904,6 +1938,7 @@ void glk_put_string_uni(glui32 *s)
     gli_put_buffer_uni(gli_currentstr, s, strlen_uni(s));
 }
 
+#ifndef ANDGLK
 void glk_put_string_stream(stream_t *str, char *s)
 {
     if (!str)
@@ -1913,6 +1948,7 @@ void glk_put_string_stream(stream_t *str, char *s)
     }
     gli_put_buffer(str, s, strlen(s));
 }
+#endif
 
 void glk_put_string_stream_uni(stream_t *str, glui32 *s)
 {
@@ -1924,6 +1960,7 @@ void glk_put_string_stream_uni(stream_t *str, glui32 *s)
     gli_put_buffer_uni(str, s, strlen_uni(s));
 }
 
+#ifndef ANDGLK
 void glk_put_buffer(char *buf, glui32 len)
 {
     gli_put_buffer(gli_currentstr, buf, len);
@@ -1933,7 +1970,9 @@ void glk_put_buffer_uni(glui32 *buf, glui32 len)
 {
     gli_put_buffer_uni(gli_currentstr, buf, len);
 }
+#endif
 
+#ifndef ANDGLK
 void glk_put_buffer_stream(stream_t *str, char *buf, glui32 len)
 {
     if (!str)
@@ -1943,6 +1982,7 @@ void glk_put_buffer_stream(stream_t *str, char *buf, glui32 len)
     }
     gli_put_buffer(str, buf, len);
 }
+#endif
 
 void glk_put_buffer_stream_uni(stream_t *str, glui32 *buf, glui32 len)
 {
@@ -1954,6 +1994,8 @@ void glk_put_buffer_stream_uni(stream_t *str, glui32 *buf, glui32 len)
   gli_put_buffer_uni(str, buf, len);
 }
 
+#ifndef ANDGLK
+// Todo: why is function renamed from gaglk_ ?
 void glk_unput_string(char *s)
 {
     gli_unput_buffer(gli_currentstr, s, strlen(s));
@@ -2033,6 +2075,7 @@ glsi32 glk_get_char_stream(stream_t *str)
     }
     return gli_get_char(str);
 }
+#endif
 
 glsi32 glk_get_char_stream_uni(stream_t *str)
 {
@@ -2044,6 +2087,7 @@ glsi32 glk_get_char_stream_uni(stream_t *str)
     return gli_get_char_uni(str);
 }
 
+#ifndef ANDGLK
 glui32 glk_get_line_stream(stream_t *str, char *buf, glui32 len)
 {
     if (!str)
@@ -2053,6 +2097,7 @@ glui32 glk_get_line_stream(stream_t *str, char *buf, glui32 len)
     }
     return gli_get_line(str, buf, len);
 }
+#endif
 
 glui32 glk_get_line_stream_uni(stream_t *str, glui32 *buf, glui32 len)
 {
@@ -2064,6 +2109,7 @@ glui32 glk_get_line_stream_uni(stream_t *str, glui32 *buf, glui32 len)
     return gli_get_line_uni(str, buf, len);
 }
 
+#ifndef ANDGLK
 glui32 glk_get_buffer_stream(stream_t *str, char *buf, glui32 len)
 {
     if (!str)
@@ -2073,7 +2119,11 @@ glui32 glk_get_buffer_stream(stream_t *str, char *buf, glui32 len)
     }
     return gli_get_buffer(str, buf, len);
 }
+#endif
 
+
+// specific to Android!
+#ifdef ANDGLK
 glui32 glk_get_buffer_stream_uni(stream_t *str, glui32 *buf, glui32 len)
 {
     if (!str)
@@ -2083,7 +2133,6 @@ glui32 glk_get_buffer_stream_uni(stream_t *str, glui32 *buf, glui32 len)
     }
     return gli_get_buffer_uni(str, buf, len);
 }
-#else
 
 stream_t* gli_find_window_stream(winid_t win)
 {

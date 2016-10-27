@@ -21,7 +21,8 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := andglk
 LOCAL_SRC_FILES := andglk.c cgblorb.c cgfref.c cgmisc.c cgstream.c \
-				   gi_blorb.c gi_dispa.c imgnull.c
+				   gi_blorb.c gi_dispa.c imgnull.c \
+				   ../garglk/cgunicod.c
 LOCAL_CFLAGS	:= -DANDGLK 
 
 include $(BUILD_STATIC_LIBRARY)
