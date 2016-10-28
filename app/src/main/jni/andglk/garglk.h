@@ -344,6 +344,9 @@ struct glk_stream_struct
 	winid_t winid;
 #endif	
 
+    // ToDo: added for using Twisty unicode logic, do we want to keep this?
+    void *data;
+
     gidispatch_rock_t arrayrock;
 
     gidispatch_rock_t disprock;

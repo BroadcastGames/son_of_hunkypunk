@@ -746,10 +746,144 @@ strid_t glk_stream_get_current(void)
 	return gli_stream_get_current();
 }
 
+
+// from glkjni.c
+
+void gli_fatal(char *msg)
+{
+    __android_log_write(ANDROID_LOG_ERROR, "glk", msg);
+    // ToDo: gli_exit();
+}
+
+void *gli_malloc(size_t size)
+{
+    void *value = malloc(size);
+    if (!value) {
+        LOGE("andglk.c: virtual memory exhausted");
+        // gli_fatal("andglk.c: virtual memory exhausted\n");
+    }
+    return value;
+}
+
+// from win_text.c
+
+#define OUTBUFCHARS (2048)
+
+// ToDo: right now this is hard coded for a single buffer for a single window.
+int bufferInit = 0;
+jchar *outputBuffer;
+int outputBuffer_count = 0;
+
+void gli_window_print(window_t *win)
+{
+    JNIEnv *env = JNU_GetEnv();
+    jobject jstr;
+    //textwin_data_t *text = win->text;
+
+    if (!outputBuffer_count) {
+        return;
+    }
+
+    LOGD("win_txt.c calling Java putStringFromNative '%s' len %d", outputBuffer, outputBuffer_count);
+
+    jstr = (*env)->NewString(env, outputBuffer, outputBuffer_count);
+    // (*env)->CallVoidMethod(WIN_M(win->jwin, PRINT), jstr);
+
+    // _Stream seems global?
+    jmethodID methodID = (*env)->GetMethodID(env, _Stream, "putStringFromNative", "(Ljava/lang/String;)V");
+    strid_t str = glk_stream_get_current();
+    (*env)->CallVoidMethod(env, *(str->st), methodID, jstr);
+
+    (*env)->DeleteLocalRef(env, jstr);
+    //jni_check_exc();
+
+    //gli_window_clear_outbuf(text);
+    // ToDo: implement gli_window_clear_outbuf, instead here we zero length.
+    outputBuffer_count = 0;
+}
+
+// fronm twisty/win_text.c
+
+static void gli_window_buffer_char(window_t *win, glui32 ch)
+{
+    if (! bufferInit)
+    {
+        LOGI("andglk.c gli_window_buffer_char outputBuffer init");
+        bufferInit = 1;
+        outputBuffer = (jchar *)gli_malloc(sizeof(jchar) * OUTBUFCHARS);
+        outputBuffer_count = 0;
+    }
+
+    // This is a decent design, it buffers text in C level for each window
+    if (outputBuffer_count > OUTBUFCHARS - 2) {
+        LOGV("andglk win_txt.c gli_window_buffer_char calling central gli_window_print print char %d", ch);
+        gli_window_print(win);
+    }
+    if (ch > 0xFFFF) {
+        LOGV("andglk win_txt.c gli_window_buffer_char buffering gli_window_print print char %d BRANCH_A00", ch);
+        jchar surr1, surr2;
+
+        ch -= 0x10000;
+        surr1 = 0xD800 | (ch >> 10);
+        surr2 = 0xDC00 | (ch & 0x3FF);
+        // ok, so this is putting two jchar's into the buffer, which is a jstring? Slower approach coudl be to create a jstring right here and stuff in char?
+        outputBuffer[outputBuffer_count++] = surr1;
+        outputBuffer[outputBuffer_count++] = surr2;
+    } else {
+        LOGV("win_txt.c gli_window_buffer_char calling central gli_window_print print char %d BRANCH_A01", ch);
+        // ok, so this is putting a single jchar into the buffer
+        outputBuffer[outputBuffer_count++] = (jchar)ch;
+    }
+
+    // ToDo: don't flush every time, find out how Twisty does this buffering?
+    gli_window_print(win);
+}
+
+void gli_window_putc(window_t *win, glui32 ch)
+{
+    //if (!win->text) {
+    //    return;
+    //}
+
+    //if (win->text->kb_request & KB_LINE_REQ) {
+    //    gli_strict_warning("put_char: window has pending line request");
+    //    return;
+    //}
+
+    LOGV("win_txt.c gli_window_putc calling gli_window_buffer_char with char '%c' code %d", (char) ch, ch);
+    gli_window_buffer_char(win, ch);
+
+    //if (win->echostr) {
+    //    gli_put_char(win->echostr, ch);
+    //}
+}
+
+// from twisty/stream.c
+
+void gli_put_char2(stream_t *str, glui32 ch)
+{
+    LOGV("stream.c gli_put_char SPOT_Z0 ch %d", ch);
+    if (!str || !str->writable)
+        return;
+
+    str->writecount++;
+
+    if (str->type == strtype_Memory) {
+        //mstream_putc(str->data, ch);
+    } else if (str->type == strtype_File) {
+        //fstream_putc(str->data, ch);
+    } else if (str->type == strtype_Window) {
+        LOGV("stream.c gli_put_char to gli_window_putc SPOT_Z1");
+        gli_window_putc(str->data, ch);
+    }
+}
+
 void glk_put_char_uni(glui32 ch)
 {
-	unsigned char lilch = (unsigned char)ch;
-	glk_put_char(lilch);
+    LOGV("andglk.c GLK glk_put_char_uni ch %d", ch);
+	//unsigned char lilch = (unsigned char)ch;
+	//glk_put_char(lilch);
+	gli_put_char2(glk_stream_get_current(), ch);
 }
 
 void glk_put_char(unsigned char ch)
@@ -776,7 +910,7 @@ void glk_put_char_stream(strid_t str, unsigned char ch)
 		}
 		//fflush(str->file);
 	} else {
-	    LOGV("andglk.c glk_put_char_stream calling Java");
+	    LOGV("andglk.c glk_put_char_stream calling Java putChar");
 		JNIEnv *env = JNU_GetEnv();
 		static jmethodID mid = 0;
 		if (mid == 0)

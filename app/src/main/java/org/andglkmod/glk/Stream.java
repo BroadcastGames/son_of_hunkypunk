@@ -98,6 +98,15 @@ public abstract class Stream extends CPointed {
 			Log.e("Glk/Stream", "I/O error in putChar", e);
 		}
 	}
+
+	public void putStringFromNative(String str) {
+		try {
+			Log.v("Glk/Java", "Stream.java putStringFromNative '" + str + "'");
+			putString(str);
+		} catch (Exception e) {
+			Log.e("Glk/Stream", "Exception in putStringFromNative", e);
+		}
+	}
 	
 	abstract protected void doPutChar(char c) throws IOException;
 
