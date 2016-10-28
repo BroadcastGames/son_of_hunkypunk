@@ -47,15 +47,45 @@ jobject _this = 0;
 static jmp_buf _quit_env;
 static char* gidispatch_char_array = "&+#!Cn";
 
+// ToDo: why such an old version and not 1_6 ?
 #define GLK_JNI_VERSION JNI_VERSION_1_2
 
 void ( * andglk_exit_hook ) (void) = NULL; 
 void ( * andglk_set_autosave_hook ) (const char* filename) = NULL; 
 void ( * andglk_set_autorestore_hook ) (const char* filename) = NULL;
 
+void *gli_malloc(size_t size)
+{
+    void *value = malloc(size);
+    if (!value) {
+        LOGE("andglk.c: virtual memory exhausted");
+        // gli_fatal("andglk.c: virtual memory exhausted\n");
+    }
+    return value;
+}
+
+// from win_text.c
+
+#define OUTBUFCHARS (2048)
+
+// ToDo: right now this is hard coded for a single buffer for a single window.
+int bufferInit = 0;
+jchar *outputBuffer;
+int outputBuffer_count = 0;
+
+
 jint JNI_OnLoad(JavaVM *jvm, void *reserved)
 {
 	LOGD("andglk.JNI_OnLoad");
+
+    if (! bufferInit)
+    {
+        LOGI("andglk.c gli_window_buffer_char outputBuffer init");
+        bufferInit = 1;
+        //outputBuffer = (jchar *)gli_malloc(sizeof(jchar) * OUTBUFCHARS);
+        outputBuffer = (jchar *) malloc(sizeof(jchar) * OUTBUFCHARS);
+        outputBuffer_count = 0;
+    }
 
 	_jvm = jvm;
 
@@ -755,24 +785,6 @@ void gli_fatal(char *msg)
     // ToDo: gli_exit();
 }
 
-void *gli_malloc(size_t size)
-{
-    void *value = malloc(size);
-    if (!value) {
-        LOGE("andglk.c: virtual memory exhausted");
-        // gli_fatal("andglk.c: virtual memory exhausted\n");
-    }
-    return value;
-}
-
-// from win_text.c
-
-#define OUTBUFCHARS (2048)
-
-// ToDo: right now this is hard coded for a single buffer for a single window.
-int bufferInit = 0;
-jchar *outputBuffer;
-int outputBuffer_count = 0;
 
 void gli_window_print(window_t *win)
 {
@@ -806,14 +818,6 @@ void gli_window_print(window_t *win)
 
 static void gli_window_buffer_char(window_t *win, glui32 ch)
 {
-    if (! bufferInit)
-    {
-        LOGI("andglk.c gli_window_buffer_char outputBuffer init");
-        bufferInit = 1;
-        outputBuffer = (jchar *)gli_malloc(sizeof(jchar) * OUTBUFCHARS);
-        outputBuffer_count = 0;
-    }
-
     // This is a decent design, it buffers text in C level for each window
     if (outputBuffer_count > OUTBUFCHARS - 2) {
         LOGV("andglk win_txt.c gli_window_buffer_char calling central gli_window_print print char %d", ch);
@@ -880,10 +884,16 @@ void gli_put_char2(stream_t *str, glui32 ch)
 
 void glk_put_char_uni(glui32 ch)
 {
-    LOGV("andglk.c GLK glk_put_char_uni ch %d", ch);
-	//unsigned char lilch = (unsigned char)ch;
-	//glk_put_char(lilch);
-	gli_put_char2(glk_stream_get_current(), ch);
+	LOGV("andglk.c GLK glk_put_char_uni ch %d", ch);
+	if (1==1)
+	{
+		unsigned char lilch = (unsigned char)ch;
+		glk_put_char(lilch);
+	}
+	else
+	{
+		gli_put_char2(glk_stream_get_current(), ch);
+	}
 }
 
 void glk_put_char(unsigned char ch)
