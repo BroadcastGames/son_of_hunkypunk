@@ -327,7 +327,8 @@ public class Glk extends Thread {
 			// TODO: handle special characters; this needs getChar support too.
 			return CharInputEvent.accepts(val) ? sOne : sZero;
 		case GESTALT_UNICODE:
-			return sZero;
+			Log.i("Glk.java", "GESTALT_UNICODE, was just asked if Unicode is supported!");
+			return sOne;
 		default:
 			Log.w("Glk", "unhandled gestalt selector: " + Integer.toString(sel) + " (value " + val + ")");
 		// all below are TODO

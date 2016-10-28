@@ -91,6 +91,7 @@ public abstract class Stream extends CPointed {
 */	
 	public void putChar(char c) {
 		try {
+			Log.v("Glk/Java", "Stream.java putChar '" + c + "'");
 			doPutChar(c);
 			mWritten++;
 		} catch (IOException e) {
@@ -148,6 +149,7 @@ public abstract class Stream extends CPointed {
 	 */
 	public void putString(String str) {
 		try {
+			Log.v("Glk/Java", "Stream.java putString " + str);
 			doPutString(str);
 			mWritten += str.length();
 		} catch (IOException e) {

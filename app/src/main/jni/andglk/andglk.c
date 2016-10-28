@@ -776,6 +776,7 @@ void glk_put_char_stream(strid_t str, unsigned char ch)
 		}
 		//fflush(str->file);
 	} else {
+	    LOGV("andglk.c glk_put_char_stream calling Java");
 		JNIEnv *env = JNU_GetEnv();
 		static jmethodID mid = 0;
 		if (mid == 0)
@@ -830,6 +831,7 @@ void glk_put_buffer_stream(strid_t str, char *s, glui32 len)
 		}
 		//fflush(str->file);
 	} else {
+	    LOGD("andglk.c glk_put_buffer_stream calling Java puString");
 		JNIEnv *env = JNU_GetEnv();
 		static jmethodID mid = 0;
 		if (mid == 0)

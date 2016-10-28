@@ -662,7 +662,7 @@ char *gidispatch_prototype(glui32 funcnum)
 
 void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
 {
-    LOGV("gidispatch_call funcnum 0x%04x numargs %d", funcnum, numargs);
+    LOGV("gidispatch_call funcnum 0x%04x numargs %d z1", funcnum, numargs);
 
     switch (funcnum) {
         case 0x0001: /* exit */
@@ -675,6 +675,7 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             glk_tick();
             break;
         case 0x0004: /* gestalt */
+            LOGI("gestalt dispatch 0x0004");
             arglist[3].uint = glk_gestalt(arglist[0].uint, arglist[1].uint);
             break;
         case 0x0005: /* gestalt_ext */
@@ -1152,43 +1153,52 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             
 #ifdef GLK_MODULE_UNICODE
         case 0x0120: /* buffer_to_lower_case_uni */
-            if (arglist[0].ptrflag) 
+            LOGD("zebracat funcnum 0x%04x", funcnum);
+            if (arglist[0].ptrflag)
                 arglist[5].uint = glk_buffer_to_lower_case_uni(arglist[1].array, arglist[2].uint, arglist[3].uint);
             else
                 arglist[3].uint = glk_buffer_to_lower_case_uni(NULL, 0, arglist[1].uint);
             break;
         case 0x0121: /* buffer_to_upper_case_uni */
-            if (arglist[0].ptrflag) 
+            LOGD("zebracat funcnum 0x%04x", funcnum);
+            if (arglist[0].ptrflag)
                 arglist[5].uint = glk_buffer_to_upper_case_uni(arglist[1].array, arglist[2].uint, arglist[3].uint);
             else
                 arglist[3].uint = glk_buffer_to_upper_case_uni(NULL, 0, arglist[1].uint);
             break;
         case 0x0122: /* buffer_to_title_case_uni */
-            if (arglist[0].ptrflag) 
+            LOGD("zebracat funcnum 0x%04x", funcnum);
+            if (arglist[0].ptrflag)
                 arglist[6].uint = glk_buffer_to_title_case_uni(arglist[1].array, arglist[2].uint, arglist[3].uint, arglist[4].uint);
             else
                 arglist[4].uint = glk_buffer_to_title_case_uni(NULL, 0, arglist[1].uint, arglist[2].uint);
             break;
         case 0x0128: /* put_char_uni */
+            LOGD("zebracat funcnum 0x%04x", funcnum);
             glk_put_char_uni(arglist[0].uint);
             break;
         case 0x0129: /* put_string_uni */
+            LOGD("zebracat funcnum 0x%04x", funcnum);
             glk_put_string_uni(arglist[0].unicharstr);
             break;
         case 0x012A: /* put_buffer_uni */
-            if (arglist[0].ptrflag) 
+            LOGD("zebracat funcnum 0x%04x", funcnum);
+            if (arglist[0].ptrflag)
                 glk_put_buffer_uni(arglist[1].array, arglist[2].uint);
             else
                 glk_put_buffer_uni(NULL, 0);
             break;
         case 0x012B: /* put_char_stream_uni */
+            LOGD("zebracat put_char_stream_uni");
             glk_put_char_stream_uni(arglist[0].opaqueref, arglist[1].uint);
             break;
         case 0x012C: /* put_string_stream_uni */
+            LOGD("zebracat put_string_stream_uni");
             glk_put_string_stream_uni(arglist[0].opaqueref, arglist[1].unicharstr);
             break;
         case 0x012D: /* put_buffer_stream_uni */
-            if (arglist[1].ptrflag) 
+            LOGD("zebracat funcnum 0x%04x", funcnum);
+            if (arglist[1].ptrflag)
                 glk_put_buffer_stream_uni(arglist[0].opaqueref, 
                     arglist[2].array, arglist[3].uint);
             else
@@ -1196,10 +1206,12 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
                     NULL, 0);
             break;
         case 0x0130: /* get_char_stream_uni */
+            LOGD("zebracat funcnum 0x%04x", funcnum);
             arglist[2].sint = glk_get_char_stream_uni(arglist[0].opaqueref);
             break;
         case 0x0131: /* get_buffer_stream_uni */
-            if (arglist[1].ptrflag) 
+            LOGD("zebracat funcnum 0x%04x", funcnum);
+            if (arglist[1].ptrflag)
                 arglist[5].uint = glk_get_buffer_stream_uni(arglist[0].opaqueref, 
                     arglist[2].array, arglist[3].uint);
             else
@@ -1207,7 +1219,8 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
                     NULL, 0);
             break;
         case 0x0132: /* get_line_stream_uni */
-            if (arglist[1].ptrflag) 
+            LOGD("zebracat funcnum 0x%04x", funcnum);
+            if (arglist[1].ptrflag)
                 arglist[5].uint = glk_get_line_stream_uni(arglist[0].opaqueref, 
                     arglist[2].array, arglist[3].uint);
             else
@@ -1215,11 +1228,13 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
                     NULL, 0);
             break;
         case 0x0138: /* stream_open_file_uni */
-            arglist[4].opaqueref = glk_stream_open_file_uni(arglist[0].opaqueref, arglist[1].uint, 
+            LOGD("zebracat funcnum 0x%04x", funcnum);
+            arglist[4].opaqueref = glk_stream_open_file_uni(arglist[0].opaqueref, arglist[1].uint,
                 arglist[2].uint);
             break;
         case 0x0139: /* stream_open_memory_uni */
-            if (arglist[0].ptrflag) 
+            LOGD("zebracat funcnum 0x%04x", funcnum);
+            if (arglist[0].ptrflag)
                 arglist[6].opaqueref = glk_stream_open_memory_uni(arglist[1].array, 
                     arglist[2].uint, arglist[3].uint, arglist[4].uint);
             else
@@ -1227,9 +1242,11 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
                     0, arglist[1].uint, arglist[2].uint);
             break;
         case 0x0140: /* request_char_event_uni */
+            LOGD("zebracat funcnum 0x%04x", funcnum);
             glk_request_char_event_uni(arglist[0].opaqueref);
             break;
         case 0x0141: /* request_line_event_uni */
+            LOGD("zebracat funcnum 0x%04x", funcnum);
             if (arglist[1].ptrflag)
                 glk_request_line_event_uni(arglist[0].opaqueref, arglist[2].array,
                     arglist[3].uint, arglist[4].uint);
@@ -1241,12 +1258,14 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
 
 #ifdef GLK_MODULE_UNICODE_NORM
         case 0x0123: /* buffer_canon_decompose_uni */
+            LOGD("zebracat funcnum 0x%04x", funcnum);
             if (arglist[0].ptrflag)
                 arglist[5].uint = glk_buffer_canon_decompose_uni(arglist[1].array, arglist[2].uint, arglist[3].uint);
             else
                 arglist[3].uint = glk_buffer_canon_decompose_uni(NULL, 0, arglist[1].uint);
             break;
         case 0x0124: /* buffer_canon_normalize_uni */
+            LOGD("zebracat funcnum 0x%04x", funcnum);
             if (arglist[0].ptrflag)
                 arglist[5].uint = glk_buffer_canon_normalize_uni(arglist[1].array, arglist[2].uint, arglist[3].uint);
             else

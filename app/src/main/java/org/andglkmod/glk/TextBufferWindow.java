@@ -180,6 +180,7 @@ public class TextBufferWindow extends Window {
         }
 
         public void flush() {
+            Log.d(TAG, "_View print called, I am flush()");
             applyStyle();
 
             if (mSsb.length() == 0)
@@ -865,11 +866,17 @@ public class TextBufferWindow extends Window {
         private boolean mTrailingCr = false;
 
         public void setTextEx(CharSequence t) {
+            Log.d(TAG, "_View setTextEx '" + t + "'");
             setText("");
             appendEx(t);
         }
 
         public void appendEx(CharSequence t) {
+            Log.d(TAG, "_View appendEx '" + t + "'");
+
+            if (1==1)
+                //throw new RuntimeException("Who called me?");
+
             if (t == null || t.length() == 0) return;
 
             if (mTrailingCr) {
@@ -925,6 +932,7 @@ public class TextBufferWindow extends Window {
 
         public void print(CharSequence text) {
             final int start = length() - 1;
+            Log.d(TAG, "_View print text '" + text + "'");
             appendEx(text);
             Editable e = getEditableText();
             Utils.beautify(e, start);
