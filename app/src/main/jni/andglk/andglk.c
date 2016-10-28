@@ -564,6 +564,9 @@ void glk_window_move_cursor(winid_t win, glui32 xpos, glui32 ypos)
 	if (!win)
 		return;
 
+    // Twisty app logic: this is a good sign to dump buffer?
+    gli_window_print(win);
+
 	JNIEnv *env = JNU_GetEnv();
 	static jmethodID mid = 0;
 	if (mid == 0)
@@ -779,18 +782,11 @@ strid_t glk_stream_get_current(void)
 
 // from glkjni.c
 
-void gli_fatal(char *msg)
-{
-    __android_log_write(ANDROID_LOG_ERROR, "glk", msg);
-    // ToDo: gli_exit();
-}
-
 
 void gli_window_print(window_t *win)
 {
     JNIEnv *env = JNU_GetEnv();
     jobject jstr;
-    //textwin_data_t *text = win->text;
 
     if (!outputBuffer_count) {
         return;
@@ -799,7 +795,6 @@ void gli_window_print(window_t *win)
     LOGD("win_txt.c calling Java putStringFromNative '%s' len %d", outputBuffer, outputBuffer_count);
 
     jstr = (*env)->NewString(env, outputBuffer, outputBuffer_count);
-    // (*env)->CallVoidMethod(WIN_M(win->jwin, PRINT), jstr);
 
     // _Stream seems global?
     jmethodID methodID = (*env)->GetMethodID(env, _Stream, "putStringFromNative", "(Ljava/lang/String;)V");
@@ -807,15 +802,19 @@ void gli_window_print(window_t *win)
     (*env)->CallVoidMethod(env, *(str->st), methodID, jstr);
 
     (*env)->DeleteLocalRef(env, jstr);
-    //jni_check_exc();
+    // ToDo: do we check for errors like Twisty does with jni_check_exc();
 
-    //gli_window_clear_outbuf(text);
+    // Twisty: gli_window_clear_outbuf(text);
     // ToDo: implement gli_window_clear_outbuf, instead here we zero length.
     outputBuffer_count = 0;
 }
 
 // fronm twisty/win_text.c
 
+/*
+IMPORTANT NOTE: This is curently hard-coded to only work with ONE WINDOW, as one single buffer is used.
+Twisty app is a good reference for how to go about doing C code side buffer management for multiple windows.
+*/
 static void gli_window_buffer_char(window_t *win, glui32 ch)
 {
     // This is a decent design, it buffers text in C level for each window
@@ -823,6 +822,8 @@ static void gli_window_buffer_char(window_t *win, glui32 ch)
         LOGV("andglk win_txt.c gli_window_buffer_char calling central gli_window_print print char %d", ch);
         gli_window_print(win);
     }
+
+    // Inline unicode chars beyond 16-bit values are not created by current 6M62 build of Inform 7
     if (ch > 0xFFFF) {
         LOGV("andglk win_txt.c gli_window_buffer_char buffering gli_window_print print char %d BRANCH_A00", ch);
         jchar surr1, surr2;
@@ -840,9 +841,13 @@ static void gli_window_buffer_char(window_t *win, glui32 ch)
     }
 
     // ToDo: don't flush every time, find out how Twisty does this buffering?
+    // look for comment "Twisty app logic, good time to dump buffer?"
+    // PROBLEM: seems this doesn't work well with non-unicode chars do not get stuffed into the same buffer?
+    // This will force each char to be stuffed out, barely using the buffer.
     gli_window_print(win);
 }
 
+/*
 void gli_window_putc(window_t *win, glui32 ch)
 {
     //if (!win->text) {
@@ -861,6 +866,7 @@ void gli_window_putc(window_t *win, glui32 ch)
     //    gli_put_char(win->echostr, ch);
     //}
 }
+*/
 
 // from twisty/stream.c
 
@@ -872,26 +878,35 @@ void gli_put_char2(stream_t *str, glui32 ch)
 
     str->writecount++;
 
+
     if (str->type == strtype_Memory) {
+        LOGE("andglk.c grafted in code from Twisty does not implement this path correctly, SPOT__AA000");
         //mstream_putc(str->data, ch);
     } else if (str->type == strtype_File) {
+        LOGE("andglk.c grafted in code from Twisty does not implement this path correctly, SPOT__AA001");
         //fstream_putc(str->data, ch);
     } else if (str->type == strtype_Window) {
-        LOGV("stream.c gli_put_char to gli_window_putc SPOT_Z1");
-        gli_window_putc(str->data, ch);
+        LOGV("stream.c gli_put_char to gli_window_putc SPOT_Z1_0");
+        // gli_window_putc(str->data, ch);
+        gli_window_buffer_char(str->data, ch);
+    } else {
+        LOGE("andglk.c grafted in code from Twisty does not implement this path correctly, SPOT__AA002");
     }
 }
 
 void glk_put_char_uni(glui32 ch)
 {
 	LOGV("andglk.c GLK glk_put_char_uni ch %d", ch);
-	if (1==1)
+
+	// Use the Twisty app hacked-in logic or the original Son of Hunky Punk functions that have problems with Unicode?
+	if (1==2)
 	{
 		unsigned char lilch = (unsigned char)ch;
 		glk_put_char(lilch);
 	}
 	else
 	{
+		// Uses a hacked-up version of the logic Twisy follows that does get Unicode correctly preserved up to the Java side / GUI.
 		gli_put_char2(glk_stream_get_current(), ch);
 	}
 }
@@ -1320,6 +1335,9 @@ void gli_request_line_event(winid_t win, void *buf, glui32 maxlen, glui32 initle
 {
 	JNIEnv *env = JNU_GetEnv();
 	static jmethodID mid = 0;
+
+	// Twisty app logic, good time to dump buffer?
+	gli_window_print(win);
 
 	if (mid == 0)
 		mid = (*env)->GetMethodID(env, _Window, "requestLineEvent", "(Ljava/lang/String;JII)V");
