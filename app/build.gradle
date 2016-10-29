@@ -47,6 +47,7 @@ android {
         buildConfigField "String", "AUTHORITY", "\"org.andglkmod.hunkypunk.HunkyPunk\""
 
         resValue "string", "app_name",         "Son of Hunky Punk"
+        resValue "string", "hunky_punk",       "Son of Hunky Punk"
         resValue "string", "config_authority", "org.andglkmod.hunkypunk.HunkyPunk"
     }
 
@@ -72,7 +73,9 @@ android {
 
             buildConfigField "String", "AUTHORITY", "\"org.andglkmod.hunkypunk.dev.HunkyPunk\""
 
-            resValue "string", "app_name", "AADEV GrandSon of Hunky Punk"
+            // 0AA put at start of names so can be eaisly found in the list of App icons
+            resValue "string", "app_name",         "0AADEV GrandSon of Hunky Punk"
+            resValue "string", "hunky_punk",       "0AA GrandSon of Hunky Punk"
             resValue "string", "config_authority", "org.andglkmod.hunkypunk.dev.HunkyPunk"
 
             logger.warn('productFlavors running')
