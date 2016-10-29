@@ -222,6 +222,11 @@ public class GameListHelper {
                 }
 
                 progressDialog.dismiss();
+                try {
+                    Thread.sleep(500L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 EventBus.getDefault().post(new GameListEmptyEvent(GameListEmptyEvent.DOWNLOAD_COMPLETED_RECHECK0));
             }
         };

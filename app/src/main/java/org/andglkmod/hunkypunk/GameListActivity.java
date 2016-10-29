@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -31,6 +30,9 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Arrays;
 
+/*
+ToDo: app does not remind user about the "/sdcard/Interactive Fiction" folder and consumes storage when uninstalled through normal Android conventions.
+ */
 public class GameListActivity extends AppCompatActivity implements GameListFragment.OnListFragmentInteractionListener {
 
     protected static final String TAG = "GameListActivity";
@@ -53,13 +55,19 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Recreate the Activity", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                // changeMainFragment(2);
+                // Recreate the Actiivity
+                view.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        recreate();
+                    }
+                }, 750L);
             }
         });
 
@@ -102,7 +110,7 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
     private static final int WRITE_STORAGE_PERMISSIONS_REQUEST = 1;
 
 
-    // ToDo: testing reveals this only works the very first time App is started, if user denies, they must manually go into Android Settings to grant?
+    // ToDo: testing reveals this only works the very first time App is started, if user denies permission, they must manually go into Android Settings to grant?
     //     can we detect that and alter the message/directions to user? One answer: keep track of the Denial response in preferences so we we know that was situation.
     public boolean getPermissionToUseStorage() {
         if (ContextCompat.checkSelfPermission(this,
@@ -201,10 +209,6 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
     }
 
 
-    // ToDo: GamesList.java has onClick at bottom, what to do to replace this?
-    //   how about have another fragment for virgin opening page, intro page iwth those two choices?
-
-
     /*
     Use the Main thread so we can interact with User Interface.
      */
@@ -228,6 +232,7 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMainThreadEvent(GameListEmptyEvent event) {
+        Log.i(TAG, "GameListEmptyEvent " + event.eventCode);
         switch (event.eventCode) {
             case GameListEmptyEvent.DOWNLOAD_PRESELECT_GAMES_SET0:
                 gameListHelper.downloadPreselected();
