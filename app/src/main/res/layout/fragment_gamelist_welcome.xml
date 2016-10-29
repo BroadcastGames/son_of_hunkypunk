@@ -9,24 +9,41 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:showIn="@layout/activity_gamelist"
-    android:background="#90FFFF"
+    android:background="#C0FFFF"
     android:orientation="vertical"
     >
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/icon"
+        android:contentDescription="House Icon"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World! fragment_main.xml TextView 1"/>
+        android:text="Hello and welcome to Son of Hunkypunk experimental development release!  This screen will only appear the first time you use the app as part of checking that required file system permissions are granted."/>
 
     <TextView
+        android:id="@+id/message_file_permissions_need0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="First open, Permissions to External Storage not granted?"/>
+        android:text="Permissions to External Storage not yet granted?"/>
 
     <TextView
+        android:id="@+id/message_file_permissions_ready00"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World! fragment_main.xml TextView 3"
+        android:text="File access permisionss are now ready, press the big Go! button to get things started. Thank you!"
+        android:visibility="gone"
         />
+
+    <Button
+        android:id="@+id/button_permisisons_ready0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Go!"
+        android:visibility="gone"
+        />
+
 </LinearLayout>

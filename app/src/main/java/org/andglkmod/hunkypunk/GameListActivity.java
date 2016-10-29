@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import org.andglkmod.hunkypunk.dummy.DummyContent;
+import org.andglkmod.hunkypunk.events.AppPermissionChangeEvent;
 import org.andglkmod.hunkypunk.events.BackgroundScanEvent;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -31,6 +32,7 @@ import java.util.Arrays;
 public class GameListActivity extends AppCompatActivity implements GameListFragment.OnListFragmentInteractionListener {
 
     protected static final String TAG = "GameListActivity";
+    public static boolean fileSystemStoragePermissionsReady = false;
 
     private GameListHelper gameListHelper;
 
@@ -40,7 +42,7 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
 
         Log.i(TAG, "onCreate");
 
-        boolean permissionGranted = getPermissionToUseStorage();
+        fileSystemStoragePermissionsReady = getPermissionToUseStorage();
 
         // ToDo: Rotation will create and destroy this, causing problems if done rapidly? Test and solve.
         gameListHelper = new GameListHelper(this);
@@ -59,7 +61,7 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
             }
         });
 
-        if (permissionGranted) {
+        if (fileSystemStoragePermissionsReady) {
             gameListHelper.sharedPreferencesAndFirstRunSetup();
 
             // setProgressBarIndeterminateVisibility(true);
@@ -128,17 +130,20 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    fileSystemStoragePermissionsReady = true;
                     Toast.makeText(this, "Write Storage permission granted",
                             Toast.LENGTH_LONG).show();
                     // ToDo: kick off the scan, change fragment?
                 } else {
                     Toast.makeText(this, "Write Storage permission denied",
                             Toast.LENGTH_SHORT).show();
+                    fileSystemStoragePermissionsReady = false;
                     // ToDo: use non /sdcard/ path, use application local storage path
                 }
-                return;
+                break;
             }
         }
+        EventBus.getDefault().post(new AppPermissionChangeEvent());
     }
 
 
