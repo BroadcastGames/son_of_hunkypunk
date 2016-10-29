@@ -812,7 +812,7 @@ void gli_window_print(window_t *win)
 // fronm twisty/win_text.c
 
 /*
-IMPORTANT NOTE: This is curently hard-coded to only work with ONE WINDOW, as one single buffer is used.
+IMPORTANT NOTE: This is currently hard-coded to only work with ONE WINDOW, as one single buffer is used.
 Twisty app is a good reference for how to go about doing C code side buffer management for multiple windows.
 */
 static void gli_window_buffer_char(window_t *win, glui32 ch)
@@ -847,26 +847,6 @@ static void gli_window_buffer_char(window_t *win, glui32 ch)
     gli_window_print(win);
 }
 
-/*
-void gli_window_putc(window_t *win, glui32 ch)
-{
-    //if (!win->text) {
-    //    return;
-    //}
-
-    //if (win->text->kb_request & KB_LINE_REQ) {
-    //    gli_strict_warning("put_char: window has pending line request");
-    //    return;
-    //}
-
-    LOGV("win_txt.c gli_window_putc calling gli_window_buffer_char with char '%c' code %d", (char) ch, ch);
-    gli_window_buffer_char(win, ch);
-
-    //if (win->echostr) {
-    //    gli_put_char(win->echostr, ch);
-    //}
-}
-*/
 
 // from twisty/stream.c
 
