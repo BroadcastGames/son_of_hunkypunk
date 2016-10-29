@@ -44,7 +44,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.database.sqlite.SQLiteDatabase;
-import android.widget.Toast;
 
 public class StorageManager {
 	public static final int MESSAGE_CODE_DONE = 0;
@@ -53,7 +52,7 @@ public class StorageManager {
 
 	private static final String TAG = "hunkypunk.MediaScanner";
 	private static final String[] PROJECTION = { Games._ID, Games.PATH };
-	private static final String[] PROJECTION2 = {Games._ID, Games.PATH,Games.IFID, Games.TITLE};
+	private static final String[] PROJECTION2 = {Games._ID, Games.PATH, Games.IFID, Games.TITLE};
 
 	private static final String[] PROJECTION3 = {Games.IFID, Games.TITLE, Games.PATH};
 
@@ -103,7 +102,13 @@ public class StorageManager {
 
 	public void checkExisting() {
 		Cursor c = mContentResolver.query(Games.CONTENT_URI, PROJECTION, Games.PATH + " IS NOT NULL", null, null);
-		
+
+		if (c == null)
+		{
+			Log.e(TAG, "cursor is null, database failure? URI: " + Games.CONTENT_URI);
+			return;
+		}
+
 		while (c.moveToNext())
 			if (!new File(c.getString(PATH)).exists()) {
 				ContentValues cv = new ContentValues();
@@ -296,7 +301,7 @@ public class StorageManager {
 
 				try {
 					if (scheme.equals(ContentResolver.SCHEME_CONTENT)) {
-						ftemp = File.createTempFile(unknownContent,null,Paths.tempDirectory());
+						ftemp = File.createTempFile(unknownContent, null, Paths.tempDirectory());
 						InputStream in = mContentResolver.openInputStream(game);
 						OutputStream out = new FileOutputStream(ftemp);
 						Utils.copyStream(in, out);
@@ -305,7 +310,7 @@ public class StorageManager {
 						ifid = Babel.examine(ftemp);
 
 						//TODO: obtain terp from Babel
-						String ext = "zcode";					
+						String ext = "zcode";
 						if (ifid.indexOf("TADS")==0) ext="gam";
 
 						fgame = new File(Paths.tempDirectory().getAbsolutePath() 
@@ -338,7 +343,7 @@ public class StorageManager {
 						return;
 					}
 				} catch (Exception e){
-					Log.i("HunkyPunk/StorageManagr",e.toString());
+					Log.e("HunkyPunk/StorageManagr", "Exception", e);
 				} finally {
 					if (scheme.equals(ContentResolver.SCHEME_CONTENT)) {
 						if (ftemp != null && ftemp.exists()) ftemp.delete();

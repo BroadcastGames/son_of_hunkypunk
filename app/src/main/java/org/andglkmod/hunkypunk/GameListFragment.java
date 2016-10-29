@@ -110,9 +110,12 @@ public class GameListFragment extends Fragment implements LoaderManager.LoaderCa
         return new CursorLoader(getContext(), HunkyPunk.Games.CONTENT_URI, null, null, null, null);
     }
 
+    private int onLoadFinishCallCount = 0;
+
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Log.i(TAG, "onLoadFinished swapCursor");
+        onLoadFinishCallCount++;
+        Log.v(TAG, "onLoadFinished swapCursor " + onLoadFinishCallCount);
         recyclerViewAdapter.swapCursor(data);
     }
 

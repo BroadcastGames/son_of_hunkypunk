@@ -62,7 +62,7 @@
 
         <provider
             android:name="org.andglkmod.hunkypunk.HunkyPunkProvider"
-            android:authorities="org.andglkmod.hunkypunk.HunkyPunk"
+            android:authorities="@string/config_authority"
             />
 
         <activity

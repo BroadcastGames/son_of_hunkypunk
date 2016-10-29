@@ -1,5 +1,16 @@
 apply plugin: 'com.android.application'
 
+/*
+Philosophy of moving more critical names into Gradle
+
+This allows independent story apps to be build by authors and published on the Google Play store
+without conflicting with the general-purpose Son of Hunky Punk app that is generically named and branded.
+
+ToDo:
+    1. Define a string for a 'startup game' and instead of a Game List go immediatly to the detail
+       screen of that 'startup game' out of the assets folder.
+ */
+
 dependencies {
     //For some reason in 23.2 'GestureDetectorCompat' is already final which results in exception
     //in org.twview.ClickItemTouchListener.
@@ -15,20 +26,30 @@ dependencies {
     compile 'org.greenrobot:eventbus:3.0.0'
 }
 
+// reference: https://blog.grandcentrix.net/how-to-install-different-app-variants-on-one-android-device
+def final apkApplicationId = 'org.andglkmod.hunkypunk'
+
 android {
     compileSdkVersion 24
     buildToolsVersion '24.0.3'
 
+    // the applicationId is now decoupled http://tools.android.com/tech-docs/new-build-system/applicationid-vs-packagename
     defaultConfig {
-        applicationId "org.andglkmod.hunkypunk"
+        applicationId apkApplicationId
         minSdkVersion 14
         targetSdkVersion 24
 
-        versionCode 12
-        versionName "0.9.5-BG1"
+        versionCode 13
+        versionName "0.9.6"
 
         vectorDrawables.useSupportLibrary = true
+
+        buildConfigField "String", "AUTHORITY", "\"org.andglkmod.hunkypunk.HunkyPunk\""
+
+        resValue "string", "app_name",         "Son of Hunky Punk"
+        resValue "string", "config_authority", "org.andglkmod.hunkypunk.HunkyPunk"
     }
+
     sourceSets.main {
         jni.srcDirs = [] // This prevents the auto generation of Android.mk
     }
@@ -39,4 +60,24 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+
+    productFlavors {
+        defaultFlavor {
+            logger.warn('productFlavors defaultFlavor running')
+        }
+
+        development {
+            versionNameSuffix '-BG1'
+            applicationId = apkApplicationId + ".dev"
+
+            buildConfigField "String", "AUTHORITY", "\"org.andglkmod.hunkypunk.dev.HunkyPunk\""
+
+            resValue "string", "app_name", "AADEV GrandSon of Hunky Punk"
+            resValue "string", "config_authority", "org.andglkmod.hunkypunk.dev.HunkyPunk"
+
+            logger.warn('productFlavors running')
+        }
+    }
+
+    println "    WHATIS version code to ${android.defaultConfig.versionCode}"
 }

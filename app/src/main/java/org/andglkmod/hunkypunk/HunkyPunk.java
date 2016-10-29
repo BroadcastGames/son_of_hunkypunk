@@ -27,7 +27,7 @@ import android.util.Log;
 
 public final class HunkyPunk {
 
-	public static final String AUTHORITY = "org.andglkmod.hunkypunk.HunkyPunk";
+	public static final String AUTHORITY = BuildConfig.AUTHORITY;
 	public static final Uri IF_DIRECTORY_URI = Uri.fromFile(Paths.ifDirectory());
 
 	private HunkyPunk() {}
