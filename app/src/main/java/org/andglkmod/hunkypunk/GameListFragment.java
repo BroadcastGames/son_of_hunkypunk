@@ -3,6 +3,7 @@ package org.andglkmod.hunkypunk;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -21,6 +22,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.ViewSwitcher;
 
 import org.andglkmod.hunkypunk.dummy.DummyContent;
+import org.andglkmod.hunkypunk.events.GameListEmptyEvent;
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * A fragment representing a list of Items.
@@ -104,6 +107,23 @@ public class GameListFragment extends Fragment implements LoaderManager.LoaderCa
         super.onActivityCreated(savedInstanceState);
         Log.i(TAG, "onActivityCreated LoadManager kickoff");
         getLoaderManager().initLoader(LOADMANAGER_GAMELIST_ID, null, this);
+
+
+        View.OnClickListener emptyListOnClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.go_to_ifdb:
+                        startActivity(new Intent(Intent.ACTION_DEFAULT, Uri.parse("http://ifdb.tads.org")));
+                        break;
+                    case R.id.download_preselected:
+                        EventBus.getDefault().post(new GameListEmptyEvent(GameListEmptyEvent.DOWNLOAD_PRESELECT_GAMES_SET0));
+                        break;
+                }
+            }
+        };
+        getView().findViewById(R.id.go_to_ifdb).setOnClickListener(emptyListOnClickListener);
+        getView().findViewById(R.id.download_preselected).setOnClickListener(emptyListOnClickListener);
     }
 
     @Override

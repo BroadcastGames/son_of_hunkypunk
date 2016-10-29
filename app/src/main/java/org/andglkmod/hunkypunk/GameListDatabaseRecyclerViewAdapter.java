@@ -64,7 +64,13 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
         String gameFilePath     = dataCursor.getString(columnIndex3);
         final String gameId0    = dataCursor.getString(columnIndex4);
 
-        gameFilePath = gameFilePath.replace("/storage/emulated/0/", "/SE0:");
+        // gameFilePath can come up null when the user deletes or moves the game file after previous discovery.
+        if (gameFilePath == null) {
+            gameFilePath = "missing";
+        } else {
+            // shorten the path
+            gameFilePath = gameFilePath.replace("/storage/emulated/0/", "/SE0:");
+        }
 
         holder.refPosition = position;
         holder.dataRecordId = dataRecordId;

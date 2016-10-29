@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 import org.andglkmod.hunkypunk.dummy.DummyContent;
 import org.andglkmod.hunkypunk.events.AppPermissionChangeEvent;
 import org.andglkmod.hunkypunk.events.BackgroundScanEvent;
+import org.andglkmod.hunkypunk.events.GameListEmptyEvent;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -71,8 +73,8 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
         }
         else
         {
-            // permission not granted, so don't do scan yet.
-            Log.i(TAG, "GameListAcitivty didn't detect permissions to scan and use storage, sending to Welcome fragment");
+            // permission not granted, so don't do scan for game files yet.
+            Log.i(TAG, "GameListActivity didn't detect permissions to scan and use storage, sending to Welcome fragment");
             changeMainFragment(1);
         }
     }
@@ -207,7 +209,7 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
     Use the Main thread so we can interact with User Interface.
      */
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(BackgroundScanEvent event) {
+    public void onMainThreadEvent(BackgroundScanEvent event) {
         switch (event.eventCode)
         {
             case BackgroundScanEvent.ECODE_GAME_FOLDER_SCAN_COMPLETED:
@@ -220,6 +222,22 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
                 break;
         }
     };
+
+    /*
+    Use the Main thread so we can interact with User Interface.
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMainThreadEvent(GameListEmptyEvent event) {
+        switch (event.eventCode) {
+            case GameListEmptyEvent.DOWNLOAD_PRESELECT_GAMES_SET0:
+                gameListHelper.downloadPreselected();
+                break;
+            case GameListEmptyEvent.DOWNLOAD_COMPLETED_RECHECK0:
+                // Recreate the entire Activity
+                recreate();
+                break;
+        }
+    }
 
     @Override
     public void onStart() {

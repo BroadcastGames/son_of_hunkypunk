@@ -19,13 +19,32 @@
         app:layoutManager="LinearLayoutManager"
         tools:listitem="@layout/fragment_gamelist_item" />
 
-
-    <TextView
-        android:id="@+id/empty_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:visibility="gone"
-        android:text="@string/no_data_available" />
+    <!-- android:empty is a pre-defined Android ID that will appear when a RecyclerView is empty -->
+    <LinearLayout android:id="@id/android:empty"
+                  android:orientation="vertical"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_gravity="center"
+                  android:layout_margin="10sp"
+                  android:layout_weight="1"
+                  android:gravity="center"
+        >
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/empty_list"
+            />
+        <Button android:id="@+id/go_to_ifdb"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/go_to_ifdb"
+            />
+        <Button android:id="@+id/download_preselected"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/download_preselected"
+            />
+    </LinearLayout>
 
 </ViewSwitcher>

@@ -12,7 +12,9 @@ import android.util.Log;
 import android.widget.Toast;
 
 import org.andglkmod.glk.Utils;
+import org.andglkmod.hunkypunk.events.GameListEmptyEvent;
 import org.andglkmod.ifdb.IFDb;
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -51,7 +53,8 @@ public class GameListHelper {
             "http://www.ifarchive.org/if-archive/games/competition98/tads/plant/plant.gam",
             "http://www.ifarchive.org/if-archive/games/zcode/Bronze.zblorb",
             "http://www.ifarchive.org/if-archive/games/zcode/theatre.z5",
-            "http://hunkypunk.googlecode.com/files/uu1.gam"
+            // opened project Github.com Issue #39 regarding this URL:
+            // ToDo: replace this entry as link is no longer valid "http://hunkypunk.googlecode.com/files/uu1.gam"
     };
 
 
@@ -189,6 +192,7 @@ public class GameListHelper {
         downloadThread = new Thread() {
             @Override
             public void run() {
+                Log.i(TAG, "downloadPreselected on " + Thread.currentThread());
                 int i = 0;
                 for (String s : GameListHelper.BEGINNER_GAMES) {
                     synchronized (this) {
@@ -218,6 +222,7 @@ public class GameListHelper {
                 }
 
                 progressDialog.dismiss();
+                EventBus.getDefault().post(new GameListEmptyEvent(GameListEmptyEvent.DOWNLOAD_COMPLETED_RECHECK0));
             }
         };
         downloadThread.setName("downloadThread");
