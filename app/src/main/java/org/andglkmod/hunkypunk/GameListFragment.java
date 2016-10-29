@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ViewSwitcher;
 
 import org.andglkmod.hunkypunk.dummy.DummyContent;
 
@@ -74,9 +75,9 @@ public class GameListFragment extends Fragment implements LoaderManager.LoaderCa
         itemClickAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.item_press_animation_shake0);
 
         // Set the adapter
-        if (view instanceof RecyclerView) {
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recyclerViewGameList);
+        //if (recyclerView instanceof RecyclerView) {
             Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
@@ -93,7 +94,7 @@ public class GameListFragment extends Fragment implements LoaderManager.LoaderCa
                     recyclerViewAdapter.setParentClickListener(this);
                     break;
             }
-        }
+        //}
 
         return view;
     }
@@ -111,12 +112,22 @@ public class GameListFragment extends Fragment implements LoaderManager.LoaderCa
     }
 
     private int onLoadFinishCallCount = 0;
+    private boolean noItemsMessageOnDisplay = false;
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         onLoadFinishCallCount++;
         Log.v(TAG, "onLoadFinished swapCursor " + onLoadFinishCallCount);
         recyclerViewAdapter.swapCursor(data);
+        if (recyclerViewAdapter.getItemCount() == 0)
+        {
+            if (!noItemsMessageOnDisplay)
+            {
+                noItemsMessageOnDisplay = true;
+                ViewSwitcher viewSwitcher = (ViewSwitcher) getView().findViewById(R.id.switcherGameList);
+                viewSwitcher.showNext();
+            }
+        }
     }
 
     @Override

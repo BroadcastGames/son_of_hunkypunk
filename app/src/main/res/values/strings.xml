@@ -93,4 +93,6 @@
     <string name="placeholder">Long-press any object to fill the placeholder</string>
     <string name="oldGamesList">Old GamesList</string>
     <string name="runScanForGames">Scan Folders</string>
+    <string name="no_data_available">No story/games found on this system!\n ToDo: Implement the ListActivity options for priming a virgin install.
+    \n For now, download some Z-Machine or Glulx games into your /sdcard/Downloads folder and restart this app to see if they appear!</string>
 </resources>
