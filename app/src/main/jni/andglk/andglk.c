@@ -792,8 +792,6 @@ void gli_window_print(window_t *win)
         return;
     }
 
-    LOGD("win_txt.c calling Java putStringFromNative '%s' len %d", outputBuffer, outputBuffer_count);
-
     jstr = (*env)->NewString(env, outputBuffer, outputBuffer_count);
 
     // _Stream seems global?
@@ -818,14 +816,14 @@ Twisty app is a good reference for how to go about doing C code side buffer mana
 static void gli_window_buffer_char(window_t *win, glui32 ch)
 {
     // This is a decent design, it buffers text in C level for each window
+    // -2 value allows for double-char length Unicode values > 0xFFFF
     if (outputBuffer_count > OUTBUFCHARS - 2) {
-        LOGV("andglk win_txt.c gli_window_buffer_char calling central gli_window_print print char %d", ch);
         gli_window_print(win);
     }
 
     // Inline unicode chars beyond 16-bit values are not created by current 6M62 build of Inform 7
     if (ch > 0xFFFF) {
-        LOGV("andglk win_txt.c gli_window_buffer_char buffering gli_window_print print char %d BRANCH_A00", ch);
+        // LOGV("andglk win_txt.c gli_window_buffer_char buffering gli_window_print print char %d BRANCH_A00", ch);
         jchar surr1, surr2;
 
         ch -= 0x10000;
@@ -835,7 +833,7 @@ static void gli_window_buffer_char(window_t *win, glui32 ch)
         outputBuffer[outputBuffer_count++] = surr1;
         outputBuffer[outputBuffer_count++] = surr2;
     } else {
-        LOGV("win_txt.c gli_window_buffer_char calling central gli_window_print print char %d BRANCH_A01", ch);
+        // LOGV("win_txt.c gli_window_buffer_char calling central gli_window_print print char %d BRANCH_A01", ch);
         // ok, so this is putting a single jchar into the buffer
         outputBuffer[outputBuffer_count++] = (jchar)ch;
     }
@@ -852,7 +850,7 @@ static void gli_window_buffer_char(window_t *win, glui32 ch)
 
 void gli_put_char2(stream_t *str, glui32 ch)
 {
-    LOGV("stream.c gli_put_char SPOT_Z0 ch %d", ch);
+    // LOGV("stream.c gli_put_char SPOT_Z0 ch %d", ch);
     if (!str || !str->writable)
         return;
 
@@ -866,7 +864,7 @@ void gli_put_char2(stream_t *str, glui32 ch)
         LOGE("andglk.c grafted in code from Twisty does not implement this path correctly, SPOT__AA001");
         //fstream_putc(str->data, ch);
     } else if (str->type == strtype_Window) {
-        LOGV("stream.c gli_put_char to gli_window_putc SPOT_Z1_0");
+        // LOGV("stream.c gli_put_char to gli_window_putc SPOT_Z1_0");
         // gli_window_putc(str->data, ch);
         gli_window_buffer_char(str->data, ch);
     } else {
@@ -876,7 +874,7 @@ void gli_put_char2(stream_t *str, glui32 ch)
 
 void glk_put_char_uni(glui32 ch)
 {
-	LOGV("andglk.c GLK glk_put_char_uni ch %d", ch);
+	//LOGV("andglk.c GLK glk_put_char_uni ch %d", ch);
 
 	// Use the Twisty app hacked-in logic or the original Son of Hunky Punk functions that have problems with Unicode?
 	if (1==2)
@@ -886,7 +884,7 @@ void glk_put_char_uni(glui32 ch)
 	}
 	else
 	{
-		// Uses a hacked-up version of the logic Twisy follows that does get Unicode correctly preserved up to the Java side / GUI.
+		// Uses a hacked-up version of the logic Twisty follows that does get Unicode correctly preserved up to the Java side / GUI.
 		gli_put_char2(glk_stream_get_current(), ch);
 	}
 }
@@ -915,7 +913,7 @@ void glk_put_char_stream(strid_t str, unsigned char ch)
 		}
 		//fflush(str->file);
 	} else {
-	    LOGV("andglk.c glk_put_char_stream calling Java putChar");
+	    //LOGV("andglk.c glk_put_char_stream calling Java putChar");
 		JNIEnv *env = JNU_GetEnv();
 		static jmethodID mid = 0;
 		if (mid == 0)
@@ -970,7 +968,7 @@ void glk_put_buffer_stream(strid_t str, char *s, glui32 len)
 		}
 		//fflush(str->file);
 	} else {
-	    LOGD("andglk.c glk_put_buffer_stream calling Java puString");
+	    //LOGD("andglk.c glk_put_buffer_stream calling Java puString");
 		JNIEnv *env = JNU_GetEnv();
 		static jmethodID mid = 0;
 		if (mid == 0)
@@ -998,7 +996,7 @@ void glk_set_style(glui32 styl)
 
 void glk_set_style_stream(strid_t str, glui32 styl)
 {
-	LOGD("glk_set_style_stream %d", styl);
+	// LOGD("glk_set_style_stream %d", styl);
 	if (!str || str->type != strtype_Window)
 		return;
 
@@ -1008,7 +1006,7 @@ void glk_set_style_stream(strid_t str, glui32 styl)
 		mid = (*env)->GetMethodID(env, _Stream, "setStyle", "(J)V");
 
 	(*env)->CallVoidMethod(env, *(str->st), mid, (jlong) styl);
-    LOGD("AFTER glk_set_style_stream %d", styl);
+    // LOGD("AFTER glk_set_style_stream %d", styl);
 }
 
 void garglk_set_reversevideo(glui32 reverse)

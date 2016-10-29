@@ -26,6 +26,8 @@ import java.util.List;
 
 import android.util.Log;
 
+import org.andglkmod.hunkypunk.EasyGlobalsA;
+
 public abstract class Stream extends CPointed {
 	public final static int SEEKMODE_START = 0;
 	public final static int SEEKMODE_CURRENT = 1;
@@ -91,7 +93,9 @@ public abstract class Stream extends CPointed {
 */	
 	public void putChar(char c) {
 		try {
-			Log.v("Glk/Java", "Stream.java putChar '" + c + "'");
+			if (EasyGlobalsA.glk_c_to_java_char_loggingA) {
+				Log.v("Glk/Java", "Stream.java putChar '" + c + "'");
+			}
 			doPutChar(c);
 			mWritten++;
 		} catch (IOException e) {
