@@ -355,10 +355,16 @@ public class IFDb {
 		URL source = new URL(coverArt);
 		File destination = HunkyPunk.getCover(ifid);
 
-		FileOutputStream fos = new FileOutputStream(destination);
-		Utils.copyStream(source.openStream(), fos);
-		
-		fos.close();
+		if (destination.canWrite()) {
+			FileOutputStream fos = new FileOutputStream(destination);
+			Utils.copyStream(source.openStream(), fos);
+
+			fos.close();
+		}
+		else
+		{
+			Log.e(TAG, "File canWrite false on " + destination);
+		}
 	}
 
 	private static URL urlOfIfid(String ifid) throws MalformedURLException {

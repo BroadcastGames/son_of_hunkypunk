@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
+import org.andglkmod.SharedPrefKeys;
+
 import java.io.File;
 
 /**
@@ -36,6 +38,16 @@ public class AppStartupCommonA {
         {
             Paths.appDataDirectory = runContext.getFilesDir().getAbsolutePath();
             Log.i("AppStartupCommonA", "Paths.appDataDirectory set to " + Paths.appDataDirectory);
+        }
+
+        /** gets the If-Path from SharedPreferences, which could be changed at the last session
+         *  Note: This code is confusing as it creates a unique SharedPref file with the sane name as the String Key.
+         *  ToDo: just use Default Shared Preferences for the app?
+         *  */
+        String path = runContext.getSharedPreferences(SharedPrefKeys.KEY_RootPath0, Context.MODE_PRIVATE).getString(SharedPrefKeys.KEY_RootPath0, "");
+        if (! path.equals("")) {
+            Log.w("AppStartupCommonA", "setting setIfDirectory path paths to: " + path);
+            Paths.setIfDirectory(new File(path));
         }
     }
 }

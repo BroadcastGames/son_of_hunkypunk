@@ -70,22 +70,24 @@ public class Styles {
 	 * @return     the new updated style
 	 */
 	private static int determineStyle(Context context, int styl) {
-		if (styl == Glk.STYLE_HEADER && context.getSharedPreferences("Night", Context.MODE_PRIVATE).getBoolean("NightOn", false))
+		boolean preferenceNightOn = context.getSharedPreferences("Night", Context.MODE_PRIVATE).getBoolean("NightOn", false);
+
+		if (styl == Glk.STYLE_HEADER && preferenceNightOn)
 			styl = Glk.STYLE_NIGHT_HEADER;
 
-		if (styl == Glk.STYLE_SUBHEADER && context.getSharedPreferences("Night", Context.MODE_PRIVATE).getBoolean("NightOn", false))
+		if (styl == Glk.STYLE_SUBHEADER && preferenceNightOn)
 			styl = Glk.STYLE_NIGHT_SUBHEADER;
 
-		if (styl == Glk.STYLE_INPUT && context.getSharedPreferences("Night", Context.MODE_PRIVATE).getBoolean("NightOn", false))
+		if (styl == Glk.STYLE_INPUT && preferenceNightOn)
 			styl = Glk.STYLE_NIGHT;
 
-		if (styl == Glk.STYLE_NIGHT && !(context.getSharedPreferences("Night", Context.MODE_PRIVATE).getBoolean("NightOn", false)))
+		if (styl == Glk.STYLE_NIGHT && ! preferenceNightOn)
 			styl = Glk.STYLE_INPUT;
 
-		if (styl == Glk.STYLE_PREFORMATTED && context.getSharedPreferences("Night", Context.MODE_PRIVATE).getBoolean("NightOn", false))
+		if (styl == Glk.STYLE_PREFORMATTED && preferenceNightOn)
 			styl = Glk.STYLE_NIGHT_FORMAT;
 
-		if (styl == Glk.STYLE_NIGHT_FORMAT && !(context.getSharedPreferences("Night", Context.MODE_PRIVATE).getBoolean("NightOn", false)))
+		if (styl == Glk.STYLE_NIGHT_FORMAT && ! preferenceNightOn)
 			styl = Glk.STYLE_PREFORMATTED;
 
 		return styl;
