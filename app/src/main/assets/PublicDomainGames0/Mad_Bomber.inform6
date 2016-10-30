@@ -1,0 +1,288 @@
+! The Mad Bomber - a Z-Machine version of the classic Bomber game
+!
+! by Neil James Brown. Release 3 / 971123. This game is Public Domain.
+!
+! Needs an interpreter that supports timed input. Colour recommended!
+
+Switches s;
+Release 3;
+Serial "971123";
+
+Array buildings -> 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;
+Global hi_score = 50;
+Array hi_scorer -> "The Mad Bomber         ";
+Global score = 0;
+Global skill_level = 0;
+Global height = 0;
+Global width = 0;
+Global win_flag = 0;
+Global dead_flag = 0;
+Global use_colour = 1;
+
+[ Main;
+  Bomber();
+  quit;
+];
+
+[ Bomber i j option temp1;
+  i=$1->0;
+  if (i&1==0) use_colour=0; ! can't use colour - darn it!
+  width=0->33;
+  height=$20->0;
+  if (height>18) height=18;
+  if (i&128==0 || height<15 || width<60)
+  { print "~The Mad Bomber~ has detected one or more problems with your
+     interpreter:^^";
+    if (height<15) print "- The screen height is less than 15 characters
+     high.^";
+    if (width<60) print "- The screen width is less than 60 characters
+     wide.^";
+    if (i&128==0) print "- This interpreter cannot handle timed events.^";
+    print "^Unfortunately, this means that the game is unable to run. Please
+     reconfigure your interpreter, or change for one that fully supports the
+     Z-machine.^^[Please press any key to exit.]^^";
+    @read_char 1 0 0 j;
+    rtrue;
+  }
+  @erase_window $ffff;
+  do
+  { style bold;
+    print "^^^^THE MAD BOMBER^";
+    style roman;
+    print "(3.971123 / Inform 6.13)^^";
+    print "by NJB 1997^^^High score is ", hi_score, " by ";
+    for (temp1=0: temp1<23: temp1++)
+    { print (char) hi_scorer->temp1;
+    }
+    skill_level=0;
+    print "^^^Press <SPACE> to play, I for information or Q to quit.^";
+    do
+    { @read_char 1 0 0 option;
+    } until (option==32 or 73 or 105 or 81 or 113);
+    if (option==32)
+    { score=0;
+      do
+      { BomberGame();
+      } until (dead_flag==1);
+      if (score>hi_score)
+      { hi_score=score;
+        for (temp1=0: temp1<=22: temp1++)
+        { hi_scorer->temp1=32;
+        }
+        @erase_window $ffff;
+        @split_window height;
+        @set_window 1;
+        @set_cursor 2 1;
+        print "Enter your name:";
+        temp1=0;
+        @set_cursor 4 1;
+        do
+        { @read_char 1 0 0 option;
+          if (option>31 && option<127)
+          { if (temp1<22)
+            { hi_scorer->temp1=option;
+              temp1++;
+              @set_cursor 4 temp1;
+              print (char) option;
+            }
+          }
+          if (option==127 or 8)
+          { if (temp1>0)
+            { @set_cursor 4 temp1;
+              print " ";
+              @set_cursor 4 temp1;
+              temp1--;
+              hi_scorer->temp1=32;
+            }
+          }
+        } until (option==13);
+      }
+      @split_window 1;
+      @set_window 0;
+      @erase_window $ffff;
+    }
+    if (option==73 or 105)
+    { @erase_window $ffff;
+      print "^^^^It is examination day at ~The Mad Bomber School of Flying~,
+       but a miscalculation has resulted in the planes not having enough
+       fuel to return to their airstrip. Fortunately, all Mad Bomber planes
+       have an infinite supply of bombs on board. An idea is hatched - the
+       trainee pilots must completely level the cities they are over in order
+       to land safely. The authorities may not be too impressed with this
+       strategy, but we'll worry about that later!^^<SPACE> drops a bomb
+       (you can only drop one bomb at a time).^^<P> pauses the game, with any
+       key resuming.^^<Q> quits the current game.^^^[Press any key to
+       continue]^";
+      @read_char 1 0 0 temp1;
+      @erase_window $ffff;
+    }
+  } until (option==81 or 113);
+  @erase_window $ffff;
+  print "^^^^^^^Thanks for playing!^";
+  rtrue;
+];
+
+[ BomberGame i j x y bx by temp1 temp2 temp3 pausetime;
+  skill_level++;
+  if (skill_level<5) pausetime=3;
+  else
+  { if (skill_level<10) pausetime=2;
+    else pausetime=1;
+  }
+  win_flag=0;
+  dead_flag=0;
+  @erase_window $ffff;
+  x=2; y=2;
+  @split_window height;
+  @set_window 1;
+  if (use_colour==1) @set_colour 1 2;
+  else style reverse;
+  @set_cursor 15 1;
+  spaces(42);
+  @set_cursor 1 1;
+  spaces(42);
+  for (i=1: i<=15: i++)
+  { @set_cursor i 1;
+    print " ";
+    @set_cursor i 42;
+    print " ";
+  }
+  if (use_colour==1)
+  { @set_colour 1 6;
+    for (j=2: j<=14: j++)
+    { @set_cursor j 2;
+      spaces(40);
+    }
+  }
+  else
+  { style roman;
+  }
+  for (i=0: i<20: i++)
+  { switch(skill_level)
+    { 1: by=random(8);
+      2: by=random(10);
+      3: by=random(5)+5;
+      default: by=random(3)+7;
+    } 
+    buildings->i=by;
+    if (use_colour==1)
+    { do
+      { temp1=random(7)+1;
+      } until (temp1~=6);
+      @set_colour 1 temp1;
+    }
+    for (j=(15-by): j<15: j++)
+    { bx=2+(i*2);
+      @set_cursor j bx;
+      if (use_colour==1) print "  ";
+      else print "[]";
+    }
+  }
+  j=1;
+  bx=0;
+  by=0;
+  @set_colour 1 1;
+  @set_cursor 5 46;
+  print "Score:";
+  @set_cursor 8 46;
+  print "High score:";
+  @set_cursor 9 46;
+  print hi_score;
+  UpdateScore();
+  @set_cursor y x;
+  @set_colour 5 6;
+  print "-}";
+  do                              ! Main game loop
+  { @set_cursor 1 width;
+    @read_char 1 1 TimeOut i;
+    if (i==80 or 112) BomberPause();
+    if (i==81 or 113) dead_flag=1;
+    if (bx>0)
+    { @set_cursor by bx;
+      @set_colour 1 6;
+      print " ";
+      by++;
+      temp1=(bx/2)-1;
+      temp2=(15-(buildings->temp1));
+      if (temp2==by)
+      { if (buildings->temp1>0)
+        { score=score+3;
+          UpdateScore();
+        }
+        if (buildings->temp1>3)
+        { for (temp3=temp2: temp3<(temp2+3): temp3++)
+          { @set_cursor temp3 bx;
+            @set_colour 1 6;
+            print "  ";
+          }
+          buildings->temp1=(buildings->temp1)-3;
+        }
+        else
+        { for (temp3=temp2: temp3<=14: temp3++)
+          { @set_cursor temp3 bx;
+            @set_colour 1 6;
+            print "  ";
+          }
+          buildings->temp1=0;
+        }
+        bx=0;
+        by=0;
+      }
+      if (by>15) { bx=0; by=0; }
+      if (bx>0)
+      { @set_cursor by bx;
+        @set_colour 9 6;
+        print "*";
+      }
+    }
+    if (i==32 && bx==0)
+    { bx=x;
+      by=y;
+    }
+    j++;
+    if (j==pausetime)
+    { j=1;
+      @set_cursor y x;
+      @set_colour 1 6;
+      print "  ";
+      x=x+2;
+      if (x==42)
+      { score=score+1;
+        UpdateScore();
+        if (y<14) { x=2; y++; }
+        else win_flag=1;
+      }
+      @set_cursor y x;
+      temp1=(x/2)-1;
+      temp2=(15-(buildings->temp1));
+      if (temp2==y)
+      { @set_colour 3 5;
+        print "##";
+        for (i=0: i<=10: i++)
+        { @read_char 1 1 TimeOut j;
+        }
+        dead_flag=1;
+      }
+      else 
+      { @set_colour 5 6;
+        print "-}";
+      }
+    }
+  }
+  until (win_flag==1 || dead_flag==1);
+  @set_colour 1 1;
+];
+
+[ TimeOut;
+  rtrue;
+];
+
+[ BomberPause spare;
+  @read_char 1 spare;
+];
+
+[ UpdateScore;
+  @set_colour 1 1;
+  @set_cursor 6 46;
+  print score;
+];
