@@ -20,18 +20,27 @@
 package org.andglkmod.hunkypunk;
 
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.File;
 
+/*
+ToDO: this needs rework. Static doesn't have context, so important that app startup stuff values here.
+ */
 public abstract class Paths {
     private static File ifDirectory;
+    // previous value: "Android/data/org.andglkmod.hunkypunk"
+    public static String appDataDirectory = null;
+    public static File appCardDirectory = null;
 
+    // Name: "card" means "SD card".
+    // Rename this method to "appRootGameDirectory()" because may not always be "SD Card".
     public static File cardDirectory() {
-        return new File(Environment.getExternalStorageDirectory().getPath());
+        return appCardDirectory;
     }
 
     public static File dataDirectory() {
-        File f = new File(cardDirectory(), "Android/data/org.andglkmod.hunkypunk");
+        File f = new File(cardDirectory(), appDataDirectory);
         if (!f.exists()) f.mkdir();
         return f;
     }
@@ -57,8 +66,17 @@ public abstract class Paths {
     public static File ifDirectory() {
         if (ifDirectory != null)
             return ifDirectory;
+
+        // this code only executes once until cached, so we can be slow here
         File f = new File(cardDirectory(), "Interactive Fiction");
-        if (!f.exists()) f.mkdir();
+        if (!f.exists())
+        {
+            boolean goodCreate = f.mkdir();
+            if (!goodCreate)
+            {
+                Log.e("Paths", "unable to create essential ifDirectory? " + f);
+            }
+        }
         return f;
     }
 
@@ -69,5 +87,13 @@ public abstract class Paths {
         File f = new File(ifDirectory(), "transcripts");
         if (!f.exists()) f.mkdir();
         return f;
+    }
+
+    public static void setIfDirectoryAppDefault() {
+        setIfDirectory(new File(getIfDirectoryAppDefaultString()));
+    }
+
+    public static String getIfDirectoryAppDefaultString() {
+        return Paths.cardDirectory().getPath() + "/Interactive Fiction";
     }
 }

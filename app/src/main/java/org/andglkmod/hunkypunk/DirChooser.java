@@ -55,7 +55,7 @@ public class DirChooser extends DialogFragment {
 
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                /** sets the just selected directory and push to SharedPreferneces */
+                /** sets the just selected directory and push to SharedPreferences */
                 Paths.setIfDirectory(currentPath);
                 SharedPreferences sharedPrefs = getActivity().getSharedPreferences("ifPath", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPrefs.edit();
