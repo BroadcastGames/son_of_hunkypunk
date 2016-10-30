@@ -253,7 +253,7 @@ public class PreferencesActivity
             ListPreference lPref = (ListPreference) pref;
             String desc = lPref.getValue();
             pref.setSummary(desc);
-            if(desc.equals("Droid Serif (default)"))
+            if (desc.equals("Droid Serif (default)"))
                 pref.setSummary("Droid Serif");
         } else if (pref instanceof PreferenceScreen) {
             setSummaryAll((PreferenceScreen) pref);

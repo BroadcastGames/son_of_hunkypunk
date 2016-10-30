@@ -86,6 +86,9 @@ public abstract class Paths {
 
 // ToDo: app startup, when is preferences populating this?
         Log.e("Paths", "ifDirectory is setting it's own value, probably DO NOT WANT THIS");
+        if (1==1) {
+            throw new RuntimeException("who set this ifDirectory?");
+        }
         // this code only executes once until cached, so we can be slow here
         File f = new File(cardDirectory(), "Interactive Fiction");
         if (!f.exists())

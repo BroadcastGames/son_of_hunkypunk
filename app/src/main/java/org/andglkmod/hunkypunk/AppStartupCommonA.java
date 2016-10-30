@@ -28,7 +28,7 @@ public class AppStartupCommonA {
         }
     }
 
-    public void setupAppStarting(Context runContext) {
+    synchronized public void setupAppStarting(Context runContext) {
         if (Paths.appCardDirectory == null)
         {
             Paths.appCardDirectory = new File(Environment.getExternalStorageDirectory().getPath());
@@ -45,7 +45,7 @@ public class AppStartupCommonA {
             }
             else
             {
-                Log.i("AppStartupCommonA", "Paths.appDataDirectory set to " + Paths.appDataDirectory);
+                Log.i("AppStartupCommonA", "canWrite() Paths.appDataDirectory set to " + Paths.appDataDirectory);
             }
         }
 
@@ -55,8 +55,16 @@ public class AppStartupCommonA {
          *  */
         String path = runContext.getSharedPreferences(SharedPrefKeys.KEY_RootPath0, Context.MODE_PRIVATE).getString(SharedPrefKeys.KEY_RootPath0, "");
         if (! path.equals("")) {
-            Log.w("AppStartupCommonA", "setting setIfDirectory path paths to: " + path);
+            // Shared Preferences has no value, so Application default.
+            Log.w("AppStartupCommonA", "Paths.java setting setIfDirectory path paths to SharedPreferences value: " + path);
             Paths.setIfDirectory(new File(path));
+        }
+        else
+        {
+            // Shared Preferences has no value, so Application default.
+            String defaultPath = Paths.appDataDirectory;
+            Log.w("AppStartupCommonA", "Paths.java setting setIfDirectory path to default value: " + defaultPath);
+            Paths.setIfDirectory(new File(defaultPath));
         }
     }
 }
