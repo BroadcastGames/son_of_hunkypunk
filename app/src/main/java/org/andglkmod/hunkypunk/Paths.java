@@ -67,6 +67,8 @@ public abstract class Paths {
         if (ifDirectory != null)
             return ifDirectory;
 
+// ToDo: app startup, when is prefrences populating this?
+        Log.e("Paths", "ifDirectory is setting it's own value, probably DO NOT WANT THIS");
         // this code only executes once until cached, so we can be slow here
         File f = new File(cardDirectory(), "Interactive Fiction");
         if (!f.exists())
@@ -80,20 +82,38 @@ public abstract class Paths {
         return f;
     }
 
-    public static void setIfDirectory(File file) {
-        ifDirectory = file;
-    }
     public static File transcriptDirectory() {
         File f = new File(ifDirectory(), "transcripts");
         if (!f.exists()) f.mkdir();
         return f;
     }
 
+
+    public static void setIfDirectory(File file) {
+        Log.i("Paths", "setIfDirectory to " + file.getPath());
+
+        if (! file.exists())
+        {
+            boolean goodCreate = file.mkdirs();
+            Log.w("Paths", "setIfDirectory to " + file.getPath() + " mkdirs() good? " + goodCreate);
+        }
+
+        ifDirectory = file;
+    }
+
     public static void setIfDirectoryAppDefault() {
         setIfDirectory(new File(getIfDirectoryAppDefaultString()));
     }
 
+    public static void setIfDirectoryAppDefault2() {
+        setIfDirectory(new File(getIfDirectoryAppDefault2String()));
+    }
+
     public static String getIfDirectoryAppDefaultString() {
         return Paths.cardDirectory().getPath() + "/Interactive Fiction";
+    }
+
+    public static String getIfDirectoryAppDefault2String() {
+        return Paths.appDataDirectory + "/StoryFiles";
     }
 }

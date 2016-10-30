@@ -17,6 +17,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.andglkmod.SharedPrefKeys;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -57,9 +59,9 @@ public class DirChooser extends DialogFragment {
             public void onClick(DialogInterface dialog, int which) {
                 /** sets the just selected directory and push to SharedPreferences */
                 Paths.setIfDirectory(currentPath);
-                SharedPreferences sharedPrefs = getActivity().getSharedPreferences("ifPath", Context.MODE_PRIVATE);
+                SharedPreferences sharedPrefs = getActivity().getSharedPreferences(SharedPrefKeys.KEY_RootPath0, Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPrefs.edit();
-                editor.putString("ifPath", Paths.ifDirectory().getAbsolutePath());
+                editor.putString(SharedPrefKeys.KEY_RootPath0, Paths.ifDirectory().getAbsolutePath());
                 editor.commit();
 
                 try {

@@ -35,10 +35,12 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
+import org.andglkmod.SharedPrefKeys;
 import org.andglkmod.glk.Glk;
 
 
@@ -159,15 +161,41 @@ public class PreferencesActivity
                     Toast.makeText(PreferencesActivity.this, "You have set the default directory.", Toast.LENGTH_SHORT).show();
 
                     /* pushes the default If Directory to SharedPreferences */
-                    SharedPreferences sharedPrefs = getSharedPreferences("ifPath", Context.MODE_PRIVATE);
+                    SharedPreferences sharedPrefs = getSharedPreferences(SharedPrefKeys.KEY_RootPath0, Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPrefs.edit();
-                    editor.putString("ifPath", Paths.ifDirectory().getAbsolutePath());
+                    String pathWriteValue = Paths.ifDirectory().getAbsolutePath();
+                    Log.w("PreferencesActivity", "paths putting path into shared preferences: " + pathWriteValue);
+                    editor.putString(SharedPrefKeys.KEY_RootPath0, pathWriteValue);
                     editor.commit();
 
                     return false;
                 }
             });
         }
+
+        final Preference dpref2 = findPreference("defaultif2");
+        dpref2.setSummary(Paths.getIfDirectoryAppDefault2String());
+        if (dpref2 != null) {
+            dpref2.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Paths.setIfDirectoryAppDefault2(); //set Path as default
+
+                    Toast.makeText(PreferencesActivity.this, "You have set the default directory.", Toast.LENGTH_SHORT).show();
+
+                    /* pushes the default If Directory to SharedPreferences */
+                    SharedPreferences sharedPrefs = getSharedPreferences(SharedPrefKeys.KEY_RootPath0, Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                    String pathWriteValue = Paths.ifDirectory().getAbsolutePath();
+                    Log.w("PreferencesActivity", "paths putting path into shared preferences: " + pathWriteValue);
+                    editor.putString(SharedPrefKeys.KEY_RootPath0, pathWriteValue);
+                    editor.commit();
+
+                    return false;
+                }
+            });
+        }
+
         /* Refreshes the summary of SetIF before the listView is shown. */
         getListView().getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override

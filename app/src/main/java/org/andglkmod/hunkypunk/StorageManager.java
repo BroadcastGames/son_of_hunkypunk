@@ -391,7 +391,7 @@ public class StorageManager {
 					}
 
 					String src = fgame.getAbsolutePath();
-					String dst = Paths.ifDirectory().getAbsolutePath()+"/"+fgame.getName();		
+					String dst = Paths.ifDirectory().getAbsolutePath() + "/" + fgame.getName();
 					String installedPath = gameInstalledFilePath(fgame);
 
 					if (installedPath == null || !(new File(installedPath).exists())) {

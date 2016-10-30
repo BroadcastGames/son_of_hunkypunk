@@ -42,8 +42,12 @@
             android:title="@string/add" />
         <Preference
             android:key="defaultif"
-            android:summary="Your default IF-Directory"
+            android:summary="Your default IF-Directory SD Card"
             android:title="@string/ifdef" />
+        <Preference
+            android:key="defaultif2"
+            android:summary="Your default IF-Directory filesDir()"
+            android:title="@string/ifdef2" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Night Mode">
         <SwitchPreference

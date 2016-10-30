@@ -11,6 +11,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.andglkmod.SharedPrefKeys;
 import org.andglkmod.glk.Utils;
 import org.andglkmod.hunkypunk.events.GameListEmptyEvent;
 import org.andglkmod.ifdb.IFDb;
@@ -89,7 +90,7 @@ public class GameListHelper {
     public void cleanDatabase() {
         Log.i(TAG, "cleanDatabase");
         /** gets the If-Path from SharedPrefences, which could be changed at the last session */
-        String path = parentContext.getSharedPreferences("ifPath", MODE_PRIVATE).getString("ifPath", "");
+        String path = parentContext.getSharedPreferences(SharedPrefKeys.KEY_RootPath0, MODE_PRIVATE).getString(SharedPrefKeys.KEY_RootPath0, "");
         if (!path.equals(""))
             Paths.setIfDirectory(new File(path));
 
