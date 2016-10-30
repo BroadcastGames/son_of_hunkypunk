@@ -46,6 +46,7 @@ import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
+import android.util.Log;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -311,6 +312,12 @@ public class GameDetails extends AppCompatActivity implements OnClickListener {
             sb.append('\n');
         }
 
+        if (mQuery.getString(PATH) == null)
+        {
+            Log.e(TAG, "mQuery PATH got null");
+            return;
+        }
+
         mGameFile = new File(mQuery.getString(PATH));
 
         String terp = getTerp();
@@ -397,6 +404,13 @@ public class GameDetails extends AppCompatActivity implements OnClickListener {
     }
 
     private void openGame() {
+        if (mGameFile == null)
+        {
+            // ToDo: disable RUN button when mGameFile is null and never call this?
+            Log.e(TAG, "openGame got null mGameFile");
+            return;
+        }
+
         Intent intent = new Intent(Intent.ACTION_VIEW,
                 Uri.parse(mGameFile.getAbsolutePath()),
                 this,
@@ -407,6 +421,8 @@ public class GameDetails extends AppCompatActivity implements OnClickListener {
         intent.putExtra("terp", getTerp());
         intent.putExtra("ifid", mGameIfid);
         intent.putExtra("loadBookmark", true);
+
+        // ToDo: can't we implement a user preference to use a ScrollView and simulate a larger screen?
 
         /*Fix of Theatre screen issue,
 		  it prompts the user with a dialog to the automatically rotate the screen.

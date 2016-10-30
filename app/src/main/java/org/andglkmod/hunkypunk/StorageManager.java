@@ -38,6 +38,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
@@ -62,8 +63,10 @@ public class StorageManager {
 	private final ContentResolver mContentResolver;
 	private Handler mHandler;
 	private DatabaseHelper mOpenHelper;
+	private Context context;
 	
 	private StorageManager(Context context) {
+		this.context = context;
 		mContentResolver = context.getContentResolver();
 		mOpenHelper = new DatabaseHelper(context);
 	}
@@ -149,7 +152,13 @@ public class StorageManager {
 	Do not call directly, make sure on thread and that scanRunning AtomicBoolean is true.
 	 */
 	private void internalScanKnownDirectoryTrees() {
+		if (EasyGlobalsA.storageManagerAssetStuffing0)
+		{
+			addKnownFileFromAndroidAssets("PublicDomainGames0/All_Things_Devours.z5", "ZCODE-3-050325-6D3F", "All Things Devours", "All_Things_Devours.z5");
+		}
+
 		scanDirectoryTreeRecursive(Paths.ifDirectory());
+
 		// ToDo: proper path buildingin the SDK 24 style, ToDo: preference list of paths
 		File extraDir0 = new File("/sdcard/story000/Glulx_Tests0");
 		scanDirectoryTreeRecursive(extraDir0);
@@ -218,13 +227,13 @@ public class StorageManager {
 		if (query != null && query.getCount() == 1) 
 			mContentResolver.update(uri, cv, null, null);
 		
-		query.close();	
+		query.close();
 	}
 
 	public void deleteGame(String ifid) {
 		String path = null;
 		Uri uri = HunkyPunk.Games.uriOfIfid(ifid);
-		//Log.d("StorageManager",uri.toString());
+		Log.d("StorageManager",uri.toString());
 		Cursor query = mContentResolver.query(uri, PROJECTION, null, null, null);
 		if (query != null || query.getCount() == 1)
 			if (query.moveToNext())
@@ -242,10 +251,14 @@ public class StorageManager {
 
 	private String checkFile(File f) throws IOException {
 		String ifid = Babel.examine(f);
-		if (ifid == null) return null;
+		if (ifid == null) {
+			Log.w(TAG, "checkFile skipping " + f + " as Babel can't find ifid");
+			return null;
+		}
 
 		return checkFile(f, ifid);
 	}
+
 	private String checkFile(File f, String ifid) throws IOException {
 		if (ifid == null) ifid = Babel.examine(f);
 		if (ifid == null) return null;
@@ -268,7 +281,63 @@ public class StorageManager {
 		return ifid;
 	}
 
-	// ToDo: currently unused? Ideas on why this was intended? Validate the file is working - and mark DB as corrupted/problem?
+	private File createFileFromInputStream(InputStream inputStream, File targetFile) {
+
+		try{
+			OutputStream outputStream = new FileOutputStream(targetFile);
+			byte buffer[] = new byte[1024];
+			int length = 0;
+
+			while((length=inputStream.read(buffer)) > 0) {
+				outputStream.write(buffer,0,length);
+			}
+
+			outputStream.close();
+			inputStream.close();
+
+			return targetFile;
+		}catch (IOException e) {
+			Log.e(TAG, "IOException in createFileFromInputStream", e);
+		}
+
+		return null;
+	}
+
+	/*
+	Modeled after checkFile.
+	Android Assets can not be used to create Java File object without consuming storage space
+	Note: Android assets can not be a Java File, and given we are calling Native C code - it's not
+	really possible to pass a Java stream down for the game virtual machines (VM) to execute.
+	So we will consume local storage and copy. To ensure the best compatibility of storage paths,
+	use a local path.
+	 */
+	private String addKnownFileFromAndroidAssets(String assetRelativeFilePath, String ifid, String gameTitle, String targetFilename) {
+		File copiedAssetFileDir = new File(context.getFilesDir() + "/assetCopy0");
+		copiedAssetFileDir.mkdirs();
+		File copiedAssetFile = new File(copiedAssetFileDir + File.separator + targetFilename);
+
+		AssetManager am = context.getAssets();
+		try {
+			InputStream inputStream = am.open(assetRelativeFilePath);
+			createFileFromInputStream(inputStream, copiedAssetFile);
+
+			if (copiedAssetFile.length() > 10L) {
+
+				return checkFile(copiedAssetFile);
+			}
+			else
+			{
+				Log.e(TAG, "asset copy failed " + assetRelativeFilePath);
+				return null;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	// ToDo: method currently unused? Ideas on why this was intended? Validate the file is working - and mark DB as corrupted/problem?
 	public void startCheckingFile(final File file) {
 		new Thread() {
 			@Override

@@ -27,6 +27,8 @@ pthread_mutex_t _muGame = PTHREAD_MUTEX_INITIALIZER;
 //static jobject _GlkWrapperObj;
 //static jmethodID _GlkWrapper_onTerpExit;
 
+// ToDo: this code is crashing the App hard, unrecoverable, when *fn is sent in null?
+// ToDo: what happens if terpPath is null, does that crash on LOGD?
 void* link(const char* terpPath, const char *fn) 
 {
 	void* fp = NULL;
@@ -35,7 +37,7 @@ void* link(const char* terpPath, const char *fn)
 		LOGD("loader.dlopen %s", terpPath);
 		_handle = dlopen(terpPath, RTLD_LOCAL | RTLD_LAZY);  
 		if (!_handle) {
-			LOGE("dlopen failed for %s", terpPath);
+			LOGE("loader.dlopen failed for %s", terpPath);
 			_init_error = 1;
 		}
 	}	
@@ -43,7 +45,7 @@ void* link(const char* terpPath, const char *fn)
 	if (!_init_error) {
 		fp = dlsym(_handle, fn);   
 		if (!fp) { 
-			LOGE("dlsym failed for %s", fn); 
+			LOGE("loader.c dlsym failed for %s", fn);
 			_init_error = 1; 
 		}
 	} 
@@ -59,7 +61,7 @@ JNIEXPORT void Java_org_andglk_glk_Glk_startTerp
 	while (pthread_mutex_trylock(&_muGame)!=0) {
 		sleep(100);
 		if(ct++>5) {
-			LOGE("failed to acquire game thread lock, bailing");
+			LOGE("loader.c failed to acquire game thread lock, bailing");
 			return;
 		}
 	}

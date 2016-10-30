@@ -30,6 +30,8 @@ import org.greenrobot.eventbus.EventBus;
  * <p/>
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
+ *
+ * ToDo: the ListActivity that this RecylcerView replaced had a swipe left/right on the Game Details page. This now crashes on this page.
  */
 public class GameListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, GameListClickListener {
 

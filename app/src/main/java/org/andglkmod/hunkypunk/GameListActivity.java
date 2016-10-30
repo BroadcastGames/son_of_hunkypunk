@@ -50,6 +50,8 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
 
         // ToDo: Rotation will create and destroy this, causing problems if done rapidly? Test and solve.
         gameListHelper = new GameListHelper(this);
+        AppStartupCommonA appStartupHelper = new AppStartupCommonA();
+        appStartupHelper.setupGamesFromAssets(getApplicationContext());
 
         setContentView(R.layout.activity_gamelist);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

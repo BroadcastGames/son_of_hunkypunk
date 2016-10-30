@@ -69,7 +69,8 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
             gameFilePath = "missing";
         } else {
             // shorten the path
-            gameFilePath = gameFilePath.replace("/storage/emulated/0/", "/SE0:");
+            gameFilePath = gameFilePath.replace("/storage/emulated/0/", "SE0:");
+            gameFilePath = gameFilePath.replace("/data/data/" + BuildConfig.APPLICATION_ID + "/files/", "DATA:");
         }
 
         holder.refPosition = position;

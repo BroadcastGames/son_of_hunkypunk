@@ -75,22 +75,29 @@ public final class HunkyPunk {
 	}
 	
 	public static File getGameDataDir(Uri uri, String ifid) {
-		Log.i("HunkyPunk", "getGameDataDir " + uri);
+		Log.i("HunkyPunk", "getGameDataDir " + uri + " getPath " + uri.getPath());
 
-		File fGame = new File(uri.getPath());
+		if (uri.getPath() != null) {
+			File fGame = new File(uri.getPath());
 
-		File fData = Paths.dataDirectory();
+			File fData = Paths.dataDirectory();
 
-		//search
-		String dirName = fGame.getName()+"."+ifid;
-		GameDataDirFilter filter = new GameDataDirFilter(ifid);
-		File[] fs = fData.listFiles(filter);
-		if (fs != null && fs.length>0)
-			dirName = fs[0].getName();
+			//search
+			String dirName = fGame.getName() + "." + ifid;
+			GameDataDirFilter filter = new GameDataDirFilter(ifid);
+			File[] fs = fData.listFiles(filter);
+			if (fs != null && fs.length > 0)
+				dirName = fs[0].getName();
 
-		File f = new File(fData, dirName);
-		if (!f.exists()) f.mkdir();
-		
-		return f;
+			File f = new File(fData, dirName);
+			if (!f.exists()) f.mkdir();
+
+			return f;
+		}
+		else
+		{
+			Log.e("HunkyPunk", "getGameDataDir getPath got null");
+			return EasyGlobalsA.getPathNullPathA;
+		}
 	}
 }

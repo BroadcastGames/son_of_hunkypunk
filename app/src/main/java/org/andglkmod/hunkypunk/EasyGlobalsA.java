@@ -1,5 +1,7 @@
 package org.andglkmod.hunkypunk;
 
+import java.io.File;
+
 /**
  * During active development a quick way to control app behavior.
  * This distinctive class name also makes it easy to find multiple places that reference ongoing feature work.
@@ -8,6 +10,11 @@ package org.andglkmod.hunkypunk;
 
 public class EasyGlobalsA {
     public static boolean glk_c_to_java_char_loggingA = false;
+    public static boolean glk_c_to_java_string_loggingA = false;
     public static boolean glk_c_to_java_output_appendA = true;
     public static boolean glk_c_to_java_output_flushA = false;
+
+    public static boolean storageManagerAssetStuffing0 = true;
+
+    public static File getPathNullPathA = null;
 }

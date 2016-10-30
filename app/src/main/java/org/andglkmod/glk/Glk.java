@@ -20,6 +20,7 @@
 package org.andglkmod.glk;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -123,12 +124,48 @@ public class Glk extends Thread {
 	private boolean _needToSave = false;
 	private boolean _exiting = false;
 
+	native private void startTerp(String terpPath, String saveFilePath, int argc, String[] argv);
+
 	@Override
 	public void run() {
-		startTerp(_arguments[0], _autoSavePath, _arguments.length, _arguments);
-		notifyQuit();
-		_instance = null;
-		Window.setRoot(null);
+		// Native C code ccan crash the App in nasty ways, best to check for obvious crash causes before we get into the native code.
+		// Heavy defensive checks
+		// ToDo: display a message on the View when return happens?
+		if (_arguments[0] == null) {
+			Log.e("Glk/Java", "Glk.java startTerp attempted with essential _arguments[0] null (interpreter .so binary file path?)");
+			return;
+		}
+
+		if (_autoSavePath == null) {
+			Log.e("Glk/Java", "Glk.java startTerp attempted with essential _autoSavePath null");
+			return;
+		}
+
+		if (_arguments.length > 1)
+		{
+			if (_arguments[1] == null) {
+				Log.e("Glk/Java", "Glk.java startTerp attempted with essential _arguments[1] null (data work dir?)");
+				return;
+			}
+		}
+
+		try {
+			Log.i("Glk/Java", "calling native code startTerp " + _arguments[0] + " " + _autoSavePath + " " + _arguments.length + " " + Arrays.toString(_arguments));
+			startTerp(_arguments[0], _autoSavePath, _arguments.length, _arguments);
+		}
+		catch (Exception e)
+		{
+			Log.e("Glk/Java", "startTerp got Exception", e);
+		}
+		try {
+			notifyQuit();
+			_instance = null;
+			Window.setRoot(null);
+		}
+		catch (Exception e)
+		{
+			Log.e("Glk/Java", "startTerp after got Exception", e);
+		}
 	}
 
 	// loader has successfully loaded and linked to glk interpreter and is about to start
@@ -165,8 +202,6 @@ public class Glk extends Thread {
 		});
 	}
 
-	native private void startTerp(String terpPath, String saveFilePath, int argc, String[] argv);
-	
 	public Glk(Context context) {
 		assert (_instance == null);
 		_instance = this;

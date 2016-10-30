@@ -105,7 +105,9 @@ public abstract class Stream extends CPointed {
 
 	public void putStringFromNative(String str) {
 		try {
-			Log.v("Glk/Java", "Stream.java putStringFromNative '" + str + "'");
+			if (EasyGlobalsA.glk_c_to_java_string_loggingA) {
+				Log.v("Glk/Java", "Stream.java putStringFromNative '" + str + "'");
+			}
 			putString(str);
 		} catch (Exception e) {
 			Log.e("Glk/Stream", "Exception in putStringFromNative", e);
@@ -162,7 +164,9 @@ public abstract class Stream extends CPointed {
 	 */
 	public void putString(String str) {
 		try {
-			Log.v("Glk/Java", "Stream.java putString " + str);
+			if (EasyGlobalsA.glk_c_to_java_string_loggingA) {
+				Log.v("Glk/Java", "Stream.java putString " + str);
+			}
 			doPutString(str);
 			mWritten += str.length();
 		} catch (IOException e) {
