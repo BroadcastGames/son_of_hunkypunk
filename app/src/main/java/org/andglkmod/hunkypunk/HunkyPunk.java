@@ -75,7 +75,7 @@ public final class HunkyPunk {
 	}
 	
 	public static File getGameDataDir(Uri uri, String ifid) {
-		Log.i("HunkyPunk", "getGameDataDir " + uri + " getPath " + uri.getPath());
+		Log.i("HunkyPunk", "Paths.java reference? getGameDataDir " + uri + " getPath " + uri.getPath());
 
 		if (uri.getPath() != null) {
 			File fGame = new File(uri.getPath());
@@ -96,7 +96,7 @@ public final class HunkyPunk {
 		}
 		else
 		{
-			Log.e("HunkyPunk", "getGameDataDir getPath got null");
+			Log.e("HunkyPunk", "Paths.java reference? getGameDataDir getPath got null");
 			return EasyGlobalsA.getPathNullPathA;
 		}
 	}

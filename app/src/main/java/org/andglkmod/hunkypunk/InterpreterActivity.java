@@ -40,6 +40,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.andglkmod.SharedPrefKeys;
 import org.andglkmod.glk.Glk;
 import org.andglkmod.glk.TextBufferWindow;
 import org.andglkmod.glk.Window;
@@ -67,10 +68,11 @@ public class InterpreterActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         System.loadLibrary("andglk-loader");
 
-        if (getSharedPreferences("Night", Context.MODE_PRIVATE).getBoolean("NightOn", false))
+        if (getSharedPreferences(SharedPrefKeys.KEY_FILE_Night, Context.MODE_PRIVATE).getBoolean("NightOn", false))
             setTheme(R.style.theme2);
         else
             setTheme(R.style.theme);
+
         setFont();
 
         Intent i = getIntent();
@@ -121,7 +123,7 @@ public class InterpreterActivity extends AppCompatActivity {
 			Basically, acts like a restore and overwrites the colors accoring to the switch
 			value.
 		 */
-        SharedPreferences sharedPrefs = getSharedPreferences("Night", Context.MODE_PRIVATE);
+        SharedPreferences sharedPrefs = getSharedPreferences(SharedPrefKeys.KEY_FILE_Night, Context.MODE_PRIVATE);
         if (sharedPrefs.getBoolean("NightOn", false)) {
             TextBufferWindow.DefaultBackground = Color.DKGRAY;
             TextBufferWindow.DefaultTextColor = Color.WHITE;
@@ -257,11 +259,12 @@ public class InterpreterActivity extends AppCompatActivity {
         //String fontPath;
         //File fonts = new File(fontFolder, fontFile);
 
-
+        // ToDo: make font sizes a float and not integer, sometimes 12.5 is the right value for certain large fonts and small screens.
         int fontSize = 16;
         try {
             fontSize = Integer.parseInt(prefs.getString("fontSize", Integer.toString(fontSize)));
         } catch (Exception e) {
+            Log.w(TAG, "fontSize is not valid from prefercnes, using default");
         }
 
         String fontName = prefs.getString("fontFileName", "Droid Serif (default)"); //returns the Svalue in "fontfileName"-preference and otherwise "DSerif"

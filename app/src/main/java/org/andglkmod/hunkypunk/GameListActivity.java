@@ -37,8 +37,8 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
 
     protected static final String TAG = "GameListActivity";
     public static boolean fileSystemStoragePermissionsReady = false;
-
     private GameListHelper gameListHelper;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,8 +54,7 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
         appStartupHelper.setupGamesFromAssets(this);
 
         // ToDo: Rotation will create and destroy this, causing problems if done rapidly? Test and solve.
-        gameListHelper = new GameListHelper(this);
-
+        gameListHelper = BackgroundOperationsA.getGameListHelper(this);
 
         setContentView(R.layout.activity_gamelist);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -201,6 +200,11 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
                 intent = new Intent(this, GamesList.class);
                 startActivity(intent);
                 break;
+            case R.id.action_advanced_tweaks:
+                // Debated about using a fragment, but probably better to load an activity on-top of the fragment so we can alter it live.
+                intent = new Intent(this, AdvancedTweaksActivity.class);
+                startActivity(intent);
+                break;
             case R.id.runScanForGames:
                 // setProgressBarIndeterminateVisibility(true);
                 gameListHelper.startScanForGameFiles();
@@ -241,7 +245,7 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
         Log.i(TAG, "GameListEmptyEvent " + event.eventCode);
         switch (event.eventCode) {
             case GameListEmptyEvent.DOWNLOAD_PRESELECT_GAMES_SET0:
-                gameListHelper.downloadPreselected();
+                gameListHelper.downloadPreselected(this);
                 break;
             case GameListEmptyEvent.DOWNLOAD_COMPLETED_RECHECK0:
                 // Recreate the entire Activity
@@ -252,13 +256,21 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
 
     @Override
     public void onStart() {
+        Log.i(TAG, "onStart, register EventBus");
         super.onStart();
         EventBus.getDefault().register(this);
     }
 
     @Override
     public void onStop() {
+        Log.i(TAG, "onStop, unregister EventBus");
         super.onStop();
         EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.i(TAG, "onDestroy");
+        super.onDestroy();
     }
 }

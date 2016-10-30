@@ -23,7 +23,7 @@ public class AppStartupCommonA {
             if (! EasyGlobalsA.getPathNullPathA.exists())
             {
                 EasyGlobalsA.getPathNullPathA.mkdirs();
-                Log.i("AppStartupCommonA", "path " + EasyGlobalsA.getPathNullPathA + " writable? " + EasyGlobalsA.getPathNullPathA.canWrite());
+                Log.i("AppStartupCommonA", "path " + EasyGlobalsA.getPathNullPathA + " freeSpace? " + EasyGlobalsA.getPathNullPathA.getFreeSpace());
             }
         }
     }
@@ -38,6 +38,15 @@ public class AppStartupCommonA {
         {
             Paths.appDataDirectory = runContext.getFilesDir().getAbsolutePath();
             Log.i("AppStartupCommonA", "Paths.appDataDirectory set to " + Paths.appDataDirectory);
+            Paths.appDataDirectoryFile = new File(Paths.appDataDirectory);
+            if (! Paths.appDataDirectoryFile.canWrite())
+            {
+                Log.e("AppStartupCommonA", "WRITE PROBLEM, why? Paths.appDataDirectory set to " + Paths.appDataDirectory);
+            }
+            else
+            {
+                Log.i("AppStartupCommonA", "Paths.appDataDirectory set to " + Paths.appDataDirectory);
+            }
         }
 
         /** gets the If-Path from SharedPreferences, which could be changed at the last session

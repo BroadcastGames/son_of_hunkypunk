@@ -29,6 +29,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.andglkmod.glk.Utils;
+import org.andglkmod.hunkypunk.EasyGlobalsA;
 import org.andglkmod.hunkypunk.HunkyPunk;
 import org.andglkmod.hunkypunk.HunkyPunk.Games;
 import org.xml.sax.Attributes;
@@ -337,12 +338,17 @@ public class IFDb {
 		}
 		
 		final String coverArt = handler.getCoverArt();
-		if (coverArt != null)
+		if (coverArt != null) {
 			try {
 				fetchCover(ifid, coverArt);
 			} catch (IOException e) {
-				Log.e(TAG, "IO error when fetching cover for " + ifid, e);
+				Log.e(TAG, "Paths.jaa reference? IO error when fetching cover for " + ifid, e);
 			}
+		}
+		else
+		{
+			Log.w(TAG, "Paths.java reference? Xml parsing found null coverArt for ifid " + ifid);
+		}
 		
 		ContentValues values = handler.getValues();
 		values.put(Games.LOOKED_UP, true);
@@ -350,20 +356,29 @@ public class IFDb {
 	}
 
 	private static void fetchCover(String ifid, String coverArt) throws IOException {
-		if (coverArt == null || coverArt.length() == 0) return;
+		if (coverArt == null || coverArt.length() == 0)
+		{
+			Log.w(TAG, "Paths.java reference? fetchCover found null coverArt for ifid " + ifid);
+			return;
+		}
 
-		URL source = new URL(coverArt);
-		File destination = HunkyPunk.getCover(ifid);
+		File destinationFile = HunkyPunk.getCover(ifid);
 
-		if (destination.canWrite()) {
-			FileOutputStream fos = new FileOutputStream(destination);
+		boolean destinationReady = destinationFile.getUsableSpace() >= EasyGlobalsA.fileDownloadMinimumFreeSpaceA;
+		// ToDo: hack here to force true, why is getUsableSpace not working? Because file instead of folder?
+		destinationReady = true;
+
+		if (destinationReady) {
+			URL source = new URL(coverArt);
+			FileOutputStream fos = new FileOutputStream(destinationFile);
 			Utils.copyStream(source.openStream(), fos);
 
 			fos.close();
+			Log.i(TAG, "Paths.java reference? fetchCover just wrote File " + destinationFile.getPath() + " size " + destinationFile.length());
 		}
 		else
 		{
-			Log.e(TAG, "File canWrite false on " + destination);
+			Log.e(TAG, "Paths.java reference? fetchCover File getUsableSpace low on " + destinationFile + " space " + destinationFile.getFreeSpace());
 		}
 	}
 
@@ -378,7 +393,7 @@ public class IFDb {
 	}
 
 	public void startLookup(final String ifid, final Handler lookupHandler) {
-		new Thread() {
+		Thread lookupIFDB = new Thread() {
 			@Override
 			public void run() {
 				try {
@@ -389,6 +404,8 @@ public class IFDb {
 					Log.e(TAG, "error while looking up " + ifid, e);
 				}
 			}
-		}.start();
+		};
+		lookupIFDB.setName("lookup_IFDB");
+		lookupIFDB.start();
 	}
 }

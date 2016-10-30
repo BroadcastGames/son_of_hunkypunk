@@ -25,6 +25,7 @@ import java.io.ObjectOutputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.andglkmod.SharedPrefKeys;
 import org.andglkmod.glk.Styles.StyleSpan;
 import org.andglkmod.hunkypunk.EasyGlobalsA;
 import org.andglkmod.hunkypunk.R;
@@ -322,7 +323,7 @@ public class TextBufferWindow extends Window {
 
         //Left for easier onPreDraw transition later, for now it is used setTextStyle instead
         private void updateInput(Editable s) {
-            if (mContext.getSharedPreferences("Night", Context.MODE_PRIVATE).getBoolean("NightOn", false)) {
+            if (mContext.getSharedPreferences(SharedPrefKeys.KEY_FILE_Night, Context.MODE_PRIVATE).getBoolean("NightOn", false)) {
                 SpannableString text = new SpannableString(s.toString());
                 Object sp = stylehints.getSpan(mContext, TextBufferWindow.this.DefaultInputStyle, false);
                 s.setSpan(sp, 0, text.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
@@ -1080,6 +1081,7 @@ public class TextBufferWindow extends Window {
                         mHLView.setPadding(0, 0, 0, 0);
                         final ViewGroup viewGroup = new LinearLayout(mContext);
 
+                        // ToDo: this desing uses 4 entirely different XML files to hold 3 settings. No reason for this?  use PreferenceManager.getDefaultSharedPreferences(getBaseContext());
                         SharedPreferences sharedShortcuts = mContext.getSharedPreferences("shortcuts", Context.MODE_PRIVATE);
                         SharedPreferences sharedShortcutIDs = mContext.getSharedPreferences("shortcutIDs", Context.MODE_PRIVATE);
                         SharedPreferences sharedShortcutPrefs = mContext.getSharedPreferences("shortcutPrefs", Context.MODE_PRIVATE);
@@ -1099,7 +1101,7 @@ public class TextBufferWindow extends Window {
 
                                 textView.setTextColor(Color.BLACK);
 
-                                if(shortcutsColor.equals("#2ba907"))/*if(green)*/ {
+                                if (shortcutsColor.equals("#2ba907"))/*if (green)*/ {
                                     textView.setTextColor(Color.WHITE);
                                 }
 
@@ -1128,7 +1130,7 @@ public class TextBufferWindow extends Window {
                         mView.setFocusable(false);
 
                         mLayout.addView(mView, paramsDefault);
-                        if (mContext.getSharedPreferences("Night", Context.MODE_PRIVATE).getBoolean("NightOn", false)) {
+                        if (mContext.getSharedPreferences(SharedPrefKeys.KEY_FILE_Night, Context.MODE_PRIVATE).getBoolean("NightOn", false)) {
                             mLayout.addView(hll, paramsLLayout);
                             mLayout.addView(hl, paramsHLayout);
                         } else {

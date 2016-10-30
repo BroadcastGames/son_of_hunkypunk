@@ -80,7 +80,7 @@ public class GamesList extends ListActivity implements OnClickListener {
         appStartupHelper.setupGamesFromAssets(this);
 
         // ToDo: Rotation will create and destroy this, causing problems if done rapidly? Test and solve.
-        gameListHelper = new GameListHelper(this);
+        gameListHelper = BackgroundOperationsA.getGameListHelper(this.getApplicationContext());
 
         setupListAdapter();
 
@@ -203,7 +203,7 @@ public class GamesList extends ListActivity implements OnClickListener {
                 startActivity(new Intent(Intent.ACTION_DEFAULT, Uri.parse("http://ifdb.tads.org")));
                 break;
             case R.id.download_preselected:
-                gameListHelper.downloadPreselected();
+                gameListHelper.downloadPreselected(this);
                 break;
         }
     }

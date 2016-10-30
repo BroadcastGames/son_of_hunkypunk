@@ -168,12 +168,15 @@ public class GameListHelper {
     }
 
 
-    public void downloadPreselected() {
+    /*
+    parentContext needs to be GUI related, from an Activity. However, the activity may be closed while this thread is still running?
+     */
+    public void downloadPreselected(final Context contextForUserInterface) {
         downloadCancelled = false;
 
-        progressDialog = new ProgressDialog(parentContext);
+        progressDialog = new ProgressDialog(contextForUserInterface);
         progressDialog.setTitle(R.string.please_wait);
-        progressDialog.setMessage(parentContext.getString(R.string.downloading_stories));
+        progressDialog.setMessage(contextForUserInterface.getString(R.string.downloading_stories));
         progressDialog.setCancelable(true);
         progressDialog.setOnCancelListener(
                 new DialogInterface.OnCancelListener() {
@@ -217,7 +220,7 @@ public class GameListHelper {
                 try {
                     mScanner.startScanForGameFiles();
                     // ToDo: should we do this as part of normal scan, or does it generate a lot of Internet traffic? Manual menu option?
-                    IFDb.getInstance(parentContext.getContentResolver()).lookupGames();
+                    IFDb.getInstance(contextForUserInterface.getContentResolver()).lookupGames();
                 } catch (IOException e) {
                     Log.e(TAG, "I/O error when fetching metadata", e);
                 }

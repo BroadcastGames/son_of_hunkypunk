@@ -22,6 +22,7 @@ package org.andglkmod.hunkypunk;
 import java.io.File;
 import java.io.RandomAccessFile;
 
+import org.andglkmod.SharedPrefKeys;
 import org.andglkmod.hunkypunk.HunkyPunk.Games;
 import org.andglkmod.hunkypunk.R.id;
 import org.andglkmod.ifdb.IFDb;
@@ -159,7 +160,8 @@ public class GameDetails extends AppCompatActivity implements OnClickListener {
             install(game, scheme);
         gestureDetector = new GestureDetector(new SwipeDetector());
         //To relax the Interpreter activity; First time load of SharedPreferences
-        getSharedPreferences("Night", Context.MODE_PRIVATE).getBoolean("NightOn", false);
+        // ToDo: This is reading the value but tossing it away, not doing anything?
+        getSharedPreferences(SharedPrefKeys.KEY_FILE_Night, Context.MODE_PRIVATE).getBoolean("NightOn", false);
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -331,16 +333,31 @@ public class GameDetails extends AppCompatActivity implements OnClickListener {
             sb.append('\n');
         }
 
+        if (mGameFile == null)
+        {
+            sb.append("\nWARNING: path is null, game file deleted or moved?\n");
+        }
+        else {
+            // Show the path so user knows about storage
+            // Extra line break to divide from game-specific info
+            sb.append("\nPath: ");
+            sb.append(mGameFile.getPath());
+            sb.append("\n");
+            sb.append("File size: ");
+            sb.append(mGameFile.length() / 1024L);
+            sb.append("KB\n");
+        }
+
         final int len = sb.length();
         if (len != 0)
             sb.replace(len - 1, len, ""); // remove trailing newline
 
         mDetails.setText(sb);
 
-        File i = HunkyPunk.getCover(mQuery.getString(IFID));
-        if (i.exists()) {
+        File coverImageFile = HunkyPunk.getCover(mQuery.getString(IFID));
+        if (coverImageFile.exists()) {
             // Uri.fromFile doesn't work for some reason
-            mCover.setImageURI(Uri.parse(i.getAbsolutePath()));
+            mCover.setImageURI(Uri.parse(coverImageFile.getAbsolutePath()));
 
             Display display = getWindowManager().getDefaultDisplay();
             int width = (int) (display.getWidth() / 1.5);  // deprecated
@@ -350,6 +367,10 @@ public class GameDetails extends AppCompatActivity implements OnClickListener {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(sz, sz);
             lp.gravity = Gravity.CENTER_HORIZONTAL;
             mCover.setLayoutParams(lp);
+        }
+        else
+        {
+            Log.w(TAG, "Paths.java concern? game cover file does not exist " + coverImageFile.getPath());
         }
 
         mRestartButton.setVisibility(getBookmark().exists() ? View.VISIBLE : View.GONE);
@@ -468,6 +489,12 @@ public class GameDetails extends AppCompatActivity implements OnClickListener {
             int position = getIntent().getIntExtra("position", -1);
             long[] ifIDs = getIntent().getLongArrayExtra("ifIDs");
 
+            if (ifIDs == null)
+            {
+                Log.e(TAG, "SwipeDetector data failure, ifIDs null");
+                return false;
+            }
+
             if (e1.getX() - e2.getX() > MIN_DISTANCE) { //swipe right
                 if (++position == ifIDs.length) //increment and check if reached end
                     position = 0;
@@ -480,8 +507,10 @@ public class GameDetails extends AppCompatActivity implements OnClickListener {
                 return true;
             }
             if (e2.getX() - e1.getX() > MIN_DISTANCE) {//swipe left
-                if (--position == -1)//decrement and check if reached begin
+                if (--position == -1) {//decrement and check if reached begin
                     position = ifIDs.length - 1;
+                }
+
                 Intent i = new Intent(Intent.ACTION_VIEW, Games.uriOfIfid(ifIDs[position] + ""), GameDetails.this, GameDetails.class);
                 i.putExtra("position", position);
                 i.putExtra("ifIDs", ifIDs);

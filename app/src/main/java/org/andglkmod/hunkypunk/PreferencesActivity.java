@@ -105,7 +105,7 @@ public class PreferencesActivity
                 @Override
                 public boolean onPreferenceChange(Preference pref, Object isOnObject) {
                     boolean isModeOn = (Boolean) isOnObject;
-                    SharedPreferences sharedPrefs = getSharedPreferences("Night", Context.MODE_PRIVATE);
+                    SharedPreferences sharedPrefs = getSharedPreferences(SharedPrefKeys.KEY_FILE_Night, Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPrefs.edit();
 
                     if (isModeOn) {
@@ -119,7 +119,6 @@ public class PreferencesActivity
                         org.andglkmod.glk.TextBufferWindow.DefaultInputStyle = Glk.STYLE_NIGHT;
                         //store the switch-state
                         editor.putBoolean("NightOn", true);
-                        editor.commit();
                     } else {
                         //Toast.makeText(PreferencesActivity.this, "Night Mode toggled off.",Toast.LENGTH_SHORT).show();
                         //Implementation
@@ -128,8 +127,9 @@ public class PreferencesActivity
                         org.andglkmod.glk.TextBufferWindow.DefaultInputStyle = Glk.STYLE_INPUT;
 
                         editor.putBoolean("NightOn", false);
-                        editor.commit();
                     }
+
+                    editor.commit();
                     return true;
                 }
 

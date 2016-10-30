@@ -27,6 +27,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
+import org.andglkmod.SharedPrefKeys;
 import org.andglkmod.glk.Glk;
 import org.andglkmod.glk.Window;
 import org.andglkmod.glk.TextBufferWindow;
@@ -66,10 +67,11 @@ public class Interpreter extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         System.loadLibrary("andglk-loader");
 
-        if (getSharedPreferences("Night", Context.MODE_PRIVATE).getBoolean("NightOn", false))
+        if (getSharedPreferences(SharedPrefKeys.KEY_FILE_Night, Context.MODE_PRIVATE).getBoolean("NightOn", false))
             setTheme(R.style.theme2);
         else
             setTheme(R.style.theme);
+
         setFont();
 
         Intent i = getIntent();
@@ -120,7 +122,7 @@ public class Interpreter extends Activity {
 			Basically, acts like a restore and overwrites the colors accoring to the switch
 			value.
 		 */
-        SharedPreferences sharedPrefs = getSharedPreferences("Night", Context.MODE_PRIVATE);
+        SharedPreferences sharedPrefs = getSharedPreferences(SharedPrefKeys.KEY_FILE_Night, Context.MODE_PRIVATE);
         if (sharedPrefs.getBoolean("NightOn", false)) {
             org.andglkmod.glk.TextBufferWindow.DefaultBackground = Color.DKGRAY;
             org.andglkmod.glk.TextBufferWindow.DefaultTextColor = Color.WHITE;

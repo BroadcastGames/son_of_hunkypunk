@@ -17,4 +17,5 @@ public class EasyGlobalsA {
     public static boolean storageManagerAssetStuffing0 = true;
 
     public static File getPathNullPathA = null;
+    public static long fileDownloadMinimumFreeSpaceA = 1024L * 1024L * 3L;  // 3MB
 }

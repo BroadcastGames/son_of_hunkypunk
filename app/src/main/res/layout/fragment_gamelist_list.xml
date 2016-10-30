@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- ToDo: do we need a ViewSwitcher anymore now that we found android:empty? -->
 <ViewSwitcher
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"

@@ -34,7 +34,7 @@
     <string name="new_data">New data file</string>
     <string name="name">Name</string>
     <string name="game_quit">The game has quit. You can examine the output.\nUse the BACK button to exit.</string>
-    
+
     <string name="examining_file">Examining file %s...</string>
     <string name="install_success">Successfully installed a new story.</string>
     <string name="install_failure">Could not read the story file.</string>
@@ -43,7 +43,7 @@
 
     <string name="ifdef">Set default IF folder path</string>
     <string name="add">IF folder path</string>
-    <string name="about">About</string>
+    <string name="about">About App</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="open">Open</string>
@@ -56,7 +56,7 @@
     <string name="remove">Remove</string>
     <string name="restart">Restart</string>
     <string name="game_details">Story details</string>
-    <string name="by_author">by %s</string> 
+    <string name="by_author">by %s</string>
     <string name="first_published_s">First published: %s</string>
     <string name="genre_s">Genre: %s</string>
     <string name="group_s">Group: %s</string>
@@ -80,10 +80,10 @@
 		Z-Code files (ending in .z1-.z8, .zblorb, or .zlb) and
 		Tads files (ending in .t2, t3, or .gam) are all currently supported.
    	</string>
-   	<string name="go_to_ifdb">Go to IFDB Website</string>
-   	<string name="download_preselected">Download preselected</string> 
-   	<string name="please_wait">Please wait</string>
-   	<string name="downloading_stories">Downloading stories...</string>
+    <string name="go_to_ifdb">Go to IFDB Website</string>
+    <string name="download_preselected">Download preselected</string>
+    <string name="please_wait">Please wait</string>
+    <string name="downloading_stories">Downloading stories...</string>
 
     <string name="theatre_message">This game needs a wider screen. Please rotate your screen
         manually or press Apply to start it first time in landscape mode. From then on it will work
@@ -94,4 +94,6 @@
     <string name="oldGamesList">Old GamesList</string>
     <string name="runScanForGames">Scan Folders</string>
     <string name="ifdef2">Set internal storage folder path</string>
+    <string name="action_advanced_tweaks">Advanced Tweaks</string>
+    <string name="title_activity_advanced_tweaks">Advanced Tweaks</string>
 </resources>

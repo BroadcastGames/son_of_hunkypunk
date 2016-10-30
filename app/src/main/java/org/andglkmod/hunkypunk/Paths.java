@@ -31,6 +31,7 @@ public abstract class Paths {
     private static File ifDirectory;
     // previous value: "Android/data/org.andglkmod.hunkypunk"
     public static String appDataDirectory = null;
+    public static File appDataDirectoryFile = null;
     public static File appCardDirectory = null;
 
     // Name: "card" means "SD card".
@@ -40,23 +41,39 @@ public abstract class Paths {
     }
 
     public static File dataDirectory() {
-        File f = new File(cardDirectory(), appDataDirectory);
-        if (!f.exists()) f.mkdir();
-        return f;
+        // By nature, this path should always exist or the app wouldn't be running or installed by convention?
+        // By nature, this path can't be 'picked' by the user, it is right along side the APK
+        if (!appDataDirectoryFile.canWrite())
+        {
+            Log.e("Paths", "unable to write to essential ifDirectory? dataDirectory? " + appDataDirectoryFile);
+        }
+        return appDataDirectoryFile;
     }
 
     public static File coverDirectory() {
-        File f = new File(dataDirectory(), "covers");
-        if (!f.exists()) f.mkdir();
+        File f = new File(dataDirectory(), "StoryCovers");
+        if (!f.exists())
+        {
+            boolean goodCreate = f.mkdirs();
+            if (!goodCreate)
+            {
+                Log.e("Paths", "unable to create essential ifDirectory? coverDirectory? " + f);
+            }
+        }
         return f;
     }
 
     public static File tempDirectory() {
-        File f = new File(dataDirectory(), "temp");
-        if (!f.exists()) f.mkdir();
+        File f = new File(dataDirectory(), "StoryTemp");
+        boolean goodCreate = f.mkdirs();
+        if (!goodCreate)
+        {
+            Log.e("Paths", "unable to create essential ifDirectory? tempDirectory? " + f);
+        }
         return f;
     }
 
+    // Currently unused? Was intention that this be user-installed fonts outside of assets?
     public static File fontDirectory() {
         File f = new File(cardDirectory(), "Fonts");
         if (!f.exists()) f.mkdir();
@@ -67,7 +84,7 @@ public abstract class Paths {
         if (ifDirectory != null)
             return ifDirectory;
 
-// ToDo: app startup, when is prefrences populating this?
+// ToDo: app startup, when is preferences populating this?
         Log.e("Paths", "ifDirectory is setting it's own value, probably DO NOT WANT THIS");
         // this code only executes once until cached, so we can be slow here
         File f = new File(cardDirectory(), "Interactive Fiction");

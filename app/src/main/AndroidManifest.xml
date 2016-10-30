@@ -281,6 +281,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".AdvancedTweaksActivity"
+            android:label="@string/title_activity_advanced_tweaks"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+
     </application>
-    <uses-sdk android:minSdkVersion="14" />
 </manifest>

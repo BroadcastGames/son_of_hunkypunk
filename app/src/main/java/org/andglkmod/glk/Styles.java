@@ -6,6 +6,8 @@ import android.graphics.Typeface;
 import android.text.TextPaint;
 import android.text.style.TextAppearanceSpan;
 
+import org.andglkmod.SharedPrefKeys;
+
 
 /** This class handles all the styles a window can have. 
  * */
@@ -70,7 +72,7 @@ public class Styles {
 	 * @return     the new updated style
 	 */
 	private static int determineStyle(Context context, int styl) {
-		boolean preferenceNightOn = context.getSharedPreferences("Night", Context.MODE_PRIVATE).getBoolean("NightOn", false);
+		boolean preferenceNightOn = context.getSharedPreferences(SharedPrefKeys.KEY_FILE_Night, Context.MODE_PRIVATE).getBoolean("NightOn", false);
 
 		if (styl == Glk.STYLE_HEADER && preferenceNightOn)
 			styl = Glk.STYLE_NIGHT_HEADER;
