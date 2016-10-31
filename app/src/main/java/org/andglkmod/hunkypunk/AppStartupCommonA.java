@@ -62,7 +62,7 @@ public class AppStartupCommonA {
         else
         {
             // Shared Preferences has no value, so Application default.
-            String defaultPath = Paths.appDataDirectory;
+            String defaultPath = Paths.appDataDirectory + "/StoryFiles";
             Log.w("AppStartupCommonA", "Paths.java setting setIfDirectory path to default value: " + defaultPath);
             Paths.setIfDirectory(new File(defaultPath));
         }
