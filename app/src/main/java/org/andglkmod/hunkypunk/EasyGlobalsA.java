@@ -18,4 +18,12 @@ public class EasyGlobalsA {
 
     public static File getPathNullPathA = null;
     public static long fileDownloadMinimumFreeSpaceA = 1024L * 1024L * 3L;  // 3MB
+
+    public static String[] additionalStoryDirectories = new String[] {
+            "/sdcard/story000/Glulx_Tests0",
+            "/sdcard/story000/setZ",
+            "/sdcard/story000/setA",
+            "/sdcard/storyGames0",
+            "/sdcard/storyGames1",
+        };
 }

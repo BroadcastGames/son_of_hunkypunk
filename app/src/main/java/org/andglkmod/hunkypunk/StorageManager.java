@@ -159,17 +159,16 @@ public class StorageManager {
 
 		scanDirectoryTreeRecursive(Paths.ifDirectory());
 
-		// ToDo: proper path buildingin the SDK 24 style, ToDo: preference list of paths
-		File extraDir0 = new File("/sdcard/story000/Glulx_Tests0");
-		scanDirectoryTreeRecursive(extraDir0);
-		File extraDir1 = new File("/sdcard/story000/setZ");
-		scanDirectoryTreeRecursive(extraDir1);
-		File extraDir2 = new File("/sdcard/story000/setA");
-		scanDirectoryTreeRecursive(extraDir2);
-		File extraDir3 = new File("/sdcard/storyGames0");
-		scanDirectoryTreeRecursive(extraDir3);
-		File extraDir4 = new File("/sdcard/storyGames1");
-		scanDirectoryTreeRecursive(extraDir4);
+		// ToDo: proper path building in the SDK 24 style, ToDo: preference list of paths
+
+		for (int i = 0; i < EasyGlobalsA.additionalStoryDirectories.length; i++) {
+			String singlePath = EasyGlobalsA.additionalStoryDirectories[i];
+			File singlePathFile = new File(singlePath);
+			if (singlePathFile.exists())
+			{
+				scanDirectoryTreeRecursive(singlePathFile);
+			}
+		}
 	}
 
 	private void scanDirectoryTreeRecursive(File dir) {

@@ -50,6 +50,15 @@ public class AdvancedTweaksActivity extends AppCompatActivity {
         outputInformationAboutDirectory("Story Files",   Paths.ifDirectory(),    outputFileInfo);
         outputInformationAboutDirectory("Data Files",    Paths.dataDirectory(),  outputFileInfo);
         outputInformationAboutDirectory("Temp Files",    Paths.tempDirectory(),  outputFileInfo);
+
+        for (int i = 0; i < EasyGlobalsA.additionalStoryDirectories.length; i++) {
+            String singlePath = EasyGlobalsA.additionalStoryDirectories[i];
+            File singlePathFile = new File(singlePath);
+            if (singlePathFile.exists())
+            {
+                outputInformationAboutDirectory("Story Extra Dir #" + i,   singlePathFile,  outputFileInfo);
+            }
+        }
     }
 
     /*
