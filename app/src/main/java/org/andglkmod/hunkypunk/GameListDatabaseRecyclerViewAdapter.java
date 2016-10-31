@@ -2,11 +2,15 @@ package org.andglkmod.hunkypunk;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.io.File;
 
 /**
  */
@@ -20,6 +24,7 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
     private int columnIndex2 = 0;
     private int columnIndex3 = 0;
     private int columnIndex4 = 0;
+    private int columnIndex5 = 0;
 
     public GameListDatabaseRecyclerViewAdapter(Context context, Cursor cursor) {
         dataCursor = cursor;
@@ -47,6 +52,7 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
             columnIndex2 = dataCursor.getColumnIndex(HunkyPunk.Games._ID);
             columnIndex3 = dataCursor.getColumnIndex(HunkyPunk.Games.PATH);
             columnIndex4 = dataCursor.getColumnIndex(HunkyPunk.Games.IFID);
+            columnIndex5 = dataCursor.getColumnIndex(HunkyPunk.Games.LOOKED_UP);
 
             this.notifyDataSetChanged();
         }
@@ -87,6 +93,15 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
 
         holder.mSecondDetailView.setVisibility(View.VISIBLE);
         holder.mSecondDetailView.setText("path " + gameFilePath);
+
+        if (gameId0 != null) {
+            File coverFile = HunkyPunk.getCover(gameId0);
+            if (coverFile.exists())
+            {
+                Uri uri = Uri.fromFile(coverFile);
+                holder.mImageView.setImageURI(uri);
+            }
+        }
     }
 
     @Override
@@ -105,6 +120,7 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
         public final TextView mTitleLineView;
         public final TextView mFirstDetailView;
         public final TextView mSecondDetailView;
+        public final ImageView mImageView;
         public int dataRecordId;
         public String gameIdentity0;
         public int refPosition;  // Won't be accurate, gets recycled.
@@ -115,6 +131,7 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
             mTitleLineView = (TextView) itemView.findViewById(R.id.gameListGameTitle);
             mFirstDetailView = (TextView) itemView.findViewById(R.id.gameListGameInfo0);
             mSecondDetailView = (TextView) itemView.findViewById(R.id.gameListGameInfo1);
+            mImageView = (ImageView) itemView.findViewById(R.id.gameListCoverImage0);
             itemView.setTag(itemView);
             itemView.setOnClickListener(this);
         }

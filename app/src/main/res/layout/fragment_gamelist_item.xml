@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="wrap_content"
+              android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical"
               android:paddingTop="4dp"
@@ -9,7 +9,7 @@
 
     <TextView
         android:id="@+id/gameListGameTitle"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
         android:textAppearance="?attr/textAppearanceListItem"
@@ -36,6 +36,23 @@
         android:paddingLeft="10dp"
         android:textAppearance="?attr/textAppearanceListItemSmall"
         android:visibility="gone"
+        />
+
+    <ImageView
+        android:id="@+id/gameListCoverImage0"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="240dp"
+        android:maxWidth="240dp"
+        android:adjustViewBounds= "true"
+        />
+
+    <!-- divider line between items -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_marginTop="2dp"
+        android:layout_height="2dp"
+        android:background="#FF80FF"
         />
 
 </LinearLayout>

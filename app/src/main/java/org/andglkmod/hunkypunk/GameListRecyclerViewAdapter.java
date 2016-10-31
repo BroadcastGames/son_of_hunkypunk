@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.andglkmod.hunkypunk.dummy.DummyContent;
@@ -59,6 +60,7 @@ public class GameListRecyclerViewAdapter extends RecyclerView.Adapter<GameListRe
         public final View mView;
         public final TextView mIdView;
         public final TextView mContentView;
+        public final ImageView mImageView;
         public DummyContent.DummyItem mItem;
 
         public ViewHolder(View view) {
@@ -66,6 +68,7 @@ public class GameListRecyclerViewAdapter extends RecyclerView.Adapter<GameListRe
             mView = view;
             mIdView = (TextView) view.findViewById(R.id.gameListGameTitle);
             mContentView = (TextView) view.findViewById(R.id.gameListGameInfo0);
+            mImageView = (ImageView) view.findViewById(R.id.gameListCoverImage0);
         }
 
         @Override
