@@ -54,9 +54,10 @@ public class AdvancedTweaksActivity extends AppCompatActivity {
         for (int i = 0; i < EasyGlobalsA.additionalStoryDirectories.length; i++) {
             String singlePath = EasyGlobalsA.additionalStoryDirectories[i];
             File singlePathFile = new File(singlePath);
-            if (singlePathFile.exists())
-            {
+            if (singlePathFile.exists()) {
                 outputInformationAboutDirectory("Story Extra Dir #" + i,   singlePathFile,  outputFileInfo);
+            } else {
+                outputFileInfo.append("Also checking Story Extra Dir #" + i + ": " + singlePathFile.getPath() + "\n");
             }
         }
     }
@@ -70,7 +71,9 @@ public class AdvancedTweaksActivity extends AppCompatActivity {
         outputView.append(targetDirectory.getPath());
         outputView.append("\n");
         File[] filesInTargetDir = targetDirectory.listFiles();
-        outputView.append("Files: " + filesInTargetDir.length + "\n");
+        if (filesInTargetDir != null) {
+            outputView.append("Files: " + filesInTargetDir.length + "\n");
+        }
     }
 
     public SpannableStringBuilder buildTextA(String targetText) {

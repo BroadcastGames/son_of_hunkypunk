@@ -1,12 +1,15 @@
 package org.andglkmod.hunkypunk;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
 import org.andglkmod.SharedPrefKeys;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Common methods when app starts up. Allows multiple activities to be the 'staritng point' of the app
@@ -66,5 +69,44 @@ public class AppStartupCommonA {
             Log.w("AppStartupCommonA", "Paths.java setting setIfDirectory path to default value: " + defaultPath);
             Paths.setIfDirectory(new File(defaultPath));
         }
+
+        // Construct list of directories to scan
+        // Reset from template
+        ArrayList<String> workingList = new ArrayList<String>(Arrays.asList(EasyGlobalsA.additionalStoryDirectoriesTemplate));
+        // "The new android.content.Context.getExternalMediaDirs() returns paths to these directories on all shared storage devices."
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            File[] additionsList = runContext.getExternalMediaDirs();
+
+            for (int i = 0; i < additionsList.length; i++) {
+                workingList.add(additionsList[i].getPath());
+            }
+        }
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+            // passing in null gives root?
+            File[] additionsList = runContext.getExternalFilesDirs(null);
+
+            for (int i = 0; i < additionsList.length; i++) {
+                if (additionsList[i] != null) {
+                    workingList.add(additionsList[i].getPath());
+                }
+            }
+        }
+
+        // ToDo: scanning large external SD Cards with many files may be slow, have Preference to disable or set folder.
+        String secStore = System.getenv("SECONDARY_STORAGE");
+        if (secStore != null && secStore.length() > 0) {
+            Log.i("AppStartupCommonA", "Paths.java related, SECONDARY_STORAGE " + secStore);
+            workingList.add(secStore);
+        }
+
+
+        String secStore2 = System.getenv("EXTERNAL_SDCARD_STORAGE");
+        if (secStore2 != null && secStore2.length() > 0) {
+            Log.i("AppStartupCommonA", "Paths.java related, EXTERNAL_SDCARD_STORAGE " + secStore2);
+            workingList.add(secStore2);
+        }
+
+        EasyGlobalsA.additionalStoryDirectories = workingList.toArray(new String[0]);
     }
 }
