@@ -94,6 +94,7 @@ public class GameListDatabaseRecyclerViewAdapter extends RecyclerView.Adapter<Ga
         holder.mSecondDetailView.setVisibility(View.VISIBLE);
         holder.mSecondDetailView.setText("path " + gameFilePath);
 
+        holder.mImageView.setImageDrawable(null);
         if (gameId0 != null) {
             File coverFile = HunkyPunk.getCover(gameId0);
             if (coverFile.exists())
