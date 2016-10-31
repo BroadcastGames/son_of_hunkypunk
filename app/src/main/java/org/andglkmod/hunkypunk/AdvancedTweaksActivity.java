@@ -72,7 +72,7 @@ public class AdvancedTweaksActivity extends AppCompatActivity {
         outputView.append("\n");
         File[] filesInTargetDir = targetDirectory.listFiles();
         if (filesInTargetDir != null) {
-            outputView.append("Files: " + filesInTargetDir.length + "\n");
+            outputView.append("Files (immediate dir): " + filesInTargetDir.length + "\n");
         }
     }
 

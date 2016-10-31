@@ -66,6 +66,14 @@ public class InterpreterActivity extends AppCompatActivity {
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG, "onCreate");
+
+        // Do early to make sure paths are in place.
+        // NOTE: It may not seem like the App starts here on this Activity, but if NDK C code crashes, it can indeed restart here.
+        AppStartupCommonA appStartupHelper = new AppStartupCommonA();
+        appStartupHelper.setupAppStarting(this);
+        appStartupHelper.setupGamesFromAssets(this);
+
         System.loadLibrary("andglk-loader");
 
         if (getSharedPreferences(SharedPrefKeys.KEY_FILE_Night, Context.MODE_PRIVATE).getBoolean("NightOn", false))

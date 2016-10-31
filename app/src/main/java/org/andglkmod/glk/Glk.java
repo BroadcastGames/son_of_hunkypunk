@@ -148,7 +148,26 @@ public class Glk extends Thread {
 				return;
 			}
 		}
+/*
+Right now, this is crashing hard the app on Blu Studio Energy 2 Android 5.0:
 
+10-31 10:27:04.521 14742-14770/? I/Glk/Java: calling native code startTerp /data/data/org.andglkmod.hunkypunk.dev/files/../lib/libgit.so  2 [/data/data/org.andglkmod.hunkypunk.dev/files/../lib/libgit.so, /storage/sdcard0/storyInteractiveFiction/storyGames0/advent.blb]
+10-31 10:27:04.521 14742-14770/? D/HunkyPunk: loader.dlopen /data/data/org.andglkmod.hunkypunk.dev/files/../lib/libgit.so
+10-31 10:27:04.522 14742-14770/? E/HunkyPunk: loader.dlopen failed for /data/data/org.andglkmod.hunkypunk.dev/files/../lib/libgit.so
+10-31 10:27:04.522 14742-14770/? D/HunkyPunk: loader.dlopen /data/data/org.andglkmod.hunkypunk.dev/files/../lib/libgit.so
+10-31 10:27:04.522 14742-14742/? V/ActivityThread: Performing resume of ActivityRecord{2aaecfb7 token=android.os.BinderProxy@e426324 {org.andglkmod.hunkypunk.dev/org.andglkmod.hunkypunk.InterpreterActivity}}
+10-31 10:27:04.522 14742-14770/? E/HunkyPunk: loader.dlopen failed for /data/data/org.andglkmod.hunkypunk.dev/files/../lib/libgit.so
+10-31 10:27:04.522 14742-14770/? D/HunkyPunk: loader.dlopen /data/data/org.andglkmod.hunkypunk.dev/files/../lib/libgit.so
+10-31 10:27:04.523 14742-14770/? E/HunkyPunk: loader.dlopen failed for /data/data/org.andglkmod.hunkypunk.dev/files/../lib/libgit.so
+10-31 10:27:04.523 14742-14770/? D/HunkyPunk: loader.dlopen /data/data/org.andglkmod.hunkypunk.dev/files/../lib/libgit.so
+10-31 10:27:04.523 14742-14770/? E/HunkyPunk: loader.dlopen failed for /data/data/org.andglkmod.hunkypunk.dev/files/../lib/libgit.so
+10-31 10:27:04.523 14742-14770/? D/HunkyPunk: loader.dlopen /data/data/org.andglkmod.hunkypunk.dev/files/../lib/libgit.so
+10-31 10:27:04.523 14742-14770/? E/HunkyPunk: loader.dlopen failed for /data/data/org.andglkmod.hunkypunk.dev/files/../lib/libgit.so
+10-31 10:27:04.523 14742-14770/? D/HunkyPunk: loader.dlopen /data/data/org.andglkmod.hunkypunk.dev/files/../lib/libgit.so
+10-31 10:27:04.524 14742-14770/? E/HunkyPunk: loader.dlopen failed for /data/data/org.andglkmod.hunkypunk.dev/files/../lib/libgit.so
+10-31 10:27:04.524 14742-14770/? D/HunkyPunk: loader.dlopen /data/data/org.andglkmod.hunkypunk.dev/files/../lib/libgit.so
+10-31 10:27:04.524 14742-14770/? E/HunkyPunk: loader.dlopen failed for /data/data/org.andglkmod.hunkypunk.dev/files/../lib/libgit.so
+ */
 		try {
 			Log.i("Glk/Java", "calling native code startTerp " + _arguments[0] + " " + _autoSavePath + " " + _arguments.length + " " + Arrays.toString(_arguments));
 			startTerp(_arguments[0], _autoSavePath, _arguments.length, _arguments);

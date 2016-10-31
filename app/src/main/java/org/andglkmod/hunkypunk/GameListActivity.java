@@ -46,12 +46,13 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
 
         Log.i(TAG, "onCreate");
 
-        fileSystemStoragePermissionsReady = getPermissionToUseStorage();
-
         // Do early to make sure paths are in place.
         AppStartupCommonA appStartupHelper = new AppStartupCommonA();
         appStartupHelper.setupAppStarting(this);
         appStartupHelper.setupGamesFromAssets(this);
+
+        fileSystemStoragePermissionsReady = getPermissionToUseStorage();
+
 
         // ToDo: Rotation will create and destroy this, causing problems if done rapidly? Test and solve.
         gameListHelper = BackgroundOperationsA.getGameListHelper(this);

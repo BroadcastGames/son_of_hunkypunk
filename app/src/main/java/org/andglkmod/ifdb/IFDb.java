@@ -160,7 +160,13 @@ public class IFDb {
 				mValues.put(Games.SERIES, str);
 				break;
 			case SERIESNUMBER:
-				mValues.put(Games.SERIESNUMBER, Integer.valueOf(str));
+				try {
+					mValues.put(Games.SERIESNUMBER, Integer.valueOf(str));
+				}
+				catch (NumberFormatException e0)
+				{
+					Log.e(TAG, "Exception parsing information", e0);
+				}
 				break;
 			case FORGIVENESS:
 				mValues.put(Games.FORGIVENESS, str);
@@ -326,7 +332,9 @@ public class IFDb {
 		IFictionHandler handler = new IFictionHandler();
 		xr.setContentHandler(handler);
 		try {
-			//Log.v(TAG, "fetching IFDB info " + url.toString());
+			if (EasyGlobalsA.IFDB_lookup_fetchA) {
+				Log.v(TAG, "fetching IFDB info " + url.toString());
+			}
 			xr.parse(new InputSource(url.openStream()));
 		} catch (IOException e) {
 			Log.w(TAG, "IO exception while fetching record on " + ifid + " from IFDb, possibly doesn't exist", e);

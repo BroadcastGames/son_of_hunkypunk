@@ -28,7 +28,7 @@ import android.util.Log;
 public final class HunkyPunk {
 
 	public static final String AUTHORITY = BuildConfig.AUTHORITY;
-	public static final Uri IF_DIRECTORY_URI = Uri.fromFile(Paths.ifDirectory());
+	// public static final Uri IF_DIRECTORY_URI = Uri.fromFile(Paths.ifDirectory());
 
 	private HunkyPunk() {}
 	

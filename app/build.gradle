@@ -7,7 +7,7 @@ This allows independent story apps to be build by authors and published on the G
 without conflicting with the general-purpose Son of Hunky Punk app that is generically named and branded.
 
 ToDo:
-    1. Define a string for a 'startup game' and instead of a Game List go immediatly to the detail
+    1. Define a string for a 'startup game' and instead of a Game List go immediately to the detail
        screen of that 'startup game' out of the assets folder.
  */
 
@@ -39,8 +39,8 @@ android {
         minSdkVersion 14
         targetSdkVersion 24
 
-        versionCode 14
-        versionName "0.9.7"
+        versionCode 15
+        versionName "0.9.8"
 
         vectorDrawables.useSupportLibrary = true
 

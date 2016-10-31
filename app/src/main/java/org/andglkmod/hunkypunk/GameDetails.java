@@ -148,6 +148,12 @@ public class GameDetails extends AppCompatActivity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Do early to make sure paths are in place.
+        // NOTE: It may not seem like the App starts here on this Activity, but if NDK C code crashes, it can indeed restart here.
+        AppStartupCommonA appStartupHelper = new AppStartupCommonA();
+        appStartupHelper.setupAppStarting(this);
+        appStartupHelper.setupGamesFromAssets(this);
+
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
         Uri game = getIntent().getData();
@@ -408,6 +414,7 @@ public class GameDetails extends AppCompatActivity implements OnClickListener {
             zver = f.read();
             f.close();
         } catch (Exception ex) {
+            Log.e(TAG, "RandomAccessFile exception " + mGameFile.getAbsolutePath(), ex);
         }
         if (zver == 0) return "unknown";
         else if (zver == 70) return "unknown (blorbed)";

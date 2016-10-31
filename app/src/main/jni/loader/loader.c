@@ -27,6 +27,8 @@ pthread_mutex_t _muGame = PTHREAD_MUTEX_INITIALIZER;
 //static jobject _GlkWrapperObj;
 //static jmethodID _GlkWrapper_onTerpExit;
 
+static int linkFailuresCount = 0;
+
 // ToDo: this code is crashing the App hard, unrecoverable, when *fn is sent in null?
 // ToDo: what happens if terpPath is null, does that crash on LOGD?
 void* link(const char* terpPath, const char *fn) 
@@ -34,10 +36,11 @@ void* link(const char* terpPath, const char *fn)
 	void* fp = NULL;
 
 	if (!_handle) {
-		LOGD("loader.dlopen %s", terpPath);
+		LOGD("loader.dlopen link function %s", terpPath);
 		_handle = dlopen(terpPath, RTLD_LOCAL | RTLD_LAZY);  
 		if (!_handle) {
-			LOGE("loader.dlopen failed for %s", terpPath);
+			LOGE("loader.dlopen link function failed for %s", terpPath);
+			linkFailuresCount++;
 			_init_error = 1;
 		}
 	}	
@@ -45,7 +48,7 @@ void* link(const char* terpPath, const char *fn)
 	if (!_init_error) {
 		fp = dlsym(_handle, fn);   
 		if (!fp) { 
-			LOGE("loader.c dlsym failed for %s", fn);
+			LOGE("loader.c dlsym link function failed for %s", fn);
 			_init_error = 1; 
 		}
 	} 
@@ -77,57 +80,79 @@ JNIEXPORT void Java_org_andglk_glk_Glk_startTerp
 	//_GlkWrapperClass = (*env)->GetObjectClass(env, GlkWrapperObj);
 	//GlkWrapper_onTerpExit = (*env)->GetMethodID(env, GlkWrapperClass, "onTerpExit", "()V");
 
+    /*
+    DESIGN THOUGHTS:
+       design here seems to be to load native code from within native code, not up on the Android java side of the app. On some device
+       framework implemens and architectures that might prove a security problem as it may seem like loading 'downloaded off the Internet code' that
+       Google's Play Store bouncer would not test.
+   */
 	// load game plugin lib
 	const char *copy_terpPath = (*env)->GetStringUTFChars(env, terpPath, 0);
 
+    linkFailuresCount = 0;
+
 	// link entry points
-	andglk_loader_glk_main = link(copy_terpPath, "andglk_loader_glk_main");   
-	andglk_loader_glk_Glk_notifyLinked = link(copy_terpPath, "andglk_loader_glk_Glk_notifyLinked");
-	andglk_loader_glk_MemoryStream_retainVmArray = link(copy_terpPath, "andglk_loader_glk_MemoryStream_retainVmArray");
-	andglk_loader_glk_MemoryStream_releaseVmArray = link(copy_terpPath, "andglk_loader_glk_MemoryStream_releaseVmArray");
-	andglk_loader_glk_MemoryStream_writeOut = link(copy_terpPath, "andglk_loader_glk_MemoryStream_writeOut");
-	andglk_loader_glk_CPointed_makePoint = link(copy_terpPath, "andglk_loader_glk_CPointed_makePoint");
-	andglk_loader_glk_CPointed_releasePoint = link(copy_terpPath, "andglk_loader_glk_CPointed_releasePoint");
+	andglk_loader_glk_main = link(copy_terpPath, "andglk_loader_glk_main");
+	if (linkFailuresCount == 0)
+    	andglk_loader_glk_Glk_notifyLinked = link(copy_terpPath, "andglk_loader_glk_Glk_notifyLinked");
+	if (linkFailuresCount == 0)
+    	andglk_loader_glk_MemoryStream_retainVmArray = link(copy_terpPath, "andglk_loader_glk_MemoryStream_retainVmArray");
+	if (linkFailuresCount == 0)
+    	andglk_loader_glk_MemoryStream_releaseVmArray = link(copy_terpPath, "andglk_loader_glk_MemoryStream_releaseVmArray");
+	if (linkFailuresCount == 0)
+    	andglk_loader_glk_MemoryStream_writeOut = link(copy_terpPath, "andglk_loader_glk_MemoryStream_writeOut");
+	if (linkFailuresCount == 0)
+    	andglk_loader_glk_CPointed_makePoint = link(copy_terpPath, "andglk_loader_glk_CPointed_makePoint");
+	if (linkFailuresCount == 0)
+    	andglk_loader_glk_CPointed_releasePoint = link(copy_terpPath, "andglk_loader_glk_CPointed_releasePoint");
+
 
 	(*env)->ReleaseStringUTFChars(env, terpPath, copy_terpPath);
 
 	// end synchronize
 	pthread_mutex_unlock (&_muQuery);
 
-	// copy parms
-	glkunix_startup_t startdata;
-	startdata.argc = argc;
-	startdata.argv = malloc(argc * sizeof(char*));
-	
-	// process argc/argv 
-	jstring argv0 = NULL;
-	int i;
-	for(i = 0; i < argc; i++) {
-		argv0 = (*env)->GetObjectArrayElement(env, argv, i);
-		startdata.argv[i] = (char*)((*env)->GetStringUTFChars(env, argv0, 0));
+    if (linkFailuresCount > 0)
+    {
+        LOGE("loader.c FATAL ERROR, linkFailureCount %d -- SKIPPING setup.", linkFailuresCount);
+    }
+    else
+    {
+        // copy parms
+        glkunix_startup_t startdata;
+        startdata.argc = argc;
+        startdata.argv = malloc(argc * sizeof(char*));
+
+        // process argc/argv
+        jstring argv0 = NULL;
+        int i;
+        for(i = 0; i < argc; i++) {
+            argv0 = (*env)->GetObjectArrayElement(env, argv, i);
+            startdata.argv[i] = (char*)((*env)->GetStringUTFChars(env, argv0, 0));
+        }
+
+        // notify glk we are linked
+        andglk_loader_glk_Glk_notifyLinked(env, obj1);
+
+        const char *copy_saveFilePath = (*env)->GetStringUTFChars(env, saveFilePath, 0);
+
+        // start the game
+        andglk_loader_glk_main(_jvm, env, obj1, copy_saveFilePath, &startdata);
+
+        (*env)->ReleaseStringUTFChars(env, terpPath, copy_saveFilePath);
+
+        // begin synchronize
+        pthread_mutex_lock (&_muQuery);
+
+        dlclose(_handle);           	 // unload terp
+
+        // free memory
+        for(i = 0; i < argc; i++) {
+            argv0 = ((*env)->GetObjectArrayElement(env, argv, i));
+            (*env)->ReleaseStringUTFChars(env, argv0, startdata.argv[i]);
+        }
+        free(startdata.argv);
 	}
-
-	// notify glk we are linked
-	andglk_loader_glk_Glk_notifyLinked(env, obj1);
-
-	const char *copy_saveFilePath = (*env)->GetStringUTFChars(env, saveFilePath, 0);
-
-	// start the game
-	andglk_loader_glk_main(_jvm, env, obj1, copy_saveFilePath, &startdata);   
-
-	(*env)->ReleaseStringUTFChars(env, terpPath, copy_saveFilePath);
-
-	// begin synchronize
-	pthread_mutex_lock (&_muQuery);
-
-	dlclose(_handle);           	 // unload terp
-	
-	// free memory
-	for(i = 0; i < argc; i++) {
-		argv0 = ((*env)->GetObjectArrayElement(env, argv, i));
-		(*env)->ReleaseStringUTFChars(env, argv0, startdata.argv[i]);
-	}
-	free(startdata.argv);
 
 	// clear pointers
 	_handle = NULL;

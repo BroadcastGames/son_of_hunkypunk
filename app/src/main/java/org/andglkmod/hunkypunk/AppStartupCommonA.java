@@ -78,7 +78,9 @@ public class AppStartupCommonA {
             File[] additionsList = runContext.getExternalMediaDirs();
 
             for (int i = 0; i < additionsList.length; i++) {
-                workingList.add(additionsList[i].getPath());
+                if (additionsList[i] != null) {
+                    workingList.add(additionsList[i].getPath());
+                }
             }
         }
 
@@ -87,6 +89,7 @@ public class AppStartupCommonA {
             File[] additionsList = runContext.getExternalFilesDirs(null);
 
             for (int i = 0; i < additionsList.length; i++) {
+                //Huawei Y538 Android 5.1.1 crashed here without this null check
                 if (additionsList[i] != null) {
                     workingList.add(additionsList[i].getPath());
                 }
@@ -105,6 +108,20 @@ public class AppStartupCommonA {
         if (secStore2 != null && secStore2.length() > 0) {
             Log.i("AppStartupCommonA", "Paths.java related, EXTERNAL_SDCARD_STORAGE " + secStore2);
             workingList.add(secStore2);
+        }
+
+        // Blu Studio Energy 2 Android 5.0 had this value
+        String secStore3 = System.getenv("USBOTG_STORAGE");
+        if (secStore3 != null && secStore3.length() > 0) {
+            Log.i("AppStartupCommonA", "Paths.java related, USBOTG_STORAGE " + secStore3);
+            workingList.add(secStore3);
+        }
+
+        // Blu Studio Energy 2 Android 5.0 had this value
+        String secStore4 = System.getenv("EXTERNAL_STORAGE");
+        if (secStore4 != null && secStore4.length() > 0) {
+            Log.i("AppStartupCommonA", "Paths.java related, EXTERNAL_STORAGE " + secStore4);
+            workingList.add(secStore4);
         }
 
         EasyGlobalsA.additionalStoryDirectories = workingList.toArray(new String[0]);
