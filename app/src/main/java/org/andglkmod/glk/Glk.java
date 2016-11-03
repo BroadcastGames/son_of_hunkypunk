@@ -174,6 +174,10 @@ Right now, this is crashing hard the app on Blu Studio Energy 2 Android 5.0:
 		}
 		catch (Exception e)
 		{
+			// Note: fatal app crash with NoSuchMethodError that does not allow catch?
+			//     No static method startTerp(Lorg/andglkmod/glk/Glk;Ljava/lang/String;Ljava/lang/String;I[Ljava/lang/String;)V in class Lorg/andglkmod/glk/Glk$override; or its super classes (declaration of 'org.andglkmod.glk.Glk$override' appears in /data/data/org.andglkmod.hunkypunk.dev/files/instant-run/dex-temp/reload0x0000.dex)
+			// This can be reproduced 1) by fresh sart of app. 2) failed launch of story due to midding emulator .so, 3) try to launch again.
+			//   So there seems to be a lack of cleanup on failed start that makes 2nd start fatally crash entire app.
 			Log.e("Glk/Java", "startTerp got Exception", e);
 		}
 		try {
@@ -196,27 +200,44 @@ Right now, this is crashing hard the app on Blu Studio Energy 2 Android 5.0:
 		mUiHandler.post(new Runnable() {
 			@Override
 			public void run() {
-				TypedArray ta = mContext.obtainStyledAttributes(null, 
-																new int[] { android.R.attr.textAppearance }, 
-																R.attr.textGridWindowStyle, 
-																0);
-				int res = ta.getResourceId(0, -1);
-				ta = mContext.obtainStyledAttributes(res, new int[] { android.R.attr.textSize, android.R.attr.textColor });
-				int fontSize = (int)(ta.getDimensionPixelSize(0, -1));
+				try {
+					TypedArray ta = mContext.obtainStyledAttributes(null,
+							new int[]{android.R.attr.textAppearance},
+							R.attr.textGridWindowStyle,
+							0);
+					int res = ta.getResourceId(0, -1);
+					ta = mContext.obtainStyledAttributes(res, new int[]{android.R.attr.textSize, android.R.attr.textColor});
+					int fontSize = (int) (ta.getDimensionPixelSize(0, -1));
 
-				final View overlay = ((LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-					.inflate(R.layout.floating_notification, null);
-				TextView tw = (TextView)(overlay.findViewById(R.id.message));
-				tw.setTextSize(fontSize);
-				tw.setText(R.string.game_quit);
+					final View overlay = ((LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+							.inflate(R.layout.floating_notification, null);
+					TextView tw = (TextView) (overlay.findViewById(R.id.message));
+					tw.setTextSize(fontSize);
+					tw.setText(R.string.game_quit);
 
-				overlay.measure(View.MeasureSpec.makeMeasureSpec(mFrame.getWidth(), MeasureSpec.AT_MOST), 
-						View.MeasureSpec.makeMeasureSpec(mFrame.getHeight(), MeasureSpec.AT_MOST));
-				Bitmap bitmap = Bitmap.createBitmap(overlay.getMeasuredWidth(), overlay.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
-				overlay.layout(0, 0, overlay.getMeasuredWidth(), overlay.getMeasuredHeight());
-				overlay.draw(new Canvas(bitmap));
-				mFrame.setForeground(new BitmapDrawable(bitmap));
-				mFrame.setForegroundGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
+					overlay.measure(View.MeasureSpec.makeMeasureSpec(mFrame.getWidth(), MeasureSpec.AT_MOST),
+							View.MeasureSpec.makeMeasureSpec(mFrame.getHeight(), MeasureSpec.AT_MOST));
+					// On abnormal C code end, app crashing Exception here: "IllegalArgumentException: width and height must be > 0"
+					// Running on Emulator, Android SDK 24, Nexus 9 device
+					Log.d("Glk/Java", "bitmap width " + overlay.getMeasuredWidth() + " height " + overlay.getMeasuredHeight());
+					if (overlay.getMeasuredHeight() > 0) {
+						Bitmap bitmap = Bitmap.createBitmap(overlay.getMeasuredWidth(), overlay.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+						overlay.layout(0, 0, overlay.getMeasuredWidth(), overlay.getMeasuredHeight());
+						overlay.draw(new Canvas(bitmap));
+						mFrame.setForeground(new BitmapDrawable(bitmap));
+						mFrame.setForegroundGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
+					}
+					else
+					{
+						// ToDo: do we need this complicated overylay anyway, why not just insert a standard View?
+						Log.e("Glk/Java", "notifyQuit got zero height, user will get blank screen.");
+					}
+				}
+				catch (Exception e)
+				{
+					// This results in a blank screen
+					Log.e("Glk/Java", "Exception in notifyQuit", e);
+				}
 			}
 		});
 	}

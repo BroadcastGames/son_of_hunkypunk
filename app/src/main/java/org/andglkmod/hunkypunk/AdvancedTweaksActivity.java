@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -41,11 +42,16 @@ public class AdvancedTweaksActivity extends AppCompatActivity {
         });
 
         buildFileReport();
+
+        FileHelper fw = new FileHelper();
+        File scanFiles = new File(this.getFilesDir().getPath().replace("/files", ""));
+        Log.i("AdvancedTweak", "scanFiles " + scanFiles);
+        fw.walk(scanFiles);
     }
 
     public void buildFileReport() {
         TextView outputFileInfo = (TextView) findViewById(R.id.outputFileInfo0);
-        outputFileInfo.setText("");
+        outputFileInfo.setText("System.getProperty(\"os.arch\"): " + System.getProperty("os.arch") + "\n");
         outputInformationAboutDirectory("Cover Images",  Paths.coverDirectory(), outputFileInfo);
         outputInformationAboutDirectory("Story Files",   Paths.ifDirectory(),    outputFileInfo);
         outputInformationAboutDirectory("Data Files",    Paths.dataDirectory(),  outputFileInfo);

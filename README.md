@@ -33,3 +33,17 @@ General observations:
 4. Default to non SD-Card storage should probably increase compatibility of devices.
 5. Some hard-coded testing game paths were added /sdcard/storyGames0 and /sdcard/storyGames1 to speed up testing of Git Interpreter / Glk changes.
 6. Network activity related to looking up game details & graphics should probably be a preference option.
+
+ToDo:
+
+1. Shift JNI loading to static object as recommended here https://developer.android.com/training/articles/perf-jni.html
+  That way the interfaces aren't redone every time activity pause/resumed when user switches away from app?
+  
+Android 5.0 Blu Energy Studio 64-bit device failures
+
+$ adb shell
+$ run-as org.andglkmod.hunkypunk.dev
+$ ls- l
+
+Does this tool help solve the issue?
+https://medium.com/keepsafe-engineering/the-perils-of-loading-native-libraries-on-android-befa49dce2db#.yngssslcq

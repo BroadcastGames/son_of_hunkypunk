@@ -494,7 +494,13 @@ public class GameDetails extends AppCompatActivity implements OnClickListener {
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 
             int position = getIntent().getIntExtra("position", -1);
-            long[] ifIDs = getIntent().getLongArrayExtra("ifIDs");
+
+            long[] ifIDs = null;
+            try {
+                ifIDs = getIntent().getLongArrayExtra("ifIDs");
+            } catch (ClassCastException e) {
+                Log.e(TAG, "Exception onFling", e);
+            }
 
             if (ifIDs == null)
             {
