@@ -214,7 +214,7 @@ public abstract class Window extends CPointed {
 	abstract public int measureHeight(int size);
 
 	public static int open(Window split, int method, int size, int wintype, int rock) {
-		Log.d("Glk/Window", "Window.open " + Long.toString(wintype));
+		Log.d("Glk/Window", "Window.java open " + Long.toString(wintype) + " method " + method);
 		final Glk glk = Glk.getInstance();
 		Window wnd;
 		switch (wintype) {
@@ -247,7 +247,8 @@ public abstract class Window extends CPointed {
 			if (_root == split)
 				_root = w;
 		}
-		
+
+		Log.d("Glk/Window", "Window.java open END getPointer() " + wnd.getPointer());
 		return wnd.getPointer();
 	}
 

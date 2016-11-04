@@ -39,4 +39,5 @@ public class EasyGlobalsA {
         };
 
     public static String[] additionalStoryDirectories = additionalStoryDirectoriesTemplate;
+    public static boolean storageManagerScandIrectoryTreeLogA = false;
 }

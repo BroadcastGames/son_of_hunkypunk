@@ -19,7 +19,9 @@
 
 package org.andglkmod.glk;
 
-
+/*
+are these memory poiners? is mPointer int valid on x86_64 and arm64 or should it be long?
+ */
 public abstract class CPointed {
 	public final static int GIDISP_CLASS_WINDOW = 0;
 	public final static int GIDISP_CLASS_STREAM = 1;

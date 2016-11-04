@@ -1554,6 +1554,7 @@ public class TextBufferWindow extends Window {
 
     @Override
     public int[] getSize() {
+        Log.i(TAG, "Glk/Java getSize");
         // TODO Auto-generated method stub
         return new int[]{0, 0};
     }

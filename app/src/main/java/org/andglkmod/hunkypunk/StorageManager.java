@@ -179,7 +179,9 @@ public class StorageManager {
 		if (files == null)
 			return;
 
-		Log.d(TAG, "scanDirectoryTree " + dir.toString() + " " + Thread.currentThread());
+		if (EasyGlobalsA.storageManagerScandIrectoryTreeLogA) {
+			Log.d(TAG, "glk_window_get_sizescanDirectoryTree " + dir.toString() + " " + Thread.currentThread());
+		}
 		for (File f : files) {
 			if (!f.isDirectory())
 				try {

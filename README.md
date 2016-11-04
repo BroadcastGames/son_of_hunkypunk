@@ -38,6 +38,7 @@ ToDo:
 
 1. Shift JNI loading to static object as recommended here https://developer.android.com/training/articles/perf-jni.html
   That way the interfaces aren't redone every time activity pause/resumed when user switches away from app?
+2. Much better behavior with JNI crashes so that Android app keeps control. Reference: http://blog.httrack.com/blog/2013/08/23/catching-posix-signals-on-android/  
   
 Android 5.0 Blu Energy Studio 64-bit device failures
 
@@ -45,5 +46,11 @@ $ adb shell
 $ run-as org.andglkmod.hunkypunk.dev
 $ ls- l
 
-Does this tool help solve the issue?
-https://medium.com/keepsafe-engineering/the-perils-of-loading-native-libraries-on-android-befa49dce2db#.yngssslcq
+Testing on x86_64 Tablet, Android 5.1 X80 Pro, reveals odd behavior:
+
+1. even though System.getProperty("os.arch") shows x86_64, it seems to only load 32bit x86.
+2. deleting the x86 but not x86_64 from jniLibs (and verify missing from apk zip) results in it shifting to arm7l for System.getProperty("os.arch")
+
+For now, the solution seems to be to make sure jniLibs has no 64bit binaries.  This forces the target device to run in 32-bit for the C code.
+ 
+NOTE: Twisty seems to work fine with two interpreters on Android 64bit, so the issue seems to be here in how SOHP passes pointers between C and Java.

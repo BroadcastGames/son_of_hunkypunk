@@ -43,7 +43,7 @@ extern jclass _class;
 
 //static char* gidispatch_char_array = "&+#!Cn";
 
-#define GLK_JNI_VERSION JNI_VERSION_1_2
+#define GLK_JNI_VERSION JNI_VERSION_1_6
 
 /* these are OK to keep */
 static JavaVM *_jvm;

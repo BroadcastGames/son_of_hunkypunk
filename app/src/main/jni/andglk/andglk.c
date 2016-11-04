@@ -48,7 +48,7 @@ static jmp_buf _quit_env;
 static char* gidispatch_char_array = "&+#!Cn";
 
 // ToDo: why such an old version and not 1_6 ?
-#define GLK_JNI_VERSION JNI_VERSION_1_2
+#define GLK_JNI_VERSION JNI_VERSION_1_6
 
 void ( * andglk_exit_hook ) (void) = NULL; 
 void ( * andglk_set_autosave_hook ) (const char* filename) = NULL; 
@@ -76,7 +76,7 @@ int outputBuffer_count = 0;
 
 jint JNI_OnLoad(JavaVM *jvm, void *reserved)
 {
-	LOGD("andglk.JNI_OnLoad");
+	LOGD("andglk.c JNI_OnLoad start");
 
     if (! bufferInit)
     {
@@ -140,6 +140,8 @@ jint JNI_OnLoad(JavaVM *jvm, void *reserved)
 	_getDispatchRock = (*env)->GetMethodID(env, cls, "getDispatchRock", "()I");
 	_getDispatchClass = (*env)->GetMethodID(env, cls, "getDispatchClass", "()I");
 
+	LOGD("andglk.c JNI_OnLoad end");
+
 	return GLK_JNI_VERSION;
 }
 
@@ -183,6 +185,7 @@ static glui32 jstring2latin1_uni(JNIEnv *env, jstring str, glui32 *buf, glui32 m
 
 void andglk_loader_glk_main(JavaVM* jvm, JNIEnv *env, jobject this, const char* saveFilePath, glkunix_startup_t* startdata)
 {
+	LOGD("andglk.c andglk_loader_glk_main start");
 	JNI_OnLoad(jvm, NULL);
 
    	if (_this) {
@@ -198,6 +201,8 @@ void andglk_loader_glk_main(JavaVM* jvm, JNIEnv *env, jobject this, const char* 
 
 		if (glkunix_startup_code(startdata)) {
 
+        	LOGD("andglk.c andglk_loader_glk_main glkunix_start_code returned fine");
+
  			if (andglk_set_autorestore_hook) {
 				andglk_set_autorestore_hook(saveFilePath);
 			}
@@ -208,6 +213,8 @@ void andglk_loader_glk_main(JavaVM* jvm, JNIEnv *env, jobject this, const char* 
 			}
 		}
 	}
+
+    LOGD("andglk.c andglk_loader_glk_main end");
 }
 
 // with jobject on param, go with jlong too
@@ -223,6 +230,7 @@ int andglk_loader_glk_MemoryStream_retainVmArray(JNIEnv *env, jobject this, int 
 	}
 }
 
+// should all these pointers be changed to long to work on 64bit Android systems?
 jint andglk_loader_glk_CPointed_makePoint(JNIEnv *env, jobject this)
 {
 	jobject *ptr = malloc(sizeof(jobject));
@@ -423,12 +431,20 @@ void glk_window_get_size(winid_t win, glui32 *widthptr, glui32 *heightptr)
 	if (!win)
 		return;
 
+    LOGW("andglk.c crash here on 64bit? glk_window_get_size");
+
 	JNIEnv *env = JNU_GetEnv();
 	static jmethodID mid = 0;
 	if (mid == 0)
 		mid = (*env)->GetMethodID(env, _Window, "getSize", "()[I");
 
+    LOGW("andglk.c crash here on 64bit? glk_window_get_size CHECKPOINT_A %d", mid);
+    // sleep(1);
+    LOGW("andglk.c crash here on 64bit? glk_window_get_size CHECKPOINT_B");
+
 	jarray res = (*env)->CallObjectMethod(env, *win, mid);
+
+    LOGW("andglk.c crash here on 64bit? glk_window_get_size CHECKPOINT_C");
 
 	if (res) {
 		jint *arr = (*env)->GetIntArrayElements(env, res, NULL);
@@ -436,11 +452,13 @@ void glk_window_get_size(winid_t win, glui32 *widthptr, glui32 *heightptr)
 		if (heightptr) *heightptr = arr[1];
 		
 		// this has timing problems (need to wait for ui to be ready)
-		// LOGD("glk_window_get_size w:%d h:%d",arr[0],arr[1]);
+		LOGD("glk_window_get_size w:%d h:%d", arr[0], arr[1]);
 
 		(*env)->ReleaseIntArrayElements(env, res, arr, JNI_ABORT);
 		(*env)->DeleteLocalRef(env, res);
 	}
+
+    LOGW("andglk.c crash here on 64bit? glk_window_get_size END function");
 }
 
 void glk_window_set_arrangement(winid_t win, glui32 method,

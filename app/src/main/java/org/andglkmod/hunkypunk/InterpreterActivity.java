@@ -19,7 +19,6 @@
 
 package org.andglkmod.hunkypunk;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +28,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -39,6 +39,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.os.Process;
 
 import org.andglkmod.SharedPrefKeys;
 import org.andglkmod.glk.Glk;
@@ -61,12 +62,29 @@ public class InterpreterActivity extends AppCompatActivity {
     private Glk glk;
     private File mDataDir;
 
+
+    static {
+        // https://developer.android.com/training/articles/perf-jni.html says to clal from static
+        try {
+            System.loadLibrary("andglk-loader");
+            Log.i(TAG, "static System.loadLibrary completed.");
+        }
+        catch (Exception e0)
+        {
+            Log.e(TAG, "Exception in System.loadLibrary", e0);
+        }
+    }
+
+
     /**
      * Called when the activity is first created.
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG, "onCreate");
+        Log.i(TAG, "onCreate " + System.getProperty("os.arch"));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Log.i(TAG, "onCreate getApplicationInfo().nativeLibraryDir: " + getApplicationInfo().nativeLibraryDir + " is64Bit? " + Process.is64Bit());
+        }
 
         // Do early to make sure paths are in place.
         // NOTE: It may not seem like the App starts here on this Activity, but if NDK C code crashes, it can indeed restart here.
@@ -74,7 +92,6 @@ public class InterpreterActivity extends AppCompatActivity {
         appStartupHelper.setupAppStarting(this);
         appStartupHelper.setupGamesFromAssets(this);
 
-        System.loadLibrary("andglk-loader");
 
         if (getSharedPreferences(SharedPrefKeys.KEY_FILE_Night, Context.MODE_PRIVATE).getBoolean("NightOn", false))
             setTheme(R.style.theme2);
@@ -87,14 +104,21 @@ public class InterpreterActivity extends AppCompatActivity {
         Uri uri = i.getData();
         String terp = i.getStringExtra("terp");
         String ifid = i.getStringExtra("ifid");
+
+        if (i.getBooleanExtra("landscape", false)) {
+            Log.i(TAG, "onCreate lanuch parameters say to change screen to Landscape");
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+
         mDataDir = HunkyPunk.getGameDataDir(uri, ifid);
+
+        // ToDo: add feature to app to export/share/email the savegames content to another device.
         File saveDir = new File(mDataDir, "savegames");
         saveDir.mkdir();
 
-        glk = new Glk(this);
+        Log.i(TAG, "terp " + terp + " ifid " + ifid + " dataDir " + mDataDir.getPath() + " saveDir " + saveDir.getPath());
 
-        if (i.getBooleanExtra("landscape", false))
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        glk = new Glk(this);
 
         setContentView(glk.getView());
         glk.setAutoSave(getBookmark(), 0);
@@ -102,13 +126,17 @@ public class InterpreterActivity extends AppCompatActivity {
         glk.setTranscriptDir(Paths.transcriptDirectory()); // there goes separation, and so cheaply...
 
         ArrayList<String> args = new ArrayList<String>();
-        args.add(getFilesDir() + "/../lib/lib" + terp + ".so");
+        String gameVirtualMachinePath = getApplicationInfo().nativeLibraryDir + File.separator + "lib" + terp + ".so";
+        File testVirtualMachineFile = new File(gameVirtualMachinePath);
+        Log.d(TAG, "testVirtualMachineFile " + testVirtualMachineFile.length() + " exists? " + testVirtualMachineFile.exists() + " " + testVirtualMachineFile.getPath());
+        args.add(gameVirtualMachinePath);
         if (terp.compareTo("tads") == 0 && getBookmark().exists()) {
             args.add("-r");
             args.add(getBookmark().getAbsolutePath());
         }
         args.add(uri.getPath());
 
+        Log.d(TAG, "gameVirtualMachinePath " + gameVirtualMachinePath + " args: " + args.toString());
         String arga[] = new String[args.size()];
         glk.setArguments(args.toArray(arga));
 
@@ -123,6 +151,7 @@ public class InterpreterActivity extends AppCompatActivity {
         if (i.getBooleanExtra("loadBookmark", false) || savedInstanceState != null) {
             /* either the user's intent is to restore from bookmark,
                or the OS has killed our app and is now restoring state */
+            Log.w(TAG, "loadBookmark for previous game, is due to android savedInstanceState? " + (savedInstanceState != null));
             loadBookmark();
         }
         glk.start();

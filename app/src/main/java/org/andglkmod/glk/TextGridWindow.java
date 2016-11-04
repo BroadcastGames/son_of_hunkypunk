@@ -33,6 +33,7 @@ import android.graphics.Typeface;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextPaint;
+import android.util.Log;
 import android.view.KeyEvent;
 
 public class TextGridWindow extends Window {
@@ -587,6 +588,7 @@ public class TextGridWindow extends Window {
 
     @Override
     public int[] getSize() {
+        Log.i("TextGridWindow", "Glk/Java getSize");
         if (mView == null) return new int[]{0, 0, 0, 0};
         return mView.getSize();
     }
