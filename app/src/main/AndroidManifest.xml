@@ -287,5 +287,12 @@
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
+        <receiver android:name=".MediaReceiver" android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_MOUNTED" />
+                <data android:scheme="file"/>
+            </intent-filter>
+        </receiver>
+
     </application>
 </manifest>

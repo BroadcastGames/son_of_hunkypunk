@@ -378,8 +378,16 @@ glui32 git_perform_glk(glui32 funcnum, glui32 numargs, glui32 *arglist)
 
     /* Grab the string. */
     proto = gidispatch_prototype(funcnum);
-    if (!proto)
-      fatalError("Unknown Glk function.");
+    if (!proto) {
+      LOGE("Git interpreter glkop.c Unknown Glk function 0x%04x", funcnum);
+      // ToDo: why does calling fatalError cause the app to crash?
+      // fatalError("Unknown Glk function.");
+      // exit app
+      LOGE("Git interpreter glkop.c Unknown Glk function 0x%04x EXIT APP", funcnum);
+      gidispatch_call(1 /* exit app */, 0, NULL);
+      LOGE("Git interpreter glkop.c Unknown Glk function 0x%04x AFTER EXIT APP", funcnum);
+      return;
+    }
 
     splot.varglist = arglist;
     splot.numvargs = numargs;

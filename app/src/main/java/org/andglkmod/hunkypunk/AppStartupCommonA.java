@@ -79,11 +79,19 @@ public class AppStartupCommonA {
 
             for (int i = 0; i < additionsList.length; i++) {
                 if (additionsList[i] != null) {
+                    Log.i("AppStartupCommonA", "Paths.java related, post-LOLLIPOP getExternalMediaDirs " + additionsList[i]);
                     workingList.add(additionsList[i].getPath());
                 }
             }
         }
 
+        /*
+        Testing notes: using the Android 7.0 emulator with an external SD, the path /storage/XXXX-XXXX comes up but no way have
+          I found a way to get the 'root' of a free SD Card.  The Emulator internal screens gave option to encrypt or allow
+          mounting on other devices. Even when saying to not encrypt, the root isn't really exposed on any API call I have found.
+          None of the environment variables point to this parth.  So, one appraoch is to ask for the app-specific path and strip
+          out the app-specific components.
+         */
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
             // passing in null gives root?
             File[] additionsList = runContext.getExternalFilesDirs(null);
@@ -91,7 +99,22 @@ public class AppStartupCommonA {
             for (int i = 0; i < additionsList.length; i++) {
                 //Huawei Y538 Android 5.1.1 crashed here without this null check
                 if (additionsList[i] != null) {
+                    Log.i("AppStartupCommonA", "Paths.java related, post-KITKAT getExternalFilesDirs " + additionsList[i]);
                     workingList.add(additionsList[i].getPath());
+                    // Now, can we get this as the root of an SD Card mounted (or USB mounted)?
+                    String workPath = additionsList[i].getPath();
+                    if (! workPath.startsWith("/storage/emulated"))
+                    {
+                        if (workPath.length() >= "/storage/DEAD-BEEF/".length()) {
+                            if (workPath.charAt(13) == '-') {
+                                if (workPath.charAt(18) == '/') {
+                                    String workPathRoot = workPath.substring(0, 18);
+                                    Log.i("AppStartupCommonA", "Paths.java related, post-KITKAT getExternalFilesDirs TARGET MATCH " + workPath + " to " + workPathRoot);
+                                    workingList.add(workPathRoot);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -124,6 +147,14 @@ public class AppStartupCommonA {
             workingList.add(secStore4);
         }
 
+        // Must be a named folder type, Downloads is the most generic
+        File secStore5 = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        if (secStore5 != null) {
+            Log.i("AppStartupCommonA", "Paths.java related, getExternalStoragePublicDirectory DIRECTORY_DOWNLOADS " + secStore5);
+            workingList.add(secStore5.getPath());
+        }
+
         EasyGlobalsA.additionalStoryDirectories = workingList.toArray(new String[0]);
+        Log.i("AppStartupCommonA", "Paths.java final count additionalStoryDirectories: " + EasyGlobalsA.additionalStoryDirectories.length);
     }
 }

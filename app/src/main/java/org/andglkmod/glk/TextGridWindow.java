@@ -509,11 +509,17 @@ public class TextGridWindow extends Window {
             return new LineInputEvent(TextGridWindow.this, result, mLineBuffer, mMaxLen, mDispatchRock, mUnicodeEvent);
         }
 
+        // Anything called from C code harden with many integrity checks for exceptions
+        // Testing "City of Secrets" story hit this path.
         public void cancelCharEvent() {
-            if (mCharEventPending) {
-                setEnabled(false);
-                setFocusable(false);
-                mCharEventPending = false;
+            try {
+                if (mCharEventPending) {
+                    setEnabled(false);
+                    setFocusable(false);
+                    mCharEventPending = false;
+                }
+            } catch (Exception e) {
+                Log.e("Glk/TextGridWindow", "cancelCharEvent exception", e);
             }
         }
 
