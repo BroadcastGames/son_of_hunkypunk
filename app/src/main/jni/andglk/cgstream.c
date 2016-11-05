@@ -334,6 +334,7 @@ stream_t *glk_stream_open_memory(char *buf, glui32 buflen, glui32 fmode,
 stream_t *glk_stream_open_memory_uni(glui32 *buf, glui32 buflen, glui32 fmode, 
     glui32 rock)
 {
+  LOGD("cgstream.c glk_stream_open_memory_uni start");
   stream_t *str;
 
   if (fmode != filemode_Read && fmode != filemode_Write 
@@ -351,6 +352,8 @@ stream_t *glk_stream_open_memory_uni(glui32 *buf, glui32 buflen, glui32 fmode,
   if (!str)
     return 0;
 
+  LOGD("cgstream.c glk_stream_open_memory_uni CHECKPOINT_A");
+
   if (buf && buflen)
   {
     str->buf = buf;
@@ -364,6 +367,8 @@ stream_t *glk_stream_open_memory_uni(glui32 *buf, glui32 buflen, glui32 fmode,
     if (gli_register_arr)
       str->arrayrock = (*gli_register_arr)(buf, buflen, "&+#!Iu");
   }
+
+  LOGD("cgstream.c glk_stream_open_memory_uni end");
 
   return str;
 }
@@ -1899,6 +1904,7 @@ void glk_put_char_uni(glui32 ch)
 
 void glk_put_char_stream(stream_t *str, unsigned char ch)
 {
+  LOGD("cgstream.c glk_put_char_stream");
   if (!str)
   {
     gli_strict_warning("put_char_stream: invalid ref");

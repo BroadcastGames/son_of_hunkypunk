@@ -20,7 +20,8 @@
         app:layoutManager="LinearLayoutManager"
         tools:listitem="@layout/fragment_gamelist_item" />
 
-    <!-- android:empty is a pre-defined Android ID that will appear when a RecyclerView is empty -->
+    <!-- android:empty is a pre-defined Android ID that will appear when a ListView is empty.
+    Does this work with RecyclerView empty? Right now we are using Viewswitcher. -->
     <LinearLayout android:id="@id/android:empty"
                   android:orientation="vertical"
                   android:layout_width="fill_parent"

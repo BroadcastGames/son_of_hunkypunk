@@ -332,7 +332,7 @@ public class IFDb {
 		IFictionHandler handler = new IFictionHandler();
 		xr.setContentHandler(handler);
 		try {
-			if (EasyGlobalsA.IFDB_lookup_fetchA) {
+			if (EasyGlobalsA.IFDB_lookup_fetchA_logging) {
 				Log.v(TAG, "fetching IFDB info " + url.toString());
 			}
 			xr.parse(new InputSource(url.openStream()));

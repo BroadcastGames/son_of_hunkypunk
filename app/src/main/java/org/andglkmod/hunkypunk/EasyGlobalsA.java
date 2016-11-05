@@ -14,9 +14,9 @@ public class EasyGlobalsA {
     public static boolean glk_c_to_java_output_appendA = true;
     public static boolean glk_c_to_java_output_flushA = false;
 
-    public static boolean IFDB_lookup_fetchA = true;
+    public static boolean IFDB_lookup_fetchA_logging = true;
 
-    public static boolean storageManagerAssetStuffing0 = true;
+    public static boolean storageManagerAssetStuffing0 = false;
 
     public static File getPathNullPathA = null;
     public static long fileDownloadMinimumFreeSpaceA = 1024L * 1024L * 3L;  // 3MB
@@ -38,6 +38,7 @@ public class EasyGlobalsA {
             // "storage/sdcard0"
         };
 
+    public static boolean storageManagerScanExternalWideA = true;
     public static String[] additionalStoryDirectories = additionalStoryDirectoriesTemplate;
-    public static boolean storageManagerScandIrectoryTreeLogA = false;
+    public static boolean storageManagerScanDirectoryTreeLogA = false;
 }

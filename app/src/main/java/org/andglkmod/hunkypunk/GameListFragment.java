@@ -143,6 +143,7 @@ public class GameListFragment extends Fragment implements LoaderManager.LoaderCa
         recyclerViewAdapter.swapCursor(data);
         if (recyclerViewAdapter.getItemCount() == 0)
         {
+            Log.w(TAG, "RecyclerView shows zero items");
             if (!noItemsMessageOnDisplay)
             {
                 noItemsMessageOnDisplay = true;

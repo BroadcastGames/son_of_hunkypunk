@@ -24,6 +24,8 @@ dependencies {
     compile 'com.android.support:design:24.2.1'
 
     compile 'org.greenrobot:eventbus:3.0.0'
+
+    // compile 'com.github.wrdlbrnft:sorted-list-adapter:0.2.0.1'
 }
 
 // reference: https://blog.grandcentrix.net/how-to-install-different-app-variants-on-one-android-device
