@@ -153,9 +153,13 @@ public class StorageManager {
 		File extraDir2 = new File("/sdcard/story000/setA");
 		scanDirectoryTreeRecursive(extraDir2);
 		File extraDir3 = new File("/sdcard/storyGames0");
-		scanDirectoryTreeRecursive(extraDir3);
+		//scanDirectoryTreeRecursive(extraDir3);
 		File extraDir4 = new File("/sdcard/storyGames1");
-		scanDirectoryTreeRecursive(extraDir4);
+		//scanDirectoryTreeRecursive(extraDir4);
+		File extraDir6 = new File("/sdcard/storyGames_ZM_0");
+		//scanDirectoryTreeRecursive(extraDir6);
+		File extraDir7 = new File("/sdcard/storyGames_TechTest0");
+		scanDirectoryTreeRecursive(extraDir7);
 	}
 
 	private void scanDirectoryTreeRecursive(File dir) {
