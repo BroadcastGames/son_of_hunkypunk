@@ -152,10 +152,13 @@ void shutdownMemory ()
 
 void memReadError (git_uint32 address)
 {
-    fatalError ("Out-of-bounds memory access");
+    LOGE("Git Interpreter Out-of-bounds memory access on Read %d", address);
+    fatalError ("Out-of-bounds memory access on Read");
 }
 
 void memWriteError (git_uint32 address)
 {
-    fatalError ("Out-of-bounds memory access");
+    LOGE("Git Interpreter Out-of-bounds memory access on Write %d EXITING", address);
+    // fatalError ("Out-of-bounds memory access on Write");
+    gidispatch_call(1 /* exit app */, 0, NULL);
 }

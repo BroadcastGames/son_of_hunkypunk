@@ -1246,13 +1246,17 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
                 arglist[2].uint);
             break;
         case 0x0139: /* stream_open_memory_uni */
-            LOGD("zebracat funcnum 0x%04x", funcnum);
+            // Counterfeit Monkey crashes here.
+            LOGW("zebracat funcnum 0x%04x CRASH_HERE BEGIN ptrflag %d", funcnum, arglist[0].ptrflag);
+//            break;
+//        case 999999:
             if (arglist[0].ptrflag)
                 arglist[6].opaqueref = glk_stream_open_memory_uni(arglist[1].array, 
                     arglist[2].uint, arglist[3].uint, arglist[4].uint);
             else
                 arglist[4].opaqueref = glk_stream_open_memory_uni(NULL, 
                     0, arglist[1].uint, arglist[2].uint);
+            LOGD("zebracat funcnum 0x%04x END", funcnum);
             break;
         case 0x0140: /* request_char_event_uni */
             LOGD("zebracat funcnum 0x%04x", funcnum);
