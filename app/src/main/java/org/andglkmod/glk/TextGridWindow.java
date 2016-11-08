@@ -482,6 +482,7 @@ public class TextGridWindow extends Window {
         }
 
         public void requestLineEvent(String initial) {
+            // ToDo: implement initial
             mLineEventPending = true;
             mLineInputStart = _pos;
             mLineInputEnd = _pos + mWidth;
@@ -490,9 +491,16 @@ public class TextGridWindow extends Window {
             if (mLineInputEnd - mLineInputStart > mMaxLen)
                 mLineInputEnd = mLineInputStart + mMaxLen;
 
-            setEnabled(true);
-            setFocusableInTouchMode(true);
-            requestFocus();
+            // Crash here in JNI code from wrong thread.
+            // Change thread to UI thread
+            getView().post(new Runnable() {
+                @Override
+                public void run() {
+                    setEnabled(true);
+                    setFocusableInTouchMode(true);
+                    requestFocus();
+                }
+            });
         }
 
         public LineInputEvent cancelLineEvent() {
@@ -503,8 +511,14 @@ public class TextGridWindow extends Window {
             _pos = _pos + mWidth;
             _pos -= _pos % mWidth;
             mLineEventPending = false;
-            setEnabled(false);
-            setFocusable(false);
+
+            getView().post(new Runnable() {
+                @Override
+                public void run() {
+                    setEnabled(false);
+                    setFocusable(false);
+                }
+            });
 
             return new LineInputEvent(TextGridWindow.this, result, mLineBuffer, mMaxLen, mDispatchRock, mUnicodeEvent);
         }
@@ -514,8 +528,13 @@ public class TextGridWindow extends Window {
         public void cancelCharEvent() {
             try {
                 if (mCharEventPending) {
-                    setEnabled(false);
-                    setFocusable(false);
+                    getView().post(new Runnable() {
+                        @Override
+                        public void run() {
+                            setEnabled(false);
+                            setFocusable(false);
+                        }
+                    });
                     mCharEventPending = false;
                 }
             } catch (Exception e) {

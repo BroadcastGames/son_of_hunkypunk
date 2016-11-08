@@ -28,6 +28,7 @@ public class EasyGlobalsA {
             "/sdcard/story000/setA",
             "/sdcard/storyGames0",
             "/sdcard/storyGames1",
+
             // Teclast Android 5.0 tablet uses this for physically removable SD Card
             // Code at the time of this comment checkin does not seem to generate that path.
             "/storage/sdcard1",
@@ -36,6 +37,8 @@ public class EasyGlobalsA {
             // But it is in 'external storage', yes it seems backwards sdcard1 is built-in
             //   sdcard0 is removable SD Card!
             // "storage/sdcard0"
+
+            "/sdcard/storyGames_TechTest0",
         };
 
     public static boolean storageManagerScanExternalWideA = true;

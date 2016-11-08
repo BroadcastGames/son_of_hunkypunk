@@ -87,13 +87,13 @@ public class AppStartupCommonA {
                 }
             }
 
-        /*
-        Testing notes: using the Android 7.0 emulator with an external SD, the path /storage/XXXX-XXXX comes up but no way have
-          I found a way to get the 'root' of a free SD Card.  The Emulator internal screens gave option to encrypt or allow
-          mounting on other devices. Even when saying to not encrypt, the root isn't really exposed on any API call I have found.
-          None of the environment variables point to this parth.  So, one appraoch is to ask for the app-specific path and strip
-          out the app-specific components.
-         */
+            /*
+            Testing notes: using the Android 7.0 emulator with an external SD, the path /storage/XXXX-XXXX comes up but no way have
+              I found a way to get the 'root' of a free SD Card.  The Emulator internal screens gave option to encrypt or allow
+              mounting on other devices. Even when saying to not encrypt, the root isn't really exposed on any API call I have found.
+              None of the environment variables point to this parth.  So, one appraoch is to ask for the app-specific path and strip
+              out the app-specific components.
+             */
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
                 // passing in null gives root?
                 File[] additionsList = runContext.getExternalFilesDirs(null);
