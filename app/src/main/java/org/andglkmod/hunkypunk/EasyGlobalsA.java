@@ -55,4 +55,10 @@ public class EasyGlobalsA {
     public static boolean storyLayout_scrollView_PaddingAddSidesA = true;
     // Useful for debugging layout problems
     public static boolean storyLayout_inputSections_ColorLayoutsA = true;
+
+    // Page copy/paste selection
+    public static boolean selectionLoggingA = true;
+
+    // Issue #42 workaround - but consumes more vertial space.
+    public static boolean storyLayout_inputSections_PromptCommandsVerticalA = true;
 }
