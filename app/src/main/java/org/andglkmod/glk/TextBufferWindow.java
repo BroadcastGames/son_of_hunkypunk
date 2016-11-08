@@ -1738,12 +1738,17 @@ public class TextBufferWindow extends Window {
                 new Runnable() {
                     @Override
                     public void run() {
-                        mLineEventBuffer = buffer;
-                        mLineEventBufferLength = maxlen;
-                        mLineEventBufferRock = retainVmArray(buffer, maxlen);
-                        mUnicodeEvent = (unicode != 0);
-                        mActiveCommand.enableInput();
-                        mScrollView.fullScroll(View.FOCUS_DOWN);
+                        // crash encountered here when quitting story
+                        try {
+                            mLineEventBuffer = buffer;
+                            mLineEventBufferLength = maxlen;
+                            mLineEventBufferRock = retainVmArray(buffer, maxlen);
+                            mUnicodeEvent = (unicode != 0);
+                            mActiveCommand.enableInput();
+                            mScrollView.fullScroll(View.FOCUS_DOWN);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Exception requestLineEvent", e);
+                        }
                     }
                 });
     }
