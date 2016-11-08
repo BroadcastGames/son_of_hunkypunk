@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.andglkmod.hunkypunk.EasyGlobalsA;
 import org.andglkmod.hunkypunk.R;
 
 import android.app.Activity;
@@ -442,6 +443,9 @@ Right now, this is crashing hard the app on Blu Studio Energy 2 Android 5.0:
 	}
 	
 	public void flush() {
+		if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+			Log.d("Glk.java", "Glk.java flush()");
+		}
 		final Window root = Window.getRoot();
 		if (root != null)
 			root.flush();

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.andglkmod.hunkypunk.EasyGlobalsA;
 import org.andglkmod.hunkypunk.R;
 
 import android.os.Parcelable;
@@ -188,6 +189,9 @@ public abstract class Window extends CPointed {
 	}
 	
 	public void setEchoStream(org.andglkmod.glk.Stream echoStream) {
+		if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+			Log.d("Glk/Window", "Window setEchoStream 2");
+		}
 		mStream.setEchoStream(echoStream);
 	}
 	
@@ -281,6 +285,10 @@ public abstract class Window extends CPointed {
 		}
 
 		public void setEchoStream(org.andglkmod.glk.Stream echoStream) {
+			if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+				Log.d("Glk/Window", "Window setEchoStream");
+			}
+
 			if (mEchoStream != null)
 				mEchoStream.echoOff(this);
 			mEchoStream = echoStream;

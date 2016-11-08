@@ -235,6 +235,7 @@ public class TextBufferWindow extends Window {
         public boolean mCharInputEnabled;
         @SuppressWarnings("unused")
         public boolean mLineInputEnabled;
+
         private TextWatcher mWatcher =
                 new TextWatcher() {
                     public void afterTextChanged(Editable s) {
@@ -250,6 +251,9 @@ public class TextBufferWindow extends Window {
                         // Hack to get single key input.
                         // OnKeyUp is not reliable
                         if (mCharInputEnabled) {
+                            if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+                                Log.d("Glk/TBW", "TextBufferWindow TextWatcher mCharInputEnabled path");
+                            }
 
                             try {
                                 if (count == 1 && s.charAt(start) > 0 && s.charAt(start) < 255)
@@ -270,6 +274,9 @@ public class TextBufferWindow extends Window {
                         // Standard line input handler
                         // OnKeyUp doesn't work on all devices (i.e. Xperia J, Android 4.1.2)
                         else {
+                            if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+                                Log.d("Glk/TBW", "TextBufferWindow TextWatcher mCharInputEnabled non-path count " + count + " s '" + s + "'");
+                            }
 
                             try {
                                 if (count >= 1 && s.charAt(start) == '\n')
@@ -281,7 +288,12 @@ public class TextBufferWindow extends Window {
                                 disableInput();
 
                                 SpannableStringBuilder sb = new SpannableStringBuilder();
-                                sb.append(getText().toString().replace("\n", "") + "\n");
+                                String assembledInput = getText().toString().replace("\n", "") + "\n";
+                                sb.append(assembledInput);
+
+                                if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+                                    Log.d("Glk/TBW", "TextBufferWindow TextWatcher mCharInputEnabled non-path count " + count + " s '" + s + "' assembledInput '" + assembledInput + "'");
+                                }
 
                                 Object sp = stylehints.getSpan(mContext, Glk.STYLE_INPUT, false);
                                 if (sb.length() > 0)
@@ -290,6 +302,12 @@ public class TextBufferWindow extends Window {
                                 lineInputAccepted(sb);
 
                                 ToggleCommandView();
+                            }
+                            else
+                            {
+                                if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+                                    Log.d("Glk/TBW", "TextBufferWindow TextWatcher mCharInputEnabled non-path char_input > 0 = " + char_inp + " count " + count + " s '" + s + "'");
+                                }
                             }
                         }
                     }
@@ -380,6 +398,9 @@ public class TextBufferWindow extends Window {
 		*/
 
         public void enableInput() {
+            if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+                Log.d("Glk/TBW", "TextBufferWindow enableInput");
+            }
             setFocusableInTouchMode(true);
             requestFocus();
             showKeyboard();
@@ -485,6 +506,9 @@ public class TextBufferWindow extends Window {
 
             @Override
             public boolean onKeyDown(TextView widget, Spannable text, int keyCode, KeyEvent event) {
+                if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+                    Log.d("Glk/TBW", "TextBufferWindow onKeyDown");
+                }
                 return false;
             }
 
@@ -511,6 +535,10 @@ public class TextBufferWindow extends Window {
             *  More cases are handled below. ACTION_MOVE disables the copying on UP. */
             @Override
             public boolean onTouchEvent(final TextView widget, Spannable text, MotionEvent event) {
+                if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+                    Log.d("Glk/TBW", "TextBufferWindow onTouchEvent");
+                }
+
                 SharedPreferences sharedShortcutPrefs = mContext.getSharedPreferences("shortcutPrefs", Context.MODE_PRIVATE);
                 if (sharedShortcutPrefs.getBoolean("enablelongpress", true))
                     switch (event.getAction() & MotionEvent.ACTION_MASK) {
@@ -1017,14 +1045,21 @@ public class TextBufferWindow extends Window {
                                 3,
                                 mContext.getResources().getDisplayMetrics());
 
+                        Log.v(TAG, "calculated pad " + pad + " margin " + margin);
 
                         // when window is created, style hints are fixed
                         stylehints = new Styles(_stylehints);
 
                         mScrollView = new _ScrollView(mContext);
                         mScrollView.setPadding(0, 0, 0, 0);
+                        if (EasyGlobalsA.storyLayout_scrollView_PaddingAddSidesA) {
+                            // default behavior of the app is to hav no space at all on left/right side
+                            mScrollView.setPadding(10, 0, 10, 0);
+                            mScrollView.setBackgroundColor(Color.parseColor("#D4FF93"));
+                        }
                         mScrollView.setFocusable(false);
 
+                        // ToDo: Do these need to be created on every Window created, or can static final be created once?
                         LinearLayout.LayoutParams paramsDefault = new
                                 LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
                         LinearLayout.LayoutParams paramsHLayout = new
@@ -1045,36 +1080,75 @@ public class TextBufferWindow extends Window {
                         mLayout.setPadding(0, 0, 0, 0);
                         mLayout.setBackgroundColor(DefaultBackground);
 
-                        LinearLayout hl = new LinearLayout(mContext);
-                        hl.setPadding(0, 0, 0, 0);
-                        hl.setOrientation(LinearLayout.HORIZONTAL);
+                        LinearLayout commandPlusPromptLayout = new LinearLayout(mContext);
+                        commandPlusPromptLayout.setPadding(0, 0, 0, 0);
+                        commandPlusPromptLayout.setOrientation(LinearLayout.HORIZONTAL);
+                        if (EasyGlobalsA.storyLayout_inputSections_ColorLayoutsA) {
+                            // Put a little padding so we can see the color.
+                            commandPlusPromptLayout.setPadding(8, 6, 8, 6);
+                            commandPlusPromptLayout.setBackgroundColor(Color.GREEN);
+                        }
 
-                        LinearLayout hll = new LinearLayout(mContext);
-                        hll.setPadding(0, 0, 0, 0);
-                        hll.setOrientation(LinearLayout.HORIZONTAL);
+                        // Shortcuts are the common commands list the user can press
+                        LinearLayout shortcutsLayout = new LinearLayout(mContext);
+                        shortcutsLayout.setPadding(0, 0, 0, 0);
+                        shortcutsLayout.setOrientation(LinearLayout.HORIZONTAL);
+                        if (EasyGlobalsA.storyLayout_inputSections_ColorLayoutsA) {
+                            // Put a little padding so we can see the color.
+                            shortcutsLayout.setPadding(8, 6, 8, 6);
+                            shortcutsLayout.setBackgroundColor(Color.parseColor("#60F6D4"));
+                        }
 
 
+                        if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+                            Log.d("Glk/TBW", "TextBufferWindow creating _CommandView mCommand1");
+                        }
                         mCommand1 = new _CommandView(mContext);
-                        mCommand1.setPadding(pad, 0, pad, pad);
-                        mCommand1.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                        if (EasyGlobalsA.commandInput_paddingAndNoExtractUI_SetA) {
+                            mCommand1.setPadding(pad, 0, pad, pad);
+                            mCommand1.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                        }
                         mCommand1.clear();
                         mCommand1.disableInput();
-                        //mCommand1.setBackgroundColor(Color.YELLOW);
+                        if (EasyGlobalsA.commandInput_colorSetA) {
+                            mCommand1.setBackgroundColor(Color.YELLOW);
+                            mCommand1.setHint("______!");
+                        }
+                        if (EasyGlobalsA.commandInput_paddingForceVisibleA) {
+                            // force left and right padding values so color is visible.
+                            mCommand1.setPadding(12, 0, 12, 0);
+                        }
+
+                        if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+                            Log.d("Glk/TBW", "TextBufferWindow creating _CommandView mCommand2");
+                        }
                         mCommand2 = new _CommandView(mContext);
-                        mCommand2.setPadding(pad, 0, pad, pad);
-                        mCommand2.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                        if (EasyGlobalsA.commandInput_paddingAndNoExtractUI_SetA) {
+                            mCommand2.setPadding(pad, 0, pad, pad);
+                            mCommand2.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+                        }
                         mCommand2.clear();
                         mCommand2.disableInput();
-                        //mCommand2.setBackgroundColor(Color.LTGRAY);
+                        if (EasyGlobalsA.commandInput_colorSetA)
+                            mCommand2.setBackgroundColor(Color.LTGRAY);
                         ToggleCommandView();
 
+                        if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+                            Log.d("Glk/TBW", "TextBufferWindow creating _PromptView mPrompt");
+                        }
                         mPrompt = new _PromptView(mContext);
                         mPrompt.setPadding(pad, 0, pad, pad);
                         mPrompt.setFocusable(false);
+                        if (EasyGlobalsA.commandInput_Prompt_muckUpA)
+                        {
+                            mPrompt.setPadding(12, 0, 12, 0);
+                            mPrompt.setBackgroundColor(Color.BLUE);
+                            mPrompt.setHint("_prompt_");
+                        }
 
-                        hl.addView(mPrompt, paramsPrompt);
-                        hl.addView(mCommand1, paramsCommand);
-                        hl.addView(mCommand2, paramsCommand);
+                        commandPlusPromptLayout.addView(mPrompt, paramsPrompt);
+                        commandPlusPromptLayout.addView(mCommand1, paramsCommand);
+                        commandPlusPromptLayout.addView(mCommand2, paramsCommand);
 
 
                         mHLView = new _HorListView(mContext);
@@ -1123,19 +1197,25 @@ public class TextBufferWindow extends Window {
                             }
 
                         mHLView.addView(viewGroup);
-                        hll.addView(mHLView, paramsLView);
+                        shortcutsLayout.addView(mHLView, paramsLView);
 
+                        if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+                            Log.d("Glk/TBW", "TextBufferWindow creating _View mView");
+                        }
                         mView = new _View(mContext);
                         mView.setPadding(pad, pad, pad, 0);
                         mView.setFocusable(false);
 
                         mLayout.addView(mView, paramsDefault);
+
+                        // In might mode, the prompt is below? not sure why?
+                        // ToDo: Could also make this a preference regardless of Night?
                         if (mContext.getSharedPreferences(SharedPrefKeys.KEY_FILE_Night, Context.MODE_PRIVATE).getBoolean("NightOn", false)) {
-                            mLayout.addView(hll, paramsLLayout);
-                            mLayout.addView(hl, paramsHLayout);
+                            mLayout.addView(shortcutsLayout, paramsLLayout);
+                            mLayout.addView(commandPlusPromptLayout, paramsHLayout);
                         } else {
-                            mLayout.addView(hl, paramsHLayout);
-                            mLayout.addView(hll, paramsLLayout);
+                            mLayout.addView(commandPlusPromptLayout, paramsHLayout);
+                            mLayout.addView(shortcutsLayout, paramsLLayout);
                         }
 
                         mScrollView.setBackgroundColor(DefaultBackground);
@@ -1166,6 +1246,10 @@ public class TextBufferWindow extends Window {
     }
 
     private Editable toEditable(EditText et) {
+        if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+            Log.d("Glk/TBW", "TextBufferWindow toEditable");
+        }
+
         Editable etext = et.getText();
         etext.setSpan(new Styles().getSpan(mGlk.getContext(), TextBufferWindow.DefaultInputStyle, false)
                 , 0, et.getText().length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
@@ -1174,6 +1258,9 @@ public class TextBufferWindow extends Window {
 
     /*To spare code space, refactor to avoid using of them over and over again.*/
     public void output(SpannableStringBuilder ssb) {
+        if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+            Log.d("Glk/TBW", "TextBufferWindow method output ssb: '" + ssb.toString() + "'");
+        }
         ssb.setSpan(new Styles().getSpan(mGlk.getContext(), TextBufferWindow.DefaultInputStyle, false),
                 0, ssb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
         mActiveCommand.setText("");
@@ -1497,10 +1584,17 @@ public class TextBufferWindow extends Window {
     //not used
     @SuppressWarnings("unused")
     public Object makeInputSpan() {
+        if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+            Log.d("Glk/TBW", "TextBufferWindow makeInputSpan");
+        }
         return stylehints.getSpan(mContext, TextBufferWindow.DefaultInputStyle, false);
     }
 
     public void lineInputAccepted(Spannable s) {
+        if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+            Log.d("Glk/TBW", "TextBufferWindow lineInputAccepted");
+        }
+
         String result = s.toString().trim();
 
         mCommandText = s;
@@ -1512,7 +1606,9 @@ public class TextBufferWindow extends Window {
             echo.putChar('\n');
         }
 
-        //Log.d("Glk/TextBufferWindow", "lineInputAccepted:"+result);
+        if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+            Log.d("Glk/TextBufferWindow", "TextBufferWindow lineInputAccepted result: '" + result + "'");
+        }
 
         LineInputEvent lie = new LineInputEvent(this, result, mLineEventBuffer,
                 mLineEventBufferLength, mLineEventBufferRock, mUnicodeEvent);
@@ -1522,6 +1618,9 @@ public class TextBufferWindow extends Window {
 
     @Override
     public void cancelCharEvent() {
+        if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+            Log.d("Glk/TBW", "TextBufferWindow cancelCharEvent");
+        }
         mGlk.getUiHandler().post(new Runnable() {
             @Override
             public void run() {
@@ -1549,6 +1648,9 @@ public class TextBufferWindow extends Window {
 
     @Override
     public void flush() {
+        if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+            Log.d("Glk/TBW", "TextBufferWindow flush()");
+        }
         ((_Stream) mStream).flush();
     }
 
@@ -1584,7 +1686,9 @@ public class TextBufferWindow extends Window {
 
     @Override
     public void requestCharEvent() {
-        //Log.d("Glk/TextBufferWindow","requestCharEvent");
+        if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+            Log.d("Glk/TextBufferWindow", "TextBufferWindow requestCharEvent");
+        }
         Glk.getInstance().waitForUi(
                 new Runnable() {
                     @Override
@@ -1598,7 +1702,9 @@ public class TextBufferWindow extends Window {
     @Override
     public void requestLineEvent(final String initial, final long maxlen,
                                  final int buffer, final int unicode) {
-        //Log.d("Glk/TextBufferWindow","requestLineEvent");
+        if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+            Log.d("Glk/TextBufferWindow", "TextBufferWindow requestLineEvent");
+        }
         flush();
 
         Glk.getInstance().waitForUi(

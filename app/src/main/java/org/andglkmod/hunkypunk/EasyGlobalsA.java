@@ -44,4 +44,15 @@ public class EasyGlobalsA {
     public static boolean storageManagerScanExternalWideA = true;
     public static String[] additionalStoryDirectories = additionalStoryDirectoriesTemplate;
     public static boolean storageManagerScanDirectoryTreeLogA = false;
+
+    public static boolean glk_c_to_java_input_events_LogA = true;
+    public static boolean commandInput_colorSetA = true;
+    // App default behavior was to have these true:
+    public static boolean commandInput_paddingAndNoExtractUI_SetA = false;
+    public static boolean commandInput_paddingForceVisibleA = true;
+    public static boolean commandInput_Prompt_muckUpA = true;
+
+    public static boolean storyLayout_scrollView_PaddingAddSidesA = true;
+    // Useful for debugging layout problems
+    public static boolean storyLayout_inputSections_ColorLayoutsA = true;
 }

@@ -39,7 +39,9 @@ ToDo:
 1. Shift JNI loading to static object as recommended here https://developer.android.com/training/articles/perf-jni.html
   That way the interfaces aren't redone every time activity pause/resumed when user switches away from app?
 2. Much better behavior with JNI crashes so that Android app keeps control. Reference: http://blog.httrack.com/blog/2013/08/23/catching-posix-signals-on-android/  
-  
+3. Simulate caps-lock on the Android input side, have a menu checkbox to enable. CAVERNS.Z5 game for example.
+
+
 Android 5.0 Blu Energy Studio 64-bit device failures
 
 $ adb shell

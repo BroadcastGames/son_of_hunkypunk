@@ -661,6 +661,8 @@ char *gidispatch_prototype(glui32 funcnum)
 
 void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
 {
+    LOGV("garglk/gi_dispa.c gidispatch_call funcnum 0x%04x numargs %d", funcnum, numargs);
+
     switch (funcnum) {
         case 0x0001: /* exit */
             glk_exit();

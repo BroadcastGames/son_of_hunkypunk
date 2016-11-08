@@ -20,10 +20,13 @@
 package org.andglkmod.glk;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+
+import org.andglkmod.hunkypunk.EasyGlobalsA;
 
 public class PairWindow extends Window {
 	private LinearLayout _view;
@@ -306,6 +309,9 @@ public class PairWindow extends Window {
 
 	@Override
 	public void flush() {
+		if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+			Log.d("Glk/PairWindow", "PairWindow flush()");
+		}
 		mChildren[0].flush();
 		mChildren[1].flush();
 	}

@@ -21,6 +21,7 @@ package org.andglkmod.glk;
 
 import java.io.IOException;
 
+import org.andglkmod.hunkypunk.EasyGlobalsA;
 import org.andglkmod.hunkypunk.R;
 
 import android.content.Context;
@@ -392,6 +393,9 @@ public class TextGridWindow extends Window {
         }
 
         public void requestCharEvent() {
+            if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+                Log.d("Glk/TextGridWindow", "TextGridWindow requestCharEvent");
+            }
             mGlk.waitForUi(new Runnable() {
                 @Override
                 public void run() {
@@ -482,6 +486,9 @@ public class TextGridWindow extends Window {
         }
 
         public void requestLineEvent(String initial) {
+            if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+                Log.d("Glk/TextGridWindow", "TextGridWindow requestLineEvent");
+            }
             // ToDo: implement initial
             mLineEventPending = true;
             mLineInputStart = _pos;
@@ -504,6 +511,9 @@ public class TextGridWindow extends Window {
         }
 
         public LineInputEvent cancelLineEvent() {
+            if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+                Log.d("Glk/TextGridWindow", "TextGridWindow cancelLineEvent");
+            }
             if (!mLineEventPending)
                 return null;
 
@@ -619,6 +629,9 @@ public class TextGridWindow extends Window {
     }
 
     public void moveCursor(int x, int y) {
+        if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+            Log.d("Glk/TGW", "TextGridWindow moveCursor");
+        }
         if (mView == null) return;
         mView.moveCursor(x, y);
     }
@@ -643,12 +656,18 @@ public class TextGridWindow extends Window {
 
     @Override
     public void requestCharEvent() {
+        if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+            Log.d("Glk/TGW", "TextGridWindow requestCharEvent");
+        }
         if (mView == null) return;
         mView.requestCharEvent();
     }
 
     @Override
     public void requestLineEvent(String initial, long maxlen, int buffer, int unicode) {
+        if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+            Log.d("Glk/TGW", "TextGridWindow requestLineEvent");
+        }
         if (mView == null) return;
 
         mLineBuffer = buffer;
