@@ -246,6 +246,10 @@ public class TextBufferWindow extends Window {
 
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
 
+                        if (EasyGlobalsA.textBufferWindow_textWatcher_skipOnTextChangedA) {
+                            return;
+                        }
+
                         int char_inp = 0;
 
                         // Hack to get single key input.
@@ -309,6 +313,7 @@ public class TextBufferWindow extends Window {
                             {
                                 if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
                                     Log.d("Glk/TBW", "TextBufferWindow TextWatcher mCharInputEnabled non-path char_input > 0 = " + char_inp + " count " + count + " s '" + s + "'");
+                                    //mCommandView.requestFocus();
                                 }
                             }
                         }
@@ -329,6 +334,33 @@ public class TextBufferWindow extends Window {
             addTextChangedListener(mWatcher);
             setTextStyle(this);
 
+            checkupOnFocusView();
+        }
+
+        public void checkupOnFocusView()
+        {
+            postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Log.v(TAG, "test focus");
+                    /*
+                    if (mLayout != null) {
+                        View focusA = mLayout.getFocusedChild();
+                        if (focusA != null) {
+                            Log.i(TAG, "A test focus on " + focusA);
+                        }
+                    }
+                    */
+                    if (EasyGlobalsA.interpreterActivityCurrent != null) {
+                        View focusB = EasyGlobalsA.interpreterActivityCurrent.getCurrentFocus();
+                        if (focusB != null) {
+                            Log.i(TAG, "B test focus on " + focusB);
+                        }
+                    }
+
+                    checkupOnFocusView();
+                }
+            }, 8000L);
         }
 
         /* Don't put into the onPreDraw, it crashes the app and destroys game progress */
@@ -361,6 +393,10 @@ public class TextBufferWindow extends Window {
                 Log.v(TAG, "onSelectionChanged start " + selStart + " end " + selEnd);
             }
             super.onSelectionChanged(selStart, selEnd);
+
+            if (EasyGlobalsA.textBufferWindow_selectionChanged_SkipA) {
+                return;
+            }
 
             Editable text = getText();
             String str = text.toString();
@@ -413,13 +449,28 @@ public class TextBufferWindow extends Window {
         }
 
         public void disableInput() {
+            if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+                Log.d("Glk/TBW", "TextBufferWindow disableInput");
+            }
             setFocusable(false);
         }
 
         private void showKeyboard() {
-            (new Handler()).postDelayed(
+            if (! EasyGlobalsA.commandInput_flapKeyboardShowA) {
+                Log.w(TAG, "skipping showKeyboard()");
+                return;
+            }
+            if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+                Log.d("Glk/TBW", "TextBufferWindow showKeyboard");
+            }
+            // can't we find non-static context for the _commandView we are running?
+            mActiveCommand.postDelayed(
                     new Runnable() {
                         public void run() {
+                            if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+                                Log.d("Glk/TBW", "TextBufferWindow showKeyboard run()");
+                            }
+
                             _CommandView.this.dispatchTouchEvent(
                                     MotionEvent.obtain(
                                             SystemClock.uptimeMillis(),
@@ -437,7 +488,7 @@ public class TextBufferWindow extends Window {
                                     )
                             );
                         }
-                    }, 100);
+                    }, 100L);
         }
 
         private int FontSize = 0;
@@ -1024,11 +1075,74 @@ public class TextBufferWindow extends Window {
     private _PromptView mPrompt = null;
     private LinearLayout mLayout = null;
     private LinearLayout hl = null;
-    private _HorListView mHLView = null;
+    private _HorListView mShortcutsHLView = null;
     private CharSequence mCommandText = null;
     private EditText mCommandView = null;
     private Object mLineInputSpan;
+    private LinearLayout mShortcutsLayout;
 
+
+    public void buildShortcutsLayout()
+    {
+        LinearLayout.LayoutParams paramsLView = new
+                LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+        // Shortcuts are the common commands list the user can press
+        mShortcutsLayout = new LinearLayout(mContext);
+        mShortcutsLayout.setPadding(0, 0, 0, 0);
+        mShortcutsLayout.setOrientation(LinearLayout.HORIZONTAL);
+        if (EasyGlobalsA.storyLayout_inputSections_ColorLayoutsA) {
+            // Put a little padding so we can see the color.
+            mShortcutsLayout.setPadding(8, 6, 8, 6);
+            mShortcutsLayout.setBackgroundColor(Color.parseColor("#60F6D4"));
+        }
+
+        mShortcutsHLView = new _HorListView(mContext);
+        mShortcutsHLView.setPadding(0, 0, 0, 0);
+        final ViewGroup shortcutsViewGroup = new LinearLayout(mContext);
+
+        // ToDo: this design uses 4 entirely different XML files to hold 3 settings. No reason for this?  use PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        SharedPreferences sharedShortcuts = mContext.getSharedPreferences("shortcuts", Context.MODE_PRIVATE);
+        SharedPreferences sharedShortcutIDs = mContext.getSharedPreferences("shortcutIDs", Context.MODE_PRIVATE);
+        String shortcutsColor = mContext.getSharedPreferences("Color", Context.MODE_PRIVATE)
+                .getString("newColor", "#52A6B8");
+        int bg = Color.parseColor(shortcutsColor);
+
+        for (int i = 0; i < sharedShortcutIDs.getAll().size(); i++) {
+            String title = sharedShortcutIDs.getString(i + "", "");
+            final String command = sharedShortcuts.getString(title, "");
+
+            View shortcutView = LayoutInflater.from(mContext).inflate(R.layout.shortcut_view, null);
+            CardView cardView = (CardView) shortcutView.findViewById(R.id.cardview);
+            final TextView textView = (TextView) shortcutView.findViewById(R.id.shortcuttitle);
+            textView.setText(title);
+
+            textView.setTextColor(Color.BLACK);
+
+            if (shortcutsColor.equals("#2ba907"))/*if (green)*/ {
+                textView.setTextColor(Color.WHITE);
+            }
+
+            cardView.setCardBackgroundColor(bg);
+
+
+            textView.setTag(command);
+            cardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (command.endsWith("$"))
+                        shortcutCommandEnter(textView);
+                    else
+                        shortcutCommand(textView);
+                }
+            });
+
+            shortcutsViewGroup.addView(shortcutView);
+        }
+
+        mShortcutsHLView.addView(shortcutsViewGroup);
+        mShortcutsLayout.addView(mShortcutsHLView, paramsLView);
+    }
 
     /*
     Issue #42 opened on GitHub to describe issue with layout on CAVERNS.Z5 with Nexus5 / Nexus6 in Portrait layout.
@@ -1070,8 +1184,6 @@ public class TextBufferWindow extends Window {
                 LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         LinearLayout.LayoutParams paramsCommand = new
                 LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        LinearLayout.LayoutParams paramsLView = new
-                LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         LinearLayout.LayoutParams paramsLLayout = new
                 LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         paramsPrompt.setMargins(0, -margin, 0, 0);
@@ -1092,16 +1204,6 @@ public class TextBufferWindow extends Window {
             // Put a little padding so we can see the color.
             commandPlusPromptLayout.setPadding(8, 6, 8, 6);
             commandPlusPromptLayout.setBackgroundColor(Color.GREEN);
-        }
-
-        // Shortcuts are the common commands list the user can press
-        LinearLayout shortcutsLayout = new LinearLayout(mContext);
-        shortcutsLayout.setPadding(0, 0, 0, 0);
-        shortcutsLayout.setOrientation(LinearLayout.HORIZONTAL);
-        if (EasyGlobalsA.storyLayout_inputSections_ColorLayoutsA) {
-            // Put a little padding so we can see the color.
-            shortcutsLayout.setPadding(8, 6, 8, 6);
-            shortcutsLayout.setBackgroundColor(Color.parseColor("#60F6D4"));
         }
 
 
@@ -1136,6 +1238,7 @@ public class TextBufferWindow extends Window {
         mCommand2.disableInput();
         if (EasyGlobalsA.commandInput_colorSetA) {
             mCommand2.setBackgroundColor(Color.LTGRAY);
+            mCommand2.setHint("______!!");
         }
 
         // Change between mCommand1/mCommand2
@@ -1158,54 +1261,16 @@ public class TextBufferWindow extends Window {
         commandPlusPromptLayout.addView(mCommand1, paramsCommand);
         commandPlusPromptLayout.addView(mCommand2, paramsCommand);
 
+        boolean shortcutsEnabled = false;
 
-        mHLView = new _HorListView(mContext);
-        mHLView.setPadding(0, 0, 0, 0);
-        final ViewGroup viewGroup = new LinearLayout(mContext);
-
-        // ToDo: this desing uses 4 entirely different XML files to hold 3 settings. No reason for this?  use PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        SharedPreferences sharedShortcuts = mContext.getSharedPreferences("shortcuts", Context.MODE_PRIVATE);
-        SharedPreferences sharedShortcutIDs = mContext.getSharedPreferences("shortcutIDs", Context.MODE_PRIVATE);
         SharedPreferences sharedShortcutPrefs = mContext.getSharedPreferences("shortcutPrefs", Context.MODE_PRIVATE);
-        String shortcutsColor = mContext.getSharedPreferences("Color", Context.MODE_PRIVATE)
-                .getString("newColor", "#52A6B8");
-        int bg = Color.parseColor(shortcutsColor);
 
-        if (sharedShortcutPrefs.getBoolean("enablelist", true))
-            for (int i = 0; i < sharedShortcutIDs.getAll().size(); i++) {
-                String title = sharedShortcutIDs.getString(i + "", "");
-                final String command = sharedShortcuts.getString(title, "");
+        if (sharedShortcutPrefs.getBoolean("enablelist", true)) {
+            shortcutsEnabled = true;
 
-                View shortcutView = LayoutInflater.from(mContext).inflate(R.layout.shortcut_view, null);
-                CardView cardView = (CardView) shortcutView.findViewById(R.id.cardview);
-                final TextView textView = (TextView) shortcutView.findViewById(R.id.shortcuttitle);
-                textView.setText(title);
+            buildShortcutsLayout();
+        }
 
-                textView.setTextColor(Color.BLACK);
-
-                if (shortcutsColor.equals("#2ba907"))/*if (green)*/ {
-                    textView.setTextColor(Color.WHITE);
-                }
-
-                cardView.setCardBackgroundColor(bg);
-
-
-                textView.setTag(command);
-                cardView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (command.endsWith("$"))
-                            shortcutCommandEnter(textView);
-                        else
-                            shortcutCommand(textView);
-                    }
-                });
-
-                viewGroup.addView(shortcutView);
-            }
-
-        mHLView.addView(viewGroup);
-        shortcutsLayout.addView(mHLView, paramsLView);
 
         if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
             Log.d("Glk/TBW", "TextBufferWindow creating _View mView");
@@ -1219,11 +1284,15 @@ public class TextBufferWindow extends Window {
         // In might mode, the prompt is below? not sure why?
         // ToDo: Could also make this a preference regardless of Night?
         if (mContext.getSharedPreferences(SharedPrefKeys.KEY_FILE_Night, Context.MODE_PRIVATE).getBoolean("NightOn", false)) {
-            mLayout.addView(shortcutsLayout, paramsLLayout);
+            if (shortcutsEnabled) {
+                mLayout.addView(mShortcutsLayout, paramsLLayout);
+            }
             mLayout.addView(commandPlusPromptLayout, paramsHLayout);
         } else {
             mLayout.addView(commandPlusPromptLayout, paramsHLayout);
-            mLayout.addView(shortcutsLayout, paramsLLayout);
+            if (shortcutsEnabled) {
+                mLayout.addView(mShortcutsLayout, paramsLLayout);
+            }
         }
 
         mScrollView.setBackgroundColor(DefaultBackground);

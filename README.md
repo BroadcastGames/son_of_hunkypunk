@@ -41,6 +41,11 @@ ToDo:
 2. Much better behavior with JNI crashes so that Android app keeps control. Reference: http://blog.httrack.com/blog/2013/08/23/catching-posix-signals-on-android/  
 3. Simulate caps-lock on the Android input side, have a menu checkbox to enable. CAVERNS.Z5 game for example.
 
+To Investigate:
+
+1. bear.z5 opening message "[Please press SPACE to begin.]" is split on two lines? Gargoyle does not do this.
+2. Aug4.z8 opening message seems crammed on left 1/2 of the screen. Rotating to landscape reveals truncated message.
+3. When using emulator with SDK 25 guest. Using the real keyboard with on-screen turned off. Typing the first letter stalls input focus. "q" "uit" requires click to put focus back. anchor.z8 is example game. NOTE: Turning off "Shortcuts List" in preferences seems to eliminate this problem. Focus gets puton the Shortcuts?
 
 Android 5.0 Blu Energy Studio 64-bit device failures
 

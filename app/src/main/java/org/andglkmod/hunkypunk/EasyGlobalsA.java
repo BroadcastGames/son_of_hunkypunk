@@ -59,6 +59,14 @@ public class EasyGlobalsA {
     // Page copy/paste selection
     public static boolean selectionLoggingA = true;
 
-    // Issue #42 workaround - but consumes more vertial space.
+    // Issue #42 workaround - but consumes more vertical space.
     public static boolean storyLayout_inputSections_PromptCommandsVerticalA = true;
+
+    public static boolean textBufferWindow_selectionChanged_SkipA = true;
+    // Testing reveals this does not solve any problems:
+    public static boolean textBufferWindow_textWatcher_skipOnTextChangedA = false;
+
+    public static boolean commandInput_flapKeyboardShowA = false;
+
+    public static InterpreterActivity interpreterActivityCurrent = null;
 }

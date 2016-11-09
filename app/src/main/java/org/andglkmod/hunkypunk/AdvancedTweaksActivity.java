@@ -5,10 +5,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import org.andglkmod.hunkypunk.R;
@@ -41,6 +44,8 @@ public class AdvancedTweaksActivity extends AppCompatActivity {
             }
         });
 
+        testEditTextA();
+
         buildFileReport();
 
         FileHelper fw = new FileHelper();
@@ -48,6 +53,29 @@ public class AdvancedTweaksActivity extends AppCompatActivity {
         Log.i("AdvancedTweak", "scanFiles " + scanFiles);
         fw.walk(scanFiles);
     }
+
+
+    public void testEditTextA()
+    {
+        EditText editTextInputTest0 = (EditText) findViewById(R.id.editTextInputTest0);
+        editTextInputTest0.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+    }
+
 
     public void buildFileReport() {
         TextView outputFileInfo = (TextView) findViewById(R.id.outputFileInfo0);

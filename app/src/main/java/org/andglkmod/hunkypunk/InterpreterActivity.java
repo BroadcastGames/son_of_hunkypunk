@@ -86,6 +86,8 @@ public class InterpreterActivity extends AppCompatActivity {
             Log.i(TAG, "onCreate getApplicationInfo().nativeLibraryDir: " + getApplicationInfo().nativeLibraryDir + " is64Bit? " + Process.is64Bit());
         }
 
+        EasyGlobalsA.interpreterActivityCurrent = this;
+
         // Do early to make sure paths are in place.
         // NOTE: It may not seem like the App starts here on this Activity, but if NDK C code crashes, it can indeed restart here.
         AppStartupCommonA appStartupHelper = new AppStartupCommonA();
