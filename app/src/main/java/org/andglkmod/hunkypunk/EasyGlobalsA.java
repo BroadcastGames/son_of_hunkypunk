@@ -47,6 +47,7 @@ public class EasyGlobalsA {
 
     public static boolean glk_c_to_java_input_events_LogA = true;
     public static boolean commandInput_colorSetA = true;
+    public static boolean commandInput_extraViewAtBottomA = false;
     // App default behavior was to have these true:
     public static boolean commandInput_paddingAndNoExtractUI_SetA = false;
     public static boolean commandInput_paddingForceVisibleA = true;

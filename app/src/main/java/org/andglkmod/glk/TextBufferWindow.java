@@ -1175,7 +1175,6 @@ public class TextBufferWindow extends Window {
             mShortcutsEnabled = true;
         }
 
-
         int pad = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 2,
                 mContext.getResources().getDisplayMetrics());
@@ -1191,8 +1190,9 @@ public class TextBufferWindow extends Window {
         mScrollView = new _ScrollView(mContext);
         mScrollView.setPadding(0, 0, 0, 0);
         if (EasyGlobalsA.storyLayout_scrollView_PaddingAddSidesA) {
-            // default behavior of the app is to hav no space at all on left/right side
-            mScrollView.setPadding(10, 0, 10, 0);
+            // default behavior of the app is to have no space at all on left/right side
+            // Bottom padding of 16 seems to work better than 0
+            mScrollView.setPadding(10, 0, 10, 16);
             mScrollView.setBackgroundColor(Color.parseColor("#D4FF93"));
         }
         mScrollView.setFocusable(false);
@@ -1208,6 +1208,7 @@ public class TextBufferWindow extends Window {
                 LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         LinearLayout.LayoutParams paramsLLayout = new
                 LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        // ToDo: comment here to explain why negative margin?
         paramsPrompt.setMargins(0, -margin, 0, 0);
         paramsCommand.setMargins(0, -margin, 0, 0);
 
@@ -1227,7 +1228,6 @@ public class TextBufferWindow extends Window {
             commandPlusPromptLayout.setPadding(8, 6, 8, 6);
             commandPlusPromptLayout.setBackgroundColor(Color.GREEN);
         }
-
 
         if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
             Log.d("Glk/TBW", "TextBufferWindow creating _CommandView mCommand1");
@@ -1283,23 +1283,22 @@ public class TextBufferWindow extends Window {
         commandPlusPromptLayout.addView(mCommand1, paramsCommand);
         commandPlusPromptLayout.addView(mCommand2, paramsCommand);
 
-
         if (mShortcutsEnabled) {
             buildShortcutsLayout();
         }
-
 
         if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
             Log.d("Glk/TBW", "TextBufferWindow creating _View mStoryOutputView");
         }
         mStoryOutputView = new _View(mContext);
         mStoryOutputView.setPadding(pad, pad, pad, 0);
+        //  Make read-only, more like a TextView instead of an EditText
         mStoryOutputView.setFocusable(false);
 
         mLayout.addView(mStoryOutputView, paramsDefault);
 
         // In might mode, the prompt is below? not sure why?
-        // ToDo: Could also make this a preference regardless of Night?
+        // ToDo: Could also make this alternate layout a preference regardless of Night?
         if (mContext.getSharedPreferences(SharedPrefKeys.KEY_FILE_Night, Context.MODE_PRIVATE).getBoolean("NightOn", false)) {
             if (mShortcutsEnabled) {
                 mLayout.addView(mShortcutsLayout, paramsLLayout);
@@ -1312,10 +1311,16 @@ public class TextBufferWindow extends Window {
             }
         }
 
+        if (EasyGlobalsA.commandInput_extraViewAtBottomA) {
+            TextView extraTextView = new TextView(mContext);
+            extraTextView.setText("---------- ------------ ------------");
+            extraTextView.setBackgroundColor(Color.RED);
+            mLayout.addView(extraTextView);
+        }
+
         mScrollView.setBackgroundColor(DefaultBackground);
         mScrollView.addView(mLayout);
         mStream = new _Stream();
-
 
         /*DO NOT DELETE*/
         /*Not used for now but left for compatibility as part of issue - onPreDrawNight*/
