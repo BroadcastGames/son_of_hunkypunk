@@ -131,14 +131,15 @@ public class StorageManager {
 				public void run() {
 					try {
 						internalScanKnownDirectoryTrees();
+
 						Message.obtain(mHandler, MESSAGE_CODE_DONE).sendToTarget();
+
+						scanRunning.set(false);
+						Log.i(TAG, "scanKnownDirectoryTrees scanRunning set false, finished.");
+						EventBus.getDefault().post(new BackgroundScanEvent(BackgroundScanEvent.ECODE_GAME_FOLDER_SCAN_COMPLETED));
 					} catch (Exception e0) {
 						Log.e(TAG, "Exception in Scan thread run", e0);
 					}
-
-					scanRunning.set(false);
-					Log.i(TAG, "scanKnownDirectoryTrees scanRunning set false, finished.");
-					EventBus.getDefault().post(new BackgroundScanEvent(BackgroundScanEvent.ECODE_GAME_FOLDER_SCAN_COMPLETED));
 				}
 			};
 			scanFilesThread.setName("scanFilesThread");

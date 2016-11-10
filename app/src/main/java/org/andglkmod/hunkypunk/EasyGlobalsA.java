@@ -78,4 +78,8 @@ public class EasyGlobalsA {
 
     // Set this to true to try and work around Issue #43
     public static boolean commandInput_HardKeyboard_WorkaroundA = true;
+
+    // Logging to try and determine typeface setting
+    public static boolean storyOutput_style_Typeface_LogA = true;
+    public static boolean storyOutput_style_Typeface_HonorMonospaceOverPrefsA = true;
 }

@@ -1010,7 +1010,7 @@ public class TextBufferWindow extends Window {
 
                 append(ct);
 
-                TextBufferWindow.this.mCommandText = null;
+                mCommandText = null;
             }
 
             int i = TextUtils.lastIndexOf(t, '\n');
