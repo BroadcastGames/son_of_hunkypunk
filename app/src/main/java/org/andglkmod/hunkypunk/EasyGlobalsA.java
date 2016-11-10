@@ -69,4 +69,7 @@ public class EasyGlobalsA {
     public static boolean commandInput_flapKeyboardShowA = false;
 
     public static InterpreterActivity interpreterActivityCurrent = null;
+
+    // Set this to true to try and work around Issue #43
+    public static boolean commandInput_HardKeyboard_WorkaroundA = true;
 }

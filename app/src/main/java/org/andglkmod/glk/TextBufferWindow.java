@@ -329,8 +329,20 @@ public class TextBufferWindow extends Window {
             setPaintFlags(Paint.SUBPIXEL_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG | Paint.DEV_KERN_TEXT_FLAG);
             setBackgroundResource(0);
             //setTextSize(DefaultFontSize);
-            setTypeface(TextBufferWindow.this.getDefaultTypeface());
-            setBackgroundColor(TextBufferWindow.this.DefaultBackground);
+            if (EasyGlobalsA.commandInput_HardKeyboard_WorkaroundA) {
+                // problem only seems to happen with Shortcuts list enabled in preferences
+                if (! mShortcutsEnabled) {
+                    Log.w(TAG, "_CommandView workaround for HardKeyboard, NOT setTypeFace because shortcuts off?");
+                    setTypeface(getDefaultTypeface());
+                } else {
+                    Log.w(TAG, "_CommandView workaround for HardKeyboard, skipping setTypeFace");
+                }
+            } else {
+                setTypeface(getDefaultTypeface());
+                // Log.w(TAG, "_CommandView workaround for HardKeyboard, skipping setTypeFace. mShortcutsEnabled " + mShortcutsEnabled);
+            }
+
+            setBackgroundColor(TextBufferWindow.DefaultBackground);
             addTextChangedListener(mWatcher);
             setTextStyle(this);
 
@@ -1080,6 +1092,7 @@ public class TextBufferWindow extends Window {
     private EditText mCommandView = null;
     private Object mLineInputSpan;
     private LinearLayout mShortcutsLayout;
+    public boolean mShortcutsEnabled = false;
 
 
     public void buildShortcutsLayout()
@@ -1144,6 +1157,7 @@ public class TextBufferWindow extends Window {
         mShortcutsLayout.addView(mShortcutsHLView, paramsLView);
     }
 
+
     /*
     Issue #42 opened on GitHub to describe issue with layout on CAVERNS.Z5 with Nexus5 / Nexus6 in Portrait layout.
     One idea is to use https://github.com/lankton/android-flowlayout instead of Linearlayout Horizontal?
@@ -1154,6 +1168,15 @@ public class TextBufferWindow extends Window {
     Some discussion of layout: https://forums.xamarin.com/discussion/32039/align-textview-and-edittext-horizontaly
      */
     private void windowLayoutLogicA() {
+        SharedPreferences sharedShortcutPrefs = mContext.getSharedPreferences("shortcutPrefs", Context.MODE_PRIVATE);
+
+        mShortcutsEnabled = false;
+        Log.d(TAG, "SharedPreferences shortcutsEnabled reading");
+        if (sharedShortcutPrefs.getBoolean("enablelist", true)) {
+            mShortcutsEnabled = true;
+        }
+
+
         int pad = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 2,
                 mContext.getResources().getDisplayMetrics());
@@ -1261,13 +1284,8 @@ public class TextBufferWindow extends Window {
         commandPlusPromptLayout.addView(mCommand1, paramsCommand);
         commandPlusPromptLayout.addView(mCommand2, paramsCommand);
 
-        boolean shortcutsEnabled = false;
 
-        SharedPreferences sharedShortcutPrefs = mContext.getSharedPreferences("shortcutPrefs", Context.MODE_PRIVATE);
-
-        if (sharedShortcutPrefs.getBoolean("enablelist", true)) {
-            shortcutsEnabled = true;
-
+        if (mShortcutsEnabled) {
             buildShortcutsLayout();
         }
 
@@ -1284,13 +1302,13 @@ public class TextBufferWindow extends Window {
         // In might mode, the prompt is below? not sure why?
         // ToDo: Could also make this a preference regardless of Night?
         if (mContext.getSharedPreferences(SharedPrefKeys.KEY_FILE_Night, Context.MODE_PRIVATE).getBoolean("NightOn", false)) {
-            if (shortcutsEnabled) {
+            if (mShortcutsEnabled) {
                 mLayout.addView(mShortcutsLayout, paramsLLayout);
             }
             mLayout.addView(commandPlusPromptLayout, paramsHLayout);
         } else {
             mLayout.addView(commandPlusPromptLayout, paramsHLayout);
-            if (shortcutsEnabled) {
+            if (mShortcutsEnabled) {
                 mLayout.addView(mShortcutsLayout, paramsLLayout);
             }
         }
