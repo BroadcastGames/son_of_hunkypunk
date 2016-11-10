@@ -41,7 +41,7 @@ ToDo:
 2. Much better behavior with JNI crashes so that Android app keeps control. Reference: http://blog.httrack.com/blog/2013/08/23/catching-posix-signals-on-android/  
 3. Simulate caps-lock on the Android input side, have a menu checkbox to enable. CAVERNS.Z5 game for example.
 4. If a single keystroke wait, remove the Shortcut list from the screen? A lot of stories have "press any key" prompts and a smarter use of shortcuts for this.
-
+5. Move Night Mode higher in preferences as most likley to be popular option. Also make it a checkbox on Menu?
 
 To Investigate:
 

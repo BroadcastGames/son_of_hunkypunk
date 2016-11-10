@@ -36,7 +36,6 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
@@ -116,24 +115,24 @@ public class TextBufferWindow extends Window {
 
     @Override
     public Parcelable saveInstanceState() {
-        return mView.onSaveInstanceState();
+        return mStoryOutputView.onSaveInstanceState();
     }
 
     @Override
     public void restoreInstanceState(Parcelable p) {
-        mView.onRestoreInstanceState(p);
+        mStoryOutputView.onRestoreInstanceState(p);
     }
 
     @Override
     public void writeState(ObjectOutputStream stream) throws IOException {
         super.writeState(stream);
-        mView.writeState(stream);
+        mStoryOutputView.writeState(stream);
     }
 
     @Override
     public void readState(ObjectInputStream stream) throws IOException {
         super.readState(stream);
-        mView.readState(stream);
+        mStoryOutputView.readState(stream);
     }
 
     private class _Stream extends Stream {
@@ -191,10 +190,10 @@ public class TextBufferWindow extends Window {
                 return;
 
             final Spannable ssb = mSsb;
-            mHandler.post(new Runnable() {
+            mStoryOutputView.post(new Runnable() {
                 @Override
                 public void run() {
-                    mView.print(ssb);
+                    mStoryOutputView.print(ssb);
                 }
             });
 
@@ -221,8 +220,8 @@ public class TextBufferWindow extends Window {
     }
 
     protected Glk mGlk;
-    protected _View mView;
-    protected Handler mHandler;
+    protected _View mStoryOutputView;
+    //protected Handler mHandler;
     protected Context mContext;
     private int mLineEventBuffer;
     private long mLineEventBufferLength;
@@ -1291,13 +1290,13 @@ public class TextBufferWindow extends Window {
 
 
         if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
-            Log.d("Glk/TBW", "TextBufferWindow creating _View mView");
+            Log.d("Glk/TBW", "TextBufferWindow creating _View mStoryOutputView");
         }
-        mView = new _View(mContext);
-        mView.setPadding(pad, pad, pad, 0);
-        mView.setFocusable(false);
+        mStoryOutputView = new _View(mContext);
+        mStoryOutputView.setPadding(pad, pad, pad, 0);
+        mStoryOutputView.setFocusable(false);
 
-        mLayout.addView(mView, paramsDefault);
+        mLayout.addView(mStoryOutputView, paramsDefault);
 
         // In might mode, the prompt is below? not sure why?
         // ToDo: Could also make this a preference regardless of Night?
@@ -1341,8 +1340,7 @@ public class TextBufferWindow extends Window {
 
         mGlk = glk;
         mContext = glk.getContext();
-        mHandler = mGlk.getUiHandler();
-
+        // mHandler = mGlk.getUiHandler();
 
         Glk.getInstance().waitForUi(
                 new Runnable() {
@@ -1752,10 +1750,10 @@ public class TextBufferWindow extends Window {
     @Override
     public void clear() {
         ((_Stream) mStream).discardBuffers();
-        mHandler.post(new Runnable() {
+        mStoryOutputView.post(new Runnable() {
             @Override
             public void run() {
-                mView.clear();
+                mStoryOutputView.clear();
             }
         });
     }
