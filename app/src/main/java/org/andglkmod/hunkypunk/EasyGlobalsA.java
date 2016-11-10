@@ -50,12 +50,17 @@ public class EasyGlobalsA {
     public static boolean commandInput_extraViewAtBottomA = false;
     // App default behavior was to have these true:
     public static boolean commandInput_paddingAndNoExtractUI_SetA = false;
-    public static boolean commandInput_paddingForceVisibleA = true;
-    public static boolean commandInput_Prompt_muckUpA = true;
+
+    public static boolean commandInput_paddingForceVisibleA = false;
+    public static boolean commandInput_Prompt_muckUpA = false;
+
+    // Note: The emulator, and possibly real devices, shows an odd View echo/duplication and bottom void
+    //   on the ScrollView. Turning on the Soft Keyboard and turning it back off seems to resolve it.
+    //   Seems to be related to the Android soft keyboard suggestions above top row of keys?
 
     public static boolean storyLayout_scrollView_PaddingAddSidesA = true;
     // Useful for debugging layout problems
-    public static boolean storyLayout_inputSections_ColorLayoutsA = true;
+    public static boolean storyLayout_inputSections_ColorLayoutsA = false;
 
     // Page copy/paste selection
     public static boolean selectionLoggingA = true;

@@ -42,6 +42,7 @@ ToDo:
 3. Simulate caps-lock on the Android input side, have a menu checkbox to enable. CAVERNS.Z5 game for example.
 4. If a single keystroke wait, remove the Shortcut list from the screen? A lot of stories have "press any key" prompts and a smarter use of shortcuts for this.
 5. Move Night Mode higher in preferences as most likley to be popular option. Also make it a checkbox on Menu?
+6. On Tablet emulator of Android 7.1.1, rotation results in focus los on input line with hard keyboard. And sometimes input below screen, manual pushing to scroll up required.
 
 To Investigate:
 

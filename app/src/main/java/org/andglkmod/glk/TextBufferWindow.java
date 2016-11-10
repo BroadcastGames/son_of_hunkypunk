@@ -215,7 +215,11 @@ public class TextBufferWindow extends Window {
         @Override
         protected void onLayout(boolean changed, int l, int t, int r, int b) {
             super.onLayout(changed, l, t, r, b);
-            fullScroll(View.FOCUS_DOWN);
+            scrollToBottom();
+        }
+
+        public void scrollToBottom() {
+            mScrollView.fullScroll(View.FOCUS_DOWN);
         }
     }
 
@@ -344,8 +348,6 @@ public class TextBufferWindow extends Window {
             setBackgroundColor(TextBufferWindow.DefaultBackground);
             addTextChangedListener(mWatcher);
             setTextStyle(this);
-
-            checkupOnFocusView();
         }
 
         public void checkupOnFocusView()
@@ -549,6 +551,10 @@ public class TextBufferWindow extends Window {
         }
     }
 
+    /*
+    This class holds the main story output. It is an editText set to be read-only to behave more like a TextView.
+    ToDo: document here the exact benefit of this design instead of just a TextView?
+     */
     private class _View extends EditText {
 
         public class _MovementMethod implements MovementMethod {
@@ -653,8 +659,8 @@ public class TextBufferWindow extends Window {
                                             output(output);
                                         }
 
-                                        TextBufferWindow.this.mScrollView.fullScroll(View.FOCUS_DOWN);
-                                        TextBufferWindow.this.mActiveCommand.showKeyboard();
+                                        mActiveCommand.showKeyboard();
+                                        mScrollView.scrollToBottom();
 
                                         if (userInput.contains("<%>")) {
                                             Toast.makeText(mGlk.getContext(), "Long-press on the next object", Toast.LENGTH_SHORT).show();
@@ -772,6 +778,7 @@ public class TextBufferWindow extends Window {
             }
         }
 
+
         @Override
         public void onRestoreInstanceState(Parcelable state) {
             TextBufferWindow._SavedState ss = (_SavedState) state;
@@ -850,6 +857,7 @@ public class TextBufferWindow extends Window {
 			   differ in size) and text overflow bug/issue too.
 			 */
             setTypeface(TextBufferWindow.this.getDefaultTypeface());
+            // Behave more like a TextView instead of EditText
             setReadOnly(this, true);
 
             /* Typeface NOT ONLY! to be set here, since if other than text's one, it results in TextOverflow */
@@ -866,19 +874,18 @@ public class TextBufferWindow extends Window {
             view.setCursorVisible(!readOnly);
         }
 
-        /* Handles multiple new-line characters on after the other and acts accordingly. */
+        /* Handles multiple new-line characters, one after the other and acts accordingly. */
         private String stringHelper(int offset) {
             setSelection(offset);
             int maxEnd = getText().toString().length() - 1;
 
-            /*Firstly, beatify the selection clearing multiple whitespaces*/
+            /* Firstly, beatify the selection clearing multiple whitespaces */
             int selection;
 
             if (getSelectionStart() < maxEnd)
                 selection = getSelectionStart();
             else
                 selection = maxEnd;
-
 
             if (selection > 1 && Character.isWhitespace(getText().toString().charAt(selection - 1)) && !Character.isWhitespace(getText().toString().charAt(selection)))
                 ;//do nothing
@@ -887,7 +894,7 @@ public class TextBufferWindow extends Window {
                     selection--;
 
 
-            /*Secondly, determine end position of the selector*/
+            /* Secondly, determine end position of the selector */
             String substringStart = getText().toString().substring(selection);
             int nextSpaceIndex = maxEnd;
             for (int i = 0; i < substringStart.length() - 1; i++) {
@@ -902,7 +909,7 @@ public class TextBufferWindow extends Window {
             else
                 selectionEnd = maxEnd;
 
-            /*Thirdly, determine start position of the selector*/
+            /* Thirdly, determine start position of the selector */
             String beforeStart = getText().toString().substring(0, selection);
             int selectionStart = 0;
 
@@ -934,7 +941,7 @@ public class TextBufferWindow extends Window {
             return selectedText;
         }
 
-        /* Click-postion to TextView's text offset. */
+        /* Click-position to TextView's text offset. */
         private int getOffset(MotionEvent event) {
             Layout layout = getLayout();
             if (layout == null)
@@ -947,7 +954,7 @@ public class TextBufferWindow extends Window {
             return offset;
         }
 
-        // left off as a posibility to pass it through Clip-Board memory instead of directly setting it.
+        // left off as a possibility to pass it through Clip-Board memory instead of directly setting it.
         /**
          * private void putInClipMemory(String str) {
          * if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
@@ -1006,7 +1013,6 @@ public class TextBufferWindow extends Window {
                 TextBufferWindow.this.mCommandText = null;
             }
 
-            CharSequence buf = null;
             int i = TextUtils.lastIndexOf(t, '\n');
 
             if (i > -1) {
@@ -1025,9 +1031,9 @@ public class TextBufferWindow extends Window {
                 if (mLastLine.length() == 1)
                     ;//no prompt
                 else
-                    TextBufferWindow.this.setPrompt(mLastLine.subSequence(1, mLastLine.length()));
+                    setPrompt(mLastLine.subSequence(1, mLastLine.length()));
             } else {
-                TextBufferWindow.this.setPrompt(mLastLine);
+                setPrompt(mLastLine);
             }
         }
 
@@ -1157,6 +1163,8 @@ public class TextBufferWindow extends Window {
     }
 
 
+    private int windowLogicRunCount = 0;
+
     /*
     Issue #42 opened on GitHub to describe issue with layout on CAVERNS.Z5 with Nexus5 / Nexus6 in Portrait layout.
     One idea is to use https://github.com/lankton/android-flowlayout instead of Linearlayout Horizontal?
@@ -1167,6 +1175,7 @@ public class TextBufferWindow extends Window {
     Some discussion of layout: https://forums.xamarin.com/discussion/32039/align-textview-and-edittext-horizontaly
      */
     private void windowLayoutLogicA() {
+        windowLogicRunCount++;
         SharedPreferences sharedShortcutPrefs = mContext.getSharedPreferences("shortcutPrefs", Context.MODE_PRIVATE);
 
         mShortcutsEnabled = false;
@@ -1193,7 +1202,7 @@ public class TextBufferWindow extends Window {
             // default behavior of the app is to have no space at all on left/right side
             // Bottom padding of 16 seems to work better than 0
             mScrollView.setPadding(10, 0, 10, 16);
-            mScrollView.setBackgroundColor(Color.parseColor("#D4FF93"));
+            // mScrollView.setBackgroundColor(Color.parseColor("#D4FF93"));
         }
         mScrollView.setFocusable(false);
 
@@ -1263,6 +1272,11 @@ public class TextBufferWindow extends Window {
             mCommand2.setHint("______!!");
         }
 
+        // run test to see who has focus for Issue #43 hard keyboard problems.
+        if (windowLogicRunCount <= 1) {
+            mCommand2.checkupOnFocusView();
+        }
+
         // Change between mCommand1/mCommand2
         ToggleCommandView();
 
@@ -1272,8 +1286,7 @@ public class TextBufferWindow extends Window {
         mPrompt = new _PromptView(mContext);
         mPrompt.setPadding(pad, 0, pad, pad);
         mPrompt.setFocusable(false);
-        if (EasyGlobalsA.commandInput_Prompt_muckUpA)
-        {
+        if (EasyGlobalsA.commandInput_Prompt_muckUpA) {
             mPrompt.setPadding(12, 4, 12, 4);
             mPrompt.setBackgroundColor(Color.parseColor("#01AAFB"));
             mPrompt.setHint("_prompt_");
@@ -1811,7 +1824,7 @@ public class TextBufferWindow extends Window {
                     @Override
                     public void run() {
                         mActiveCommand.enableCharInput();
-                        mScrollView.fullScroll(View.FOCUS_DOWN);
+                        mScrollView.scrollToBottom();
                     }
                 });
     }
@@ -1822,7 +1835,6 @@ public class TextBufferWindow extends Window {
         if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
             Log.d("Glk/TextBufferWindow", "TextBufferWindow requestLineEvent");
         }
-        flush();
 
         Glk.getInstance().waitForUi(
                 new Runnable() {
@@ -1830,12 +1842,14 @@ public class TextBufferWindow extends Window {
                     public void run() {
                         // crash encountered here when quitting story
                         try {
+                            flush();
+
                             mLineEventBuffer = buffer;
                             mLineEventBufferLength = maxlen;
                             mLineEventBufferRock = retainVmArray(buffer, maxlen);
                             mUnicodeEvent = (unicode != 0);
                             mActiveCommand.enableInput();
-                            mScrollView.fullScroll(View.FOCUS_DOWN);
+                            mScrollView.scrollToBottom();
                         } catch (Exception e) {
                             Log.e(TAG, "Exception requestLineEvent", e);
                         }
