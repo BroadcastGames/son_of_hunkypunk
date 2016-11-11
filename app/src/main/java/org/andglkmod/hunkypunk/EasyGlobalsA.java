@@ -80,6 +80,10 @@ public class EasyGlobalsA {
     public static boolean commandInput_HardKeyboard_WorkaroundA = true;
 
     // Logging to try and determine typeface setting
-    public static boolean storyOutput_style_Typeface_LogA = true;
+    public static boolean storyOutput_style_Typeface_LogA = false;
     public static boolean storyOutput_style_Typeface_HonorMonospaceOverPrefsA = true;
+
+    public static boolean glk_c_to_java_select_LogA = true;
+    public static boolean glk_c_to_java_timer_LogA = true;
+    public static boolean glk_c_to_java_timer_SkipA = true;
 }

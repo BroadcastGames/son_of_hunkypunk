@@ -56,6 +56,9 @@ import java.util.ArrayList;
 
 /*
 Proper SDK 24 Activity
+
+ToDo: pause games in mid-play and see if we run into fatal crash
+  RuntimeException: android.os.TransactionTooLargeException: data parcel size 25605664 bytes
  */
 public class InterpreterActivity extends AppCompatActivity {
     private static final String TAG = "hunkypunk.Interpreter";

@@ -45,6 +45,7 @@ ToDo:
 5. Move Night Mode higher in preferences as most likley to be popular option. Also make it a checkbox on Menu?
 6. On Tablet emulator of Android 7.1.1, rotation results in focus los on input line with hard keyboard. And sometimes input below screen, manual pushing to scroll up required.
 7. Rotate does not redraw story output for centering. For example, the opening banner of beneath.z5 - render in landscape, rotate to portrait, and the Z-machine logic will not be centered.  Probably WONTFIX, but at minimum document it in release notes.
+8. Switch away from app during story to track down and solve "RuntimeException: android.os.TransactionTooLargeException: data parcel size 25605664 bytes"
 
 To Investigate:
 

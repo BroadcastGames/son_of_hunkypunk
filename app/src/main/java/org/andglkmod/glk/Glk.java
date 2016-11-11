@@ -275,6 +275,9 @@ Right now, this is crashing hard the app on Blu Studio Energy 2 Android 5.0:
 	@SuppressWarnings("unused")
 	private Event select()
 	{
+		if (EasyGlobalsA.glk_c_to_java_select_LogA){
+			Log.v("Glk.java", "select()");
+		}
 		flush();
 		Event ev;
 		while (true) {
@@ -306,6 +309,10 @@ Right now, this is crashing hard the app on Blu Studio Energy 2 Android 5.0:
 	public void postExitEvent() {
 		setExiting(true);
 		_eventQueue.add(new ExitEvent(Window.getRoot()));
+	}
+
+	public void postTimerEvent() {
+		_eventQueue.add(new TimerEvent(Window.getRoot()));
 	}
 
 	public boolean postAutoSaveEvent(String fileName) {
@@ -449,6 +456,29 @@ Right now, this is crashing hard the app on Blu Studio Energy 2 Android 5.0:
 		final Window root = Window.getRoot();
 		if (root != null)
 			root.flush();
+	}
+
+
+	@SuppressWarnings("unused")
+	public void requestTimer(int millisecs) {
+		if (EasyGlobalsA.glk_c_to_java_timer_LogA){
+			Log.d("Glk.java", "Glk.java requestTimer() " + millisecs);
+		}
+		if (! EasyGlobalsA.glk_c_to_java_timer_SkipA) {
+			try {
+				Thread.sleep((long) millisecs);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		postTimerEvent();
+	}
+
+	@SuppressWarnings("unused")
+	public void cancelTimer() {
+		if (EasyGlobalsA.glk_c_to_java_timer_LogA){
+			Log.d("Glk.java", "Glk.java timerCancel()");
+		}
 	}
 
 	public void onSelect(Runnable runnable) {

@@ -39,7 +39,7 @@ static JavaVM *_jvm;
 
 jclass _class;
 static jclass _Event, _LineInputEvent, _Window, _FileRef, _Stream, _PairWindow, _TextGridWindow,
-	_CharInputEvent, _ArrangeEvent, _MemoryStream, _CPointed, _ExitEvent, _AutoSaveEvent, _AutoRestoreEvent;
+	_CharInputEvent, _ArrangeEvent, _MemoryStream, _CPointed, _ExitEvent, _AutoSaveEvent, _AutoRestoreEvent, _TimerEvent;
 static jmethodID _getRock, _getPointer, _getDispatchRock, _getDispatchClass;
 
 /* this should be nulled on exit */
@@ -113,6 +113,9 @@ jint JNI_OnLoad(JavaVM *jvm, void *reserved)
 
 	cls = (*env)->FindClass(env, "org/andglkmod/glk/AutoSaveEvent");
 	_AutoSaveEvent = (*env)->NewGlobalRef(env, cls);
+
+	cls = (*env)->FindClass(env, "org/andglkmod/glk/TimerEvent");
+	_TimerEvent = (*env)->NewGlobalRef(env, cls);
 
 	cls = (*env)->FindClass(env, "org/andglkmod/glk/Window");
 	_Window = (*env)->NewGlobalRef(env, cls);
@@ -1272,6 +1275,10 @@ static void event2glk(JNIEnv *env, jobject ev, event_t *event)
 	} else if ((*env)->IsInstanceOf(env, ev, _ArrangeEvent)) {
 		event->type = evtype_Arrange;
 		event->val1 = event->val2 = 0;
+	} else if ((*env)->IsInstanceOf(env, ev, _TimerEvent)) {
+	    LOGW("got _TimerEvent");
+		event->type = evtype_Timer;
+		event->val1 = event->val2 = 0;
 	} else if ((*env)->IsInstanceOf(env, ev, _ExitEvent)) {
 		if (andglk_exit_hook) 
 			andglk_exit_hook();
@@ -1295,7 +1302,9 @@ static void event2glk(JNIEnv *env, jobject ev, event_t *event)
 			event->val1 = keycode_Unknown;
 		}
 		event->val2 = 0;
-	} 
+	} else {
+	    LOGW("unrecognized event in andglk.c");
+	}
 }
 
 void glk_select(event_t *event)
@@ -1322,9 +1331,37 @@ void glk_select_poll(event_t *event)
 	if (event) event->type = evtype_None;
 }
 
+
+static jint gli_timer_interval;
+
 void glk_request_timer_events(glui32 millisecs)
 {
-	/* TODO */
+    LOGV("andglk.c glk_request_timer_events %d", millisecs);
+    if ((jint)millisecs < 0) {
+        LOGW("request_timer_events: millisecs too large %d", millisecs);
+        return;
+    }
+
+    gli_timer_interval = (jint)millisecs;
+
+	JNIEnv *env = JNU_GetEnv();
+	static jmethodID mid = 0;
+	if (mid == 0)
+		mid = (*env)->GetMethodID(env, _class, "requestTimer", "(I)V");
+
+	static jmethodID methodID2 = 0;
+	if (methodID2 == 0)
+		methodID2 = (*env)->GetMethodID(env, _class, "cancelTimer", "()V");
+
+
+    // 0 indicates cancel, higher value is request for timer.
+    if (millisecs) {
+    	(*env)->CallVoidMethod(env, _this, mid, (jint)millisecs);
+        //(*jni_env)->CallVoidMethod(GLK_M(REQUESTTIMER), (jint)millisecs);
+    } else {
+    	(*env)->CallVoidMethod(env, _this, methodID2);
+        //(*jni_env)->CallVoidMethod(GLK_M(CANCELTIMER));
+    }
 }
 
 void gli_request_line_event(winid_t win, void *buf, glui32 maxlen, glui32 initlen, glui32 unicode)

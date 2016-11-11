@@ -147,6 +147,7 @@ static int timeout(void *data)
 
 void glk_request_timer_events(glui32 millisecs)
 {
+    LOGE("sysand.c glk_request_timer_events got called?");
 }
 
 void winabort(const char *fmt, ...)
