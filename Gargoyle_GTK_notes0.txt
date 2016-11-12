@@ -1,0 +1,11 @@
+If I understand things correctly, SOHP intended to use much of Gargoyle GTK's code and insert Java interfaces.
+
+It's worth pointing out: C and C++ programming is one of my weakest skills, so I don't really know what a good convention is for API and interfacing development.
+
+I do see benefit in trying to keep interpreter interfaces the same so updates to the 'core engine' of SOHP can be done more quickly. I spent a lot of time getting the Git interpreter updated to the newest version due to some C to Java jlong problems.
+
+Anway, without further ado, this file is intended to be a place to try and organize some notes on the Linux GLK version of Gargoyle:
+
+1. I have found the fonts to be problematic and SOHP is actually ahead of the Ubuntu 16.04 desktop experience. You can try all kinds of fonts but always seems to have trouble with mixed languages (Chinese and Arabic on the same story output with same font). One 2015 reference to this with Greek problems: http://www.intfiction.org/forum/viewtopic.php?f=18&t=9477&start=10 - Testing and revisit of this topic in October 2016: http://www.intfiction.org/forum/viewtopic.php?f=38&t=20694
+2. Year 2012 patches to add some more user-friendly features to Gargoyle GTK: http://www.intfiction.org/forum/viewtopic.php?f=38&t=6288
+3. February 2016 discussion to rework the OS interfaces to SDL2: http://www.intfiction.org/forum/viewtopic.php?f=38&t=19740

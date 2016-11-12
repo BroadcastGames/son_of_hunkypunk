@@ -392,19 +392,30 @@ public class TextGridWindow extends Window {
             canvas.drawText(mFrameBufTemp, y * mWidth + start, end - start, px + chw * start, py + chh * (y + 1) - p.descent(), p);
         }
 
+        public boolean inputSetupAlready = false;
+
+        // single-char input can be used by high-speed Interactive games like Tetris (freefall.z5).
+        // Some attempt here to cache.
         public void requestCharEvent() {
             if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
-                Log.d("Glk/TextGridWindow", "TextGridWindow requestCharEvent");
+                Log.d("Glk/TextGridWindow", "TextGridWindow requestCharEvent inputSetupAlready? " + inputSetupAlready);
             }
-            mGlk.waitForUi(new Runnable() {
-                @Override
-                public void run() {
-                    mCharEventPending = true;
-                    setEnabled(true);
-                    setFocusableInTouchMode(true);
-                    requestFocus();
-                }
-            });
+
+            if (! inputSetupAlready) {
+                mGlk.waitForUi(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCharEventPending = true;
+                        setEnabled(true);
+                        setFocusableInTouchMode(true);
+                        requestFocus();
+                        inputSetupAlready = true;
+                        if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+                            Log.d("Glk/TextGridWindow", "TextGridWindow requestCharEvent run() END");
+                        }
+                    }
+                });
+            }
         }
 
         @Override
@@ -628,8 +639,10 @@ public class TextGridWindow extends Window {
         return mView.getSize();
     }
 
+    // called by native c code
+    @SuppressWarnings("unused")
     public void moveCursor(int x, int y) {
-        if (EasyGlobalsA.glk_c_to_java_input_events_LogA) {
+        if (EasyGlobalsA.glk_c_to_java_output_moveCursor_LogA) {
             Log.d("Glk/TGW", "TextGridWindow moveCursor");
         }
         if (mView == null) return;

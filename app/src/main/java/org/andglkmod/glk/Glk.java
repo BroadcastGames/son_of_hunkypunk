@@ -127,9 +127,10 @@ public class Glk extends Thread {
 
 	native private void startTerp(String terpPath, String saveFilePath, int argc, String[] argv);
 
+
 	@Override
 	public void run() {
-		// Native C code ccan crash the App in nasty ways, best to check for obvious crash causes before we get into the native code.
+		// Native C code can crash the App in nasty ways, best to check for obvious crash causes before we get into the native code.
 		// Heavy defensive checks
 		// ToDo: display a message on the View when return happens?
 		if (_arguments[0] == null) {
@@ -193,6 +194,7 @@ Right now, this is crashing hard the app on Blu Studio Energy 2 Android 5.0:
 	}
 
 	// loader has successfully loaded and linked to glk interpreter and is about to start
+	// ToDo: implement C code that calls this method
 	public void notifyLinked() {
 		// just a concept, not sure if its useful
 	}
@@ -231,6 +233,7 @@ Right now, this is crashing hard the app on Blu Studio Energy 2 Android 5.0:
 					else
 					{
 						// ToDo: do we need this complicated overylay anyway, why not just insert a standard View?
+						// The overlay makes sense on normal end of game, but abnormal end (crash) or failed start, it does not.
 						Log.e("Glk/Java", "notifyQuit got zero height, user will get blank screen.");
 					}
 				}
@@ -302,6 +305,7 @@ Right now, this is crashing hard the app on Blu Studio Energy 2 Android 5.0:
 	}
 
 	public void postEvent(Event e) {
+		// certain events shoudl invoke an autosave of game play, although CharInputEvent in fast-paced game may be a bad idea.
 		_needToSave = _needToSave || (e instanceof CharInputEvent || e instanceof LineInputEvent);
 		_eventQueue.add(e);
 	}
@@ -317,14 +321,18 @@ Right now, this is crashing hard the app on Blu Studio Energy 2 Android 5.0:
 
 	public boolean postAutoSaveEvent(String fileName) {
 		if (_needToSave) {
+			Log.i("Glk.java", "Saved game.");
 			//Toast.makeText(mContext, "Saved game.", Toast.LENGTH_SHORT).show();
-			_eventQueue.add(new AutoSaveEvent(Window.getRoot(),fileName, 1)); //_autoSaveLineEvent));
+			_eventQueue.add(new AutoSaveEvent(Window.getRoot(), fileName, 1)); //_autoSaveLineEvent));
 			_needToSave = false;
 			return true;
 		}
 		return false;
 	}
 
+	/*
+	Todo: Explain the logic of this method and when it should and should-not be used
+	 */
 	public synchronized void waitForUi(final Runnable runnable) {
 		if (_exiting) return;
 
@@ -390,17 +398,27 @@ Right now, this is crashing hard the app on Blu Studio Energy 2 Android 5.0:
 	static final int[] sOne = { 1 };
 
 	public int[] gestalt(int sel, int val) {
-		
-		//Log.d("Glk","gestalt " + Integer.toString(sel));
+
+		if (EasyGlobalsA.glk_c_to_java_gestalt_LogA) {
+			Log.d("Glk","gestalt " + Integer.toString(sel));
+		}
 
 		switch (sel) {
 		case GESTALT_VERSION:
 			return new int[] { 0x700 };
 		case GESTALT_CHAROUTPUT:
-			if (isPrintable((char) val)) // we only do latin-1 ATM
-				return new int[] { GESTALT_CHAROUTPUT_EXACTPRINT, 1 };
-			else
-				return new int[] { GESTALT_CHAROUTPUT_CANNOTPRINT, 0 };
+			if (EasyGlobalsA.glk_gestalt_answerUnicdeTrue) {
+				// ToDo: basic range check for values like 0 and such that can never print?
+				return new int[]{GESTALT_CHAROUTPUT_EXACTPRINT, 1};
+			}
+			else {
+				// version 0.9 logic
+				// we only do latin-1 ATM
+				if (isPrintable((char) val))
+					return new int[]{GESTALT_CHAROUTPUT_EXACTPRINT, 1};
+				else
+					return new int[]{GESTALT_CHAROUTPUT_CANNOTPRINT, 0};
+			}
 		case GESTALT_LINEINPUT:
 			if (isPrintable((char) val) && val != 10)
 				return sOne;
@@ -412,11 +430,12 @@ Right now, this is crashing hard the app on Blu Studio Energy 2 Android 5.0:
 		case GESTALT_UNICODE:
 			Log.i("Glk.java", "GESTALT_UNICODE, was just asked if Unicode is supported!");
 			return sOne;
+		case GESTALT_TIMER:
+			return sOne;
 		default:
 			Log.w("Glk", "unhandled gestalt selector: " + Integer.toString(sel) + " (value " + val + ")");
 		// all below are TODO
 		case GESTALT_MOUSEINPUT:
-		case GESTALT_TIMER:
 		case GESTALT_GRAPHICS:
 		case GESTALT_DRAWIMAGE:
 		case GESTALT_GRAPHICSTRANSPARENCY:
@@ -458,20 +477,56 @@ Right now, this is crashing hard the app on Blu Studio Energy 2 Android 5.0:
 			root.flush();
 	}
 
+	// ToDo: AtomicBoolean to allow concurrency?
+	public static boolean timerTickingNow = false;
+	public boolean timerHasBeenCanceled = false;
+	public long timerRepeatInterval = 0L;
+	public Thread timerThread;
 
+	/*
+	A single timer. If you wanted to implement multiple timers, put this into a class and create an instance.
+	 */
 	@SuppressWarnings("unused")
-	public void requestTimer(int millisecs) {
+	public void requestTimer(final int millisecs) {
 		if (EasyGlobalsA.glk_c_to_java_timer_LogA){
 			Log.d("Glk.java", "Glk.java requestTimer() " + millisecs);
 		}
-		if (! EasyGlobalsA.glk_c_to_java_timer_SkipA) {
-			try {
-				Thread.sleep((long) millisecs);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+
+		if (timerTickingNow) {
+			Log.w("Glk.java", "Glk.java requestTimer() " + millisecs + " found overlapping timers");
 		}
-		postTimerEvent();
+
+		timerHasBeenCanceled = false;
+		timerTickingNow = false;
+		timerRepeatInterval = (long) millisecs;
+
+		timerThread = new Thread() {
+			@Override
+			public void run() {
+				int timerPostCount = 0;
+				while (! timerHasBeenCanceled) {
+					try {
+						timerTickingNow = true;
+						Thread.sleep(timerRepeatInterval);
+						timerTickingNow = false;
+						// check again in case cancel came in during sleep. Timers should otherwise repeat.
+						if (!timerHasBeenCanceled) {
+							if (EasyGlobalsA.glk_c_to_java_timer_LogA){
+								Log.d("Glk.java", "Glk.java requestTimer() " + millisecs + " posts " + timerPostCount + " " + Thread.currentThread());
+							}
+							// This is messy, because C code may be running async? Don't we really want synchronous behavior?
+							postTimerEvent();
+							timerPostCount++;
+						}
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		};
+
+		timerThread.setName("Glk_timerThread");
+		timerThread.start();
 	}
 
 	@SuppressWarnings("unused")
@@ -479,6 +534,7 @@ Right now, this is crashing hard the app on Blu Studio Energy 2 Android 5.0:
 		if (EasyGlobalsA.glk_c_to_java_timer_LogA){
 			Log.d("Glk.java", "Glk.java timerCancel()");
 		}
+		timerHasBeenCanceled = true;
 	}
 
 	public void onSelect(Runnable runnable) {

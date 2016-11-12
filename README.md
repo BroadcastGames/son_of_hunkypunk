@@ -5,6 +5,7 @@ Fork experimental development of Son of HunkyPunk, see the original project http
 So far, major changes beyond app version 0.9.0:
 
  1. Android Studio 2.2.2, SDK 24 and related Gradle updates.
+    Using NDK 12b, as NDK 13 requires rework of Android.mk makefiles and defaults to CLANG. Matter of getting right CLANG compile options or using NDK option to specify GCC.
  2. Git Interpreter upgraded from version 1.2.8 to version 1.3.4 with crash fixed due to long to jlong corruption.
  3. Some Git crashes are now trapped. It is still incomplete but less likely to hard-crash the entire app.
  4. RecyclerView GameListActivity now available. It is not very pretty and needs visual work, but it is a clean implementation and works with the established backend database.
@@ -17,7 +18,7 @@ So far, major changes beyond app version 0.9.0:
 
 Side effects of the upgrade:
 
-1. App Icon no longer apperas on the Title / Action Bar.  SDK 21 and newer convention change. Reference: http://stackoverflow.com/questions/26720759/no-app-icon-on-actionbar
+1. App Icon no longer apperas on the Title / Action Bar. SDK 21 and newer convention change. Reference: http://stackoverflow.com/questions/26720759/no-app-icon-on-actionbar
 2. Colors on app first install are no longer dark and is a bright color set.
 3. RecyclerView doesn't have the swipe navigation implemented.
 
@@ -42,17 +43,21 @@ ToDo:
 3. Simulate caps-lock on the Android input side, have a menu checkbox to enable. CAVERNS.Z5 game for example.
 4. If a single keystroke wait, remove the Shortcut list from the screen? A lot of stories have "press any key" prompts and a smarter use of shortcuts for this.
 4a. On yes/no prompts such as quit, can we detect these and present a specific set of Shortcut buttons?
-5. Move Night Mode higher in preferences as most likley to be popular option. Also make it a checkbox on Menu?
+5. Move Night Mode higher in preferences as most likely to be popular option. Also make it a checkbox on Menu?
 6. On Tablet emulator of Android 7.1.1, rotation results in focus los on input line with hard keyboard. And sometimes input below screen, manual pushing to scroll up required.
 7. Rotate does not redraw story output for centering. For example, the opening banner of beneath.z5 - render in landscape, rotate to portrait, and the Z-machine logic will not be centered.  Probably WONTFIX, but at minimum document it in release notes.
 8. Switch away from app during story to track down and solve "RuntimeException: android.os.TransactionTooLargeException: data parcel size 25605664 bytes"
+10. Starting stories that check screen size can have a race condition where they get incorrect screen size and you have to close and reopen the story. zracer.z5 for example. It fails about half the time on the AVD emulator on a slow system.
+
 
 To Investigate:
 
 1. bear.z5 opening message "[Please press SPACE to begin.]" is split on two lines? Gargoyle does not do this.
 2. Aug4.z8 opening message seems crammed on left 1/2 of the screen. Rotating to landscape reveals truncated message.
 3. When using emulator with SDK 25 guest. Using the real keyboard with on-screen turned off. Typing the first letter stalls input focus. "q" "uit" requires click to put focus back. anchor.z8 is example game. NOTE: Turning off "Shortcuts List" in preferences seems to eliminate this problem. Focus gets puton the Shortcuts?
-4. animals.z5 or beneath.z5 opening banner monospace font, why is font so bad?
+4. FIXED: animals.z5 or beneath.z5 opening banner monospace font, why is font so bad?
+5. Tetris (freefall.z5) does not draw it's bottom line correctly?
+6. Does the database backend (for RecyclerView List) overwrite identical games in the same path? What about two files with same name but different versions of code?
 
 Android 5.0 Blu Energy Studio 64-bit device failures
 
@@ -62,9 +67,9 @@ $ ls- l
 
 Testing on x86_64 Tablet, Android 5.1 X80 Pro, reveals odd behavior:
 
-1. even though System.getProperty("os.arch") shows x86_64, it seems to only load 32bit x86.
-2. deleting the x86 but not x86_64 from jniLibs (and verify missing from apk zip) results in it shifting to arm7l for System.getProperty("os.arch")
+1. even though System.getProperty("os.arch") shows x86_64, it seems to only load 32bit x86. How do you really know which is loaded?
+2. deleting the x86 but not x86_64 from jniLibs (and verify missing from apk zip) results in it shifting to arm7l for System.getProperty("os.arch"). Conclusion: os.arch is the selected runtime fallback, not the actual hardware capability.
 
-For now, the solution seems to be to make sure jniLibs has no 64bit binaries.  This forces the target device to run in 32-bit for the C code.
+For now, the solution seems to be to make sure jniLibs has no 64bit binaries until the the code for C <--> Java is properly 64-bit safe.  This forces the target device to run in 32-bit for the C code.
  
-NOTE: Twisty seems to work fine with two interpreters on Android 64bit, so the issue seems to be here in how SOHP passes pointers between C and Java.
+NOTE: Twisty seems to work fine with two interpreters on Android 64bit tested on Intel x64 tablet and Blu arm64, so the issue seems to be here in how SOHP passes pointers between C and Java.

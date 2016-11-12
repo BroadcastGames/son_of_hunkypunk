@@ -86,4 +86,10 @@ public class EasyGlobalsA {
     public static boolean glk_c_to_java_select_LogA = true;
     public static boolean glk_c_to_java_timer_LogA = true;
     public static boolean glk_c_to_java_timer_SkipA = true;
+
+    public static boolean glk_c_to_java_output_moveCursor_LogA = false;
+    public static boolean glk_c_to_java_gestalt_LogA = true;
+
+    // 0.9 answered no, newer yes
+    public static boolean glk_gestalt_answerUnicdeTrue = true;
 }

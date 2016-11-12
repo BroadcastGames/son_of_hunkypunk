@@ -387,6 +387,7 @@ zchar os_read_key (int timeout, bool show_cursor)
 			break;
 	}
 
+    // cancel timer event
 	glk_request_timer_events(0);
 
 	if (gos_upper && mach_status_ht < curr_status_ht)

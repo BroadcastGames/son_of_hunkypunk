@@ -1424,11 +1424,13 @@ void glk_request_char_event(winid_t win)
 		mid = (*env)->GetMethodID(env, _Window, "requestCharEvent", "()V");
 
 	(*env)->CallVoidMethod(env, *win, mid);
+	LOGV("andglk.c glk_request_char_event END");
 }
 
 void glk_request_mouse_event(winid_t win)
 {
 	/* TODO */
+	LOGW("andglk.c ToDo: glk_request_mouse_event");
 }
 
 void glk_cancel_line_event(winid_t win, event_t *event)
