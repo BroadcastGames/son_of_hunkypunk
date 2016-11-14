@@ -58,6 +58,9 @@ To Investigate:
 4. FIXED: animals.z5 or beneath.z5 opening banner monospace font, why is font so bad?
 5. Tetris (freefall.z5) does not draw it's bottom line correctly?
 6. Does the database backend (for RecyclerView List) overwrite identical games in the same path? What about two files with same name but different versions of code?
+7. City of Secrets v3 exits on 'about' command?
+8. ats.z8 "A Tight Spot" glitches on opening?
+
 
 Android 5.0 Blu Energy Studio 64-bit device failures
 
