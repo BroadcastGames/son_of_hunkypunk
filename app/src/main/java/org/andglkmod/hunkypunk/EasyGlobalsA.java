@@ -9,7 +9,7 @@ import java.io.File;
  */
 
 public class EasyGlobalsA {
-    public static boolean glk_c_to_java_char_loggingA = false;
+    public static boolean glk_c_to_java_char_loggingA = true;
     public static boolean glk_c_to_java_string_loggingA = false;
     public static boolean glk_c_to_java_output_appendA = true;
     public static boolean glk_c_to_java_output_flushA = false;
@@ -90,6 +90,8 @@ public class EasyGlobalsA {
     public static boolean glk_c_to_java_output_moveCursor_LogA = false;
     public static boolean glk_c_to_java_gestalt_LogA = true;
 
-    // 0.9 answered no, newer yes
-    public static boolean glk_gestalt_answerUnicdeTrue = true;
+    // 0.9 answered no, newer versions answer yes
+    public static boolean glk_gestalt_answerUnicodeTrue = true;
+
+    public static boolean glk_c_to_java_stream_loggingA = true;
 }

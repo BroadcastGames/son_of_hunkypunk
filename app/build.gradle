@@ -37,6 +37,11 @@ android {
 
     // the applicationId is now decoupled http://tools.android.com/tech-docs/new-build-system/applicationid-vs-packagename
     defaultConfig {
+        // Enable the experimental Jack build tools.
+        jackOptions {
+            enabled true
+        }
+
         applicationId apkApplicationId
         minSdkVersion 14
         targetSdkVersion 25

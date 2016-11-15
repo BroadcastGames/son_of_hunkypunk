@@ -598,6 +598,7 @@ void glk_window_move_cursor(winid_t win, glui32 xpos, glui32 ypos)
 
 strid_t glk_window_get_stream(winid_t win)
 {
+    LOGV("DEBUG_EXTRA_B andglk.c glk_window_get_stream");
 	strid_t str = gli_find_window_stream(win);
 
 	if (!str) {
@@ -608,6 +609,7 @@ strid_t glk_window_get_stream(winid_t win)
 
 		jobject obj = (*env)->CallObjectMethod(env, *win, mid);
 		if (obj) {
+		    LOGV("DEBUG_EXTRA_B andglk.c glk_window_get_stream getStream call to Java");
 			str = gli_new_stream(strtype_Window, FALSE, TRUE, 0, FALSE);
 			str->st = (jobject*) (*env)->CallIntMethod(env, obj, _getPointer);
 			(*env)->DeleteLocalRef(env, obj);
@@ -923,6 +925,7 @@ void glk_put_char_stream_uni(strid_t str, glui32 ch)
 
 void glk_put_char_stream(strid_t str, unsigned char ch)
 {
+    LOGV("DEBUG_EXTRA_A andglk.c glk_put_char_stream '%c'", ch);
 	if (!str) return;
 
 	if (str->type == strtype_File) {
@@ -934,16 +937,24 @@ void glk_put_char_stream(strid_t str, unsigned char ch)
 		}
 		//fflush(str->file);
 	} else {
-	    //LOGV("andglk.c glk_put_char_stream calling Java putChar");
+	    LOGV("DEBUG_EXTRA_A andglk.c glk_put_char_stream calling Java putChar str->type %d str id %d", str->type, str->st);
 		JNIEnv *env = JNU_GetEnv();
 		static jmethodID mid = 0;
-		if (mid == 0)
+		if (mid == 0) {
 			mid = (*env)->GetMethodID(env, _Stream, "putChar", "(C)V");
+			if (NULL == mid) {
+			    LOGE("andglk.c glk_put_char_stream GetMethodID 'putChar' failed");
+			    return;
+			}
+        }
 
+	    LOGV("DEBUG_EXTRA_A andglk.c glk_put_char_stream calling Java putChar CHECKPOINT_A writecount %d", str->writecount);
 		(*env)->CallVoidMethod(env, *(str->st), mid, (jchar) ch);
+	    LOGV("DEBUG_EXTRA_A andglk.c glk_put_char_stream calling Java putChar CHECKPOINT_B");
 	}
 
 	str->writecount++;
+    LOGV("DEBUG_EXTRA_A andglk.c glk_put_char_stream END '%c' writecount %d", ch, str->writecount);
 }
 
 void glk_put_string(char *s)

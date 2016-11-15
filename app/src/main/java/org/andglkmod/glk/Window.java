@@ -132,6 +132,9 @@ public abstract class Window extends CPointed {
 	 * @param c
 	 */
 	public void putChar(char c) {
+		if (EasyGlobalsA.glk_c_to_java_char_loggingA) {
+			Log.v("Glk/Java", "Winow.java putChar '" + c + "'");
+		}
 		mStream.putChar(c);
 	}
 	
@@ -263,6 +266,9 @@ public abstract class Window extends CPointed {
 	public abstract int getType();
 	
 	public org.andglkmod.glk.Stream getStream() {
+		if (EasyGlobalsA.glk_c_to_java_stream_loggingA) {
+			Log.d("Glk/Window", "Window.java getStream call, stream " + mStream);
+		}
 		return mStream;
 	}
 	
@@ -317,6 +323,9 @@ public abstract class Window extends CPointed {
 		
 		@Override
 		public void putChar(char c) {
+			if (EasyGlobalsA.glk_c_to_java_char_loggingA) {
+				Log.v("Glk/Java", "Window.java Stream putChar '" + c + "'");
+			}
 			if (mEchoStream != null)
 				mEchoStream.putChar(c);
 			super.putChar(c);

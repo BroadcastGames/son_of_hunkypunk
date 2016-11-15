@@ -407,7 +407,7 @@ Right now, this is crashing hard the app on Blu Studio Energy 2 Android 5.0:
 		case GESTALT_VERSION:
 			return new int[] { 0x700 };
 		case GESTALT_CHAROUTPUT:
-			if (EasyGlobalsA.glk_gestalt_answerUnicdeTrue) {
+			if (EasyGlobalsA.glk_gestalt_answerUnicodeTrue) {
 				// ToDo: basic range check for values like 0 and such that can never print?
 				return new int[]{GESTALT_CHAROUTPUT_EXACTPRINT, 1};
 			}

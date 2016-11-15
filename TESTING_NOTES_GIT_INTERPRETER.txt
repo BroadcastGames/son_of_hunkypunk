@@ -29,3 +29,24 @@ Text coloring results in invisible text
 
 1. "rover.gblorb" will not show the blue text that works on other interpreters. These appear early in the game.
 
+
+Details on problems
+========================
+****: Molly and the Butter Thieves
+
+Is it memory stream that is the reason this story crashes and others do not? str->type 3 is MEMORY stream.
+Seems like C code is creating the memory stream purely on C side. Then NDK tries to find it? But I see no evidence that Java side getStream ever called.
+
+11-14 09:22:36.909 1388-1429/org.andglkmod.hunkypunk.dev D/HunkyPunk: cgstream.c glk_stream_open_memory_uni start
+11-14 09:22:36.909 1388-1429/org.andglkmod.hunkypunk.dev D/HunkyPunk: cgstream.c glk_stream_open_memory_uni CHECKPOINT_A
+11-14 09:22:36.909 1388-1429/org.andglkmod.hunkypunk.dev D/HunkyPunk: cgstream.c glk_stream_open_memory_uni end
+11-14 09:22:36.909 1388-1429/org.andglkmod.hunkypunk.dev V/HunkyPunk: DEBUG_EXTRA_A andglk.c glk_put_char_stream '#'
+11-14 09:22:36.909 1388-1429/org.andglkmod.hunkypunk.dev V/HunkyPunk: DEBUG_EXTRA_A andglk.c glk_put_char_stream calling Java putChar str->type 3
+11-14 09:22:36.909 1388-1429/org.andglkmod.hunkypunk.dev V/HunkyPunk: DEBUG_EXTRA_A andglk.c glk_put_char_stream calling Java putChar CHECKPOINT_A writecount 0
+
+Made MemoryStreamTestB to reproduce crash, key thing is extension Text Capture by Eric Eve.
+
+
+****: Timer testing / understanding how they are supposed to behave:
+
+http://www.intfiction.org/forum/viewtopic.php?f=7&t=4092

@@ -60,6 +60,7 @@ To Investigate:
 6. Does the database backend (for RecyclerView List) overwrite identical games in the same path? What about two files with same name but different versions of code?
 7. City of Secrets v3 exits on 'about' command?
 8. ats.z8 "A Tight Spot" glitches on opening?
+9. Search code for "todo -- transcript is broken" - is this on a ToDo list and in user docs?
 
 
 Android 5.0 Blu Energy Studio 64-bit device failures

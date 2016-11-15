@@ -1,0 +1,12 @@
+Memory stream request:
+
+1.
+http://rec.arts.int-fiction.narkive.com/ZfoJ7sOX/glulx-extant-story-files-doing-strange-things-with-glk
+"I tried to get it to play the Blorbed Glulx version of Emily Short's _Pytho's Mask_, whereupon it displayed the initial image, then immediately aborted with "byte load out of range" as soon as I hit a key. Naturally, canonical Glulxe ran the file just fine, so I went into the C debugger to figure out what was going on."
+
+2.
+http://www.intfiction.org/forum/viewtopic.php?t=5518&p=40124
+performance of multiple streams, tests
+
+3.
+Made MemoryStreamTestB to reproduce crash, key thing is extension Text Capture by Eric Eve.
