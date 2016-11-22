@@ -44,7 +44,7 @@ Seems like C code is creating the memory stream purely on C side. Then NDK tries
 11-14 09:22:36.909 1388-1429/org.andglkmod.hunkypunk.dev V/HunkyPunk: DEBUG_EXTRA_A andglk.c glk_put_char_stream calling Java putChar str->type 3
 11-14 09:22:36.909 1388-1429/org.andglkmod.hunkypunk.dev V/HunkyPunk: DEBUG_EXTRA_A andglk.c glk_put_char_stream calling Java putChar CHECKPOINT_A writecount 0
 
-Made MemoryStreamTestB to reproduce crash, key thing is extension Text Capture by Eric Eve.
+Made MemoryStreamTestB to reproduce crash, key thing is extension Text Capture by Eric Eve. Twisty seems to run this fine.
 
 
 ****: Timer testing / understanding how they are supposed to behave:
