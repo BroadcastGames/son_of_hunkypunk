@@ -34,12 +34,12 @@
         android:id="@+id/message_file_permissions_ready00"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="File access permisionss are now ready, press the big Go! button to get things started. Thank you!"
+        android:text="File access permissions are now ready, press the big Go! button to get things started. Thank you!"
         android:visibility="gone"
         />
 
     <Button
-        android:id="@+id/button_permisisons_ready0"
+        android:id="@+id/button_permissions_ready0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Go!"
