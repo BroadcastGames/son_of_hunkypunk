@@ -46,8 +46,8 @@ public class GameListActivityWelcomeFragment extends Fragment {
         if (GameListActivity.fileSystemStoragePermissionsReady)
         {
             if (getView() != null) {
-                getView().findViewById(R.id.button_permisisons_ready0).setVisibility(View.VISIBLE);
-                getView().findViewById(R.id.button_permisisons_ready0).setOnClickListener(new View.OnClickListener() {
+                getView().findViewById(R.id.button_permissions_ready0).setVisibility(View.VISIBLE);
+                getView().findViewById(R.id.button_permissions_ready0).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Log.i("WelcomeFragment", "click on GO! button");
