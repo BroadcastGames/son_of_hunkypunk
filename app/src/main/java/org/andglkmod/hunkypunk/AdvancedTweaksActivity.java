@@ -97,7 +97,7 @@ public class AdvancedTweaksActivity extends AppCompatActivity {
     }
 
     /*
-    Not desinged for good peformance, is only used rarely.
+    Not desinged for good performance, is only used rarely.
      */
     public void outputInformationAboutDirectory(String label, File targetDirectory, TextView outputView) {
         outputView.append(buildTextA(label));

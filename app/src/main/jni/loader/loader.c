@@ -83,7 +83,7 @@ JNIEXPORT void Java_org_andglk_glk_Glk_startTerp
     /*
     DESIGN THOUGHTS:
        design here seems to be to load native code from within native code, not up on the Android java side of the app. On some device
-       framework implemens and architectures that might prove a security problem as it may seem like loading 'downloaded off the Internet code' that
+       framework implements and architectures that might prove a security problem as it may seem like loading 'downloaded off the Internet code' that
        Google's Play Store bouncer would not test.
    */
 	// load game plugin lib

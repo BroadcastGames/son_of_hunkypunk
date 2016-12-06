@@ -15,7 +15,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * Welcome to the App first time, permission issue
- * NOTE: If the user presses "dney", the app will no longer prompt and user must manully go into Settings to grant.
+ * NOTE: If the user presses "deny", the app will no longer prompt and user must manually go into Settings to grant.
  *     ToDo: detect this situation and display detailed instructions?
  *     User is likely to conclude that uninstall/re-install fixed problem...
  */

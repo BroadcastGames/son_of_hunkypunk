@@ -31,7 +31,7 @@ import org.greenrobot.eventbus.EventBus;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  *
- * ToDo: the ListActivity that this RecylcerView replaced had a swipe left/right on the Game Details page. This now crashes on this page.
+ * ToDo: the ListActivity that this RecyclerView replaced had a swipe left/right on the Game Details page. This now crashes on this page.
  */
 public class GameListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, GameListClickListener {
 
@@ -184,7 +184,7 @@ public class GameListFragment extends Fragment implements LoaderManager.LoaderCa
 
         Intent i = new Intent(Intent.ACTION_VIEW, HunkyPunk.Games.uriOfDataRecordId(viewHolder.dataRecordId), getActivity(), GameDetails.class);
         i.putExtra("position", position); // commit the position of the clicked item
-        i.putExtra("ifIDs", viewHolder.gameIdentity0); //commiting the array, where the positions matches the ids
+        i.putExtra("ifIDs", viewHolder.gameIdentity0); // committing the array, where the positions matches the ids
         startActivity(i);
     }
 

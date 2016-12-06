@@ -67,7 +67,7 @@ public class GameListActivity extends AppCompatActivity implements GameListFragm
             public void onClick(View view) {
                 Snackbar.make(view, "Recreate the Activity", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                // Recreate the Actiivity
+                // Recreate the Activity
                 view.postDelayed(new Runnable() {
                     @Override
                     public void run() {

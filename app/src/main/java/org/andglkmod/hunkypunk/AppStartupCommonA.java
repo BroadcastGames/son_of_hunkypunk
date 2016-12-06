@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Common methods when app starts up. Allows multiple activities to be the 'staritng point' of the app
- * and sitll share common code for creating folders, etc.
+ * Common methods when app starts up. Allows multiple activities to be the 'starting point' of the app
+ * and still share common code for creating folders, etc.
  */
 
 public class AppStartupCommonA {
@@ -91,7 +91,7 @@ public class AppStartupCommonA {
             Testing notes: using the Android 7.0 emulator with an external SD, the path /storage/XXXX-XXXX comes up but no way have
               I found a way to get the 'root' of a free SD Card.  The Emulator internal screens gave option to encrypt or allow
               mounting on other devices. Even when saying to not encrypt, the root isn't really exposed on any API call I have found.
-              None of the environment variables point to this parth.  So, one appraoch is to ask for the app-specific path and strip
+              None of the environment variables point to this parth.  So, one approach is to ask for the app-specific path and strip
               out the app-specific components.
              */
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
