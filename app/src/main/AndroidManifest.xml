@@ -110,6 +110,8 @@
                 <data android:mimeType="application/x-tads" />
                 <data android:mimeType="application/x-blorb;profile=zcode" />
                 <data android:mimeType="application/x-blorb" />
+                <data android:mimeType="application/x-glulx" />
+                <data android:mimeType="application/x-t3vm-image" />
                 <data android:host="*" />
             </intent-filter>
 
